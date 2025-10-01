@@ -14,9 +14,6 @@ This Turborepo includes the following:
 - `@repo/styling`: CSS files for the styles, common in all the apps
 - `@repo/common`: Common code
 - `@repo/connection`: I don't know if we will use it. But is to put all the code for connections (or api calls, idk)
-- `@repo/eslint-config`: ESLint presets
-- `@repo/typescript-config`: tsconfig.json's used throughout the monorepo
-- `@repo/jest-presets`: Jest configurations
 
 ### Docker
 
