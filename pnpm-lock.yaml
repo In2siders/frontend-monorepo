@@ -17,6 +17,15 @@ importers:
 
   apps/desktop:
     dependencies:
+      '@repo/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@repo/components':
+        specifier: workspace:*
+        version: link:../../packages/components
+      '@repo/connection':
+        specifier: workspace:*
+        version: link:../../packages/connection
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -69,6 +78,15 @@ importers:
 
   apps/web:
     dependencies:
+      '@repo/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@repo/components':
+        specifier: workspace:*
+        version: link:../../packages/components
+      '@repo/connection':
+        specifier: workspace:*
+        version: link:../../packages/connection
       react:
         specifier: ^19.1.1
         version: 19.1.1
@@ -112,9 +130,9 @@ importers:
 
   packages/common: {}
 
-  packages/connection: {}
+  packages/components: {}
 
-  packages/styling: {}
+  packages/connection: {}
 
 packages:
 
