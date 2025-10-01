@@ -11,5 +11,8 @@
   "devDependencies": {
     "typescript": "~5.8.3",
     "vite": "^7.1.7"
+  },
+  "dependencies": {
+    "@repo/styling": "workspace:*"
   }
 }
