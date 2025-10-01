@@ -8,41 +8,32 @@ This Turborepo includes the following:
 
 ### Apps and Packages
 
-- `web`: a [Next.js](https://nextjs.org/) app
-- `server`: an [Express](https://expressjs.com/) server
-- `desktop`: a React component library
+- `web`: Vanilla JS app w. Vite
+- `desktop`: Electron App w. Vite
 - `@repo/styling`: CSS files for the styles, common in all the apps
 - `@repo/common`: Common code
 - `@repo/connection`: I don't know if we will use it. But is to put all the code for connections (or api calls, idk)
 
-### Docker
+## Ejecutar
 
-This repo is configured to be built with Docker, and Docker compose. To build all apps in this repo:
-
-```
-# Install dependencies
+```bash
 pnpm install
 
-# Create a network, which allows containers to communicate
-# with each other, by using their container name as a hostname
-docker network create app_network
-
-# Build prod using new BuildKit engine
-COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml build
-
-# Start prod in detached mode
-docker-compose -f docker-compose.yml up -d
+pnpm run dev
 ```
 
-Open http://localhost:3000.
+## Reglas para colaborar
 
-To shutdown all running containers:
+Diferenciamos dos ramas:
 
-```
-# Stop running containers started by docker-compse
- docker-compose -f docker-compose.yml down
-```
+- `master`
+- `dev`
 
-## Commit Instructions
+`master` es nuestra version en producción (una version sin errores a poder ser). Y la versión `dev` es nuestrsa version en espera de perfección.
 
-idk, i will complete this in a future
+Si quieres arreglar algun problema de la rama `dev` debes clonar la rama y hacer los cambios ahí, o si quieres añadir algun cambio, puedes clonar la rama `master` y hacer los cambios ahí.
+
+Para subir los cambios, debes crear una nueva rama, la rama se debe llamar `tuUsername-dev-elCambioResumidamente`. Por ejemplo,
+yo hago que el servidor espere en otro puerto, pues quedaria: `ezequiel-dev-server-puerto-nuevo`
+
+Luego para añadir los cambios, hago una Pull Request de mi rama, a la rama dev y esperamos a que el equipo apruebe la solicitud (3 solicitudes requeridas, sin contar al autor.)
