@@ -5,3 +5,15 @@ export function Button() {
         <button className="btn">Click me</button>
     );
 }
+
+export function LoginButton() {
+    return (
+        <button className="btn">Log In</button>
+    );
+}
+
+export function RegisterButton() {
+    return (
+        <button className="btn">Register</button>
+    );
+}
