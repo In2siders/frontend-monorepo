@@ -1,3 +1,4 @@
+// @repo/common/Utils/useSocket.ts (Para acceso Facil)
 import { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 
