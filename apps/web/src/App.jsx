@@ -1,6 +1,4 @@
-import { Button } from "@repo/components/button";
-import { RegisterButton } from '@repo/components/button-register';
-import { LoginButton } from '@repo/components/button-login';
+import { LoginButton, RegisterButton } from "@repo/components/button";
 import '@repo/common/style.css'
 
 function App() {
