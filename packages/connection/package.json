@@ -3,7 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
-  "files": [],
-  "exports": {},
-  "dependencies": {}
+  "files": [
+    "hooks",
+    "utils"
+  ],
+  "dependencies": {
+    "openpgp": "^6.2.2"
+  }
 }
