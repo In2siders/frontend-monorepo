@@ -1,23 +1,27 @@
-import { LoginButton, RegisterButton } from "@repo/components/button";
 import '@repo/common/style.css'
+import Home from './pages/home'
+import Register from './pages/auth/register'
+import Login from './pages/auth/login'
+// import Chat from './pages/chat/index'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link
+} from 'react-router-dom'
 
 function App() {
   return (
-
-    <div className="bg">
-      <div className="container">
-        <div className="login-menu">
-          <div className="login-title">
-            Title
-          </div>
-          <RegisterButton />
-          <LoginButton />
-          <div className="ayuda">
-            Help
-          </div>
-        </div>
+    <Router>
+      <div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/auth/register" element={<Register />} />
+          <Route path="/auth/login" element={<Login />} />
+          {/* <Route path="/chat" element={<Chat />} /> */}
+        </Routes>
       </div>
-    </div>
+    </Router>
   )
 }
 
