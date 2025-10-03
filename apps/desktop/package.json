@@ -14,7 +14,8 @@
     "@repo/components": "workspace:*",
     "@repo/connection": "workspace:*",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^7.9.3"
   },
   "devDependencies": {
     "@repo/tailwind-config": "workspace:*",
