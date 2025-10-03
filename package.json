@@ -18,5 +18,10 @@
     "node": ">=14.0.0",
     "npm": ">=7.0.0"
   },
-  "packageManager": "pnpm@10.18.0"
+  "packageManager": "pnpm@10.18.0",
+  "dependencies": {
+    "@types/react": "^19.2.0",
+    "react": "^19.2.0",
+    "socket.io-client": "^4.8.1"
+  }
 }
