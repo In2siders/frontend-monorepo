@@ -4,5 +4,6 @@ packages:
 
 onlyBuiltDependencies:
   - '@swc/core'
+  - '@tailwindcss/oxide'
   - electron
   - esbuild
