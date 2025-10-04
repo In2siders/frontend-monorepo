@@ -2,13 +2,13 @@ import { generateKey } from 'openpgp/lightweight';
 
 export async function generateUserKey(username: string) {
     const userMaskedEmail = `masked+${username}@app-domain.com`;
-    const { privateKey } = await generateKey({
+    const { privateKey, publicKey, revocationCertificate } = await generateKey({
         userIDs: [
             { name: username, email: userMaskedEmail }
         ],
         curve: 'nistP384',
     });
-    return privateKey;
+    return { username, privateKey, publicKey };
 }
 
 export async function sendAuthRequest(username: string, pgpPublicKey: string) {
