@@ -1,21 +1,187 @@
+/* ====== Base Button Styles ====== */
+
+/* ====== Base Button Styles ====== */
 .btn {
-    background-color: #000;
-
-    color: white;    
-    font-weight: bold;
-    font-size: large;
-
-    padding: 10px 20px;
-    margin-bottom: 10px;
-
-    width: 100%;
-    height: auto;
-
-    border: 1px solid #FFF;
-    border-radius: 35px;
+    /* Layout */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    /* Typography */
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    white-space: nowrap;
+    
+    /* Spacing */
+    padding: 12px 24px;
+    min-width: 120px;
+    min-height: 44px;
+    
+    /* Styling */
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+    color: #ffffff;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    
+    /* Ensure proper rendering */
+    overflow: hidden;
+    
+    /* Interaction */
     cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+    user-select: none;
+    
+    /* Prevent layout shift */
+    box-sizing: border-box;
 }
 
-.btn:hover {
-    background-color: #444;
+/* ====== Button States ====== */
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.15) 100%);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ====== Button Variants ====== */
+.btn-primary {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-accent {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    border-color: rgb(102, 126, 234);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-accent:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: none;
+}
+
+.btn-ghost:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ====== Button Sizes ====== */
+.btn-small {
+    padding: 8px 16px;
+    min-width: 80px;
+    min-height: 36px;
+    font-size: 0.875rem;
+}
+
+.btn-large {
+    padding: 16px 32px;
+    min-width: 160px;
+    min-height: 52px;
+    font-size: 1.1rem;
+}
+
+.btn-icon {
+    padding: 12px;
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
+}
+
+.btn-icon.btn-small {
+    padding: 8px;
+    min-width: 36px;
+    width: 36px;
+    height: 36px;
+}
+
+/* ====== Button with Icons ====== */
+.btn-icon-left {
+    flex-direction: row;
+}
+
+.btn-icon-right {
+    flex-direction: row-reverse;
+}
+
+/* ====== Full Width Button ====== */
+.btn-full {
+    width: 100%;
+}
+
+/* ====== Responsive Design ====== */
+@media (max-width: 640px) {
+    .btn {
+        min-width: 100px;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .btn-large {
+        padding: 14px 28px;
+        font-size: 1rem;
+    }
+}
+
+/* ====== Button Group Support ====== */
+.btn-group {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-group .btn {
+    flex: 1;
+}
+
+.btn-group-vertical {
+    flex-direction: column;
+}
+
+.btn-group-horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
 }

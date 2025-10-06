@@ -2,30 +2,31 @@ import { useEffect, useState } from 'react'
 import { generateUserKey } from '@repo/connection/utils/userRegistration'
 import { Button } from '@repo/components/button'
 import { Card } from '@repo/components/card'
+import '@repo/common/style.css'
 
 const FirstStep = ({ onNext }) => (
-  <div className='max-w-lg mx-auto border border-white bg-slate-800 p-8 rounded-md text-gray-300'>
-    <h2>Read before continue</h2>
-    <div className='mb-4 text-sm space-y-2'>
-      <p>This application uses PGP keys for authentication.</p>
-      
-      <p>
-      Both keys, public and private are generated in your browser and the private key is stored in your browser's local storage.
-      The public key is sent to the server with your username to create your account.
-      </p>
-      
-      <p className='bg-red-600/60 text-white p-2 rounded border border-black my-6'>
-      <strong>Important:</strong> If you clear your browser's local storage or use a different browser or device, you will lose access to your account.
-      Make sure to back up your private key if you want to access your account from another device or after clearing your browser data.
-      </p>
-      <p>
-      We are working on a feature to allow you to export your private key for backup purposes.
-      </p>
-      <p>
-      By clicking "Next", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.
-      </p>
+  <div className="container">
+    <h1 className="title">Create Account</h1>
+    <p className="subtitle">This application uses PGP keys for authentication.</p>
+    
+    <div className="content-section">
+      <p>Both keys, public and private are generated in your browser and the private key is stored in your browser's local storage. The public key is sent to the server with your username to create your account.</p>
     </div>
-    <Button onClick={onNext}>Next</Button>
+    
+    <div className="warning">
+      <h2>Important</h2>
+      <strong>If you clear your browser's local storage or use a different browser or device, you will lose access to your account.</strong>
+      <br />
+      Make sure to back up your private key if you want to access your account from another device or after clearing your browser data.
+    </div>
+    
+    <div className="content-section">
+      <p>We are working on a feature to allow you to export your private key for backup purposes.</p>
+      
+      <p>By clicking "Next", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.</p>
+    </div>
+    
+    <Button variant="accent" width="full" onClick={onNext}>Next</Button>
   </div>
 )
 
@@ -67,15 +68,26 @@ const SecondStep = ({ onNext, onBack }) => {
   }
 
   return (
-    <Card className='max-w-lg mx-auto bg-white/80 border border-white p-8 rounded-md text-gray-300'>
-      <h2>Create your account</h2>
-      {loading ? (<p>Loading...</p>) : (
-        <form onSubmit={processUserRegistration}>
-          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
-          <button type="submit">Register</button>
+    <div className="container">
+      <h1 className="title">Choose Username</h1>
+      <p className="subtitle">Enter your desired username</p>
+      
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <form onSubmit={processUserRegistration} className="form-group">
+          <input 
+            type="text" 
+            value={username} 
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter username"
+            className="input"
+            required
+          />
+          <Button variant="accent" width="full" type="submit">Register</Button>
         </form>
       )}
-    </Card>
+    </div>
   )
 }
 
@@ -88,13 +100,13 @@ function RegisterPage() {
   ]
 
   return (
-    <div className='max-w-2xl mx-auto p-4'>
-      <div className='flex justify-between mb-4 space-x-12'>
-        <Button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} >
-          {'<'}
+    <div>
+      <div className='button-group-horizontal' style={{ marginBottom: '24px' }}>
+        <Button variant="ghost" size="small" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>
+          ← Previous
         </Button>
-        <Button onClick={() => setStep(Math.min(step + 1, stepAssignment.length - 1))} disabled={step === stepAssignment.length - 1}>
-          {'>'}
+        <Button variant="ghost" size="small" onClick={() => setStep(Math.min(step + 1, stepAssignment.length - 1))} disabled={step === stepAssignment.length - 1}>
+          Next →
         </Button>
       </div>
       {stepAssignment[step]}
