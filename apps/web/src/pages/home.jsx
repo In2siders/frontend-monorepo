@@ -3,27 +3,26 @@ import { Link } from "react-router-dom";
 
 export default function Home() {
   return (
-    <div className="bg">
-      <div className="container">
-        <div className="login-menu">
-          <div className="login-title">
-            Title
-          </div>
-          <Button asChild>
-            <Link to={"/auth/login"}>
-              Login
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link to={"/auth/register"}>
-              Register
-            </Link>
-          </Button>
-          <div className="help-link">
-            <a href="#">Need Help?</a>
-          </div>
-        </div>
+    <div className="container">
+      <h1 className="title">Welcome</h1>
+      <div className="content-section">
+        <p className="subtitle">Sign in to your account or create a new one</p>
       </div>
+      
+      <div className="button-group">
+        <Button variant="accent" size="large" asChild>
+          <Link to={"/auth/login"}>
+            Login
+          </Link>
+        </Button>
+        <Button variant="secondary" size="large" asChild>
+          <Link to={"/auth/register"}>
+            Register
+          </Link>
+        </Button>
+      </div>
+      
+      <a href="#" className="help-link">Need Help?</a>
     </div>
   )
 }

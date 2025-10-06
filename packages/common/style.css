@@ -1,146 +1,274 @@
-@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ====== Base Design System ====== */
+
+/* ====== Base Styles ====== */
+* {
+    box-sizing: border-box;
+}
 
 body {
-    background: linear-gradient( to right bottom, #232323,  #fff);
-    
-    width: 100vw;
-    height: 100vh;
+    margin: 0;
+    padding: 16px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #4a5bb8 0%, #5a3d7a 100%);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #ffffff;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
 
-    overflow: hidden;
-    
+/* ====== Container Template ====== */
+.container {
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    padding: 48px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 70vh;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.container:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    transform: translateY(-2px);
+}
+
+/* ====== Legacy Support (use same styles as container) ====== */
+.card,
+.login-menu,
+.accCreationCard,
+.accCreationInfoCard {
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    padding: 48px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 70vh;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-
-    margin: 0;
-    padding: 0;
-
-    font-family: "Ubuntu", Arial, Helvetica, sans-serif;
-    font-size: xx-large;
+    gap: 24px;
 }
 
-.login-menu {
-    background: linear-gradient(165deg, rgb(160, 160, 160) 0%, rgba(117, 117, 117, 0.9) 100%);
-    box-shadow: 1px -1px 18px 3px rgba(0,0,0,1);
-    -webkit-box-shadow: 1px -1px 18px 3px rgba(0,0,0,1);
-    -moz-box-shadow: 1px -1px 18px 3px rgba(0,0,0,1);
-    border: 1px solid black;
-
-    width: 50vw;
-    height: fit-content;
-    max-width: 600px;
-
-    padding: 20%;
-
-    display: flex;
-    align-content: center;
-    justify-content: center;
-    flex-direction: column; 
-    align-items: center;
-    text-align: center;
-
-    border-radius: 25px;
-
-    transition: all 0.3s ease;
+/* ====== Custom Scrollbar ====== */
+.container::-webkit-scrollbar,
+.card::-webkit-scrollbar,
+.login-menu::-webkit-scrollbar,
+.accCreationCard::-webkit-scrollbar,
+.accCreationInfoCard::-webkit-scrollbar {
+    width: 0px;
 }
 
+.container::-webkit-scrollbar-track,
+.card::-webkit-scrollbar-track,
+.login-menu::-webkit-scrollbar-track,
+.accCreationCard::-webkit-scrollbar-track,
+.accCreationInfoCard::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.container::-webkit-scrollbar-thumb,
+.card::-webkit-scrollbar-thumb,
+.login-menu::-webkit-scrollbar-thumb,
+.accCreationCard::-webkit-scrollbar-thumb,
+.accCreationInfoCard::-webkit-scrollbar-thumb {
+    background: transparent;
+}
+
+.container::-webkit-scrollbar-thumb:hover,
+.card::-webkit-scrollbar-thumb:hover,
+.login-menu::-webkit-scrollbar-thumb:hover,
+.accCreationCard::-webkit-scrollbar-thumb:hover,
+.accCreationInfoCard::-webkit-scrollbar-thumb:hover {
+    background: transparent;
+}
+
+.card:hover,
+.login-menu:hover,
+.accCreationCard:hover,
+.accCreationInfoCard:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    transform: translateY(-2px);
+}
+
+/* ====== Typography ====== */
+.title,
 .login-title {
-    font-weight: bold;
-    font-size: 60px;
-    cursor: default;
-    
-    margin: 0 auto 24px auto;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    margin: 0 0 32px 0;
+    color: #ffffff;
     text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 24px 0;
+    line-height: 1.6;
+}
+
+/* ====== Button Layouts ====== */
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     width: 100%;
-    
-    display: flex;
-    justify-content: center;
     align-items: center;
+    margin-top: 32px;
+    margin-bottom: 24px;
 }
 
-.help-link {
-    font-weight: bold;
-    font-size: 12px;
-    text-decoration: none;
-    color: blue;
-    cursor: pointer;
-
+.button-group-horizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
     margin-top: 24px;
+    margin-bottom: 24px;
 }
 
-.accCreationCard {
-    background: linear-gradient(165deg, rgb(160, 160, 160) 0%, rgba(117, 117, 117, 0.9) 100%);
-    box-shadow: 1px -1px 18px 3px rgba(0,0,0,1);
-    -webkit-box-shadow: 1px -1px 18px 3px rgba(0,0,0,1);
-    -moz-box-shadow: 1px -1px 18px 3px rgba(0,0,0,1);
-    border: 1px solid black;
+/* ====== Content Spacing ====== */
+.content-section {
+    margin-bottom: 32px;
+}
 
-    width: 50vw;
-    height: fit-content;
-    max-width: 600px;
+.content-section p {
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
 
-    padding: 20%;
+.content-section:last-of-type {
+    margin-bottom: 48px;
+}
 
+/* ====== Form Styles ====== */
+.form-group {
     display: flex;
-    align-content: center;
-    justify-content: center;
-    flex-direction: column; 
-    align-items: center;
-    text-align: center;
-
-    font-family: "Ubuntu";
-
-    border-radius: 25px;
-
-    transition: all 0.3s ease;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 400px;
 }
 
-.accCreationCard input {
-    background-color: rgba(48, 48, 48, 0.5);
-    border-radius: 35px;
-    margin: 10px 0;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: 80%;
-
-    transition: all 0.1s ease;
+/* ====== Links ====== */
+.help-link {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: 24px;
+    transition: color 0.2s ease;
 }
 
-.accCreationCard input:focus {
+.help-link:hover {
+    color: #ffffff;
+}
+
+/* ====== Form Inputs ====== */
+.input,
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 16px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+    color: #ffffff;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+}
+
+.input::placeholder,
+input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 400;
+}
+
+.input:focus,
+input:focus {
     outline: none;
-    border-color: #777;
-    box-shadow: 0 0 5px rgba(81, 203, 238, 1);
-    font-weight: bold;
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    color: #ffffff;
 }
 
-@media screen and (max-width: 768px) {
+/* ====== Warning Box ====== */
+.warning {
+    background: rgba(120, 20, 20, 0.4);
+    border: 1px solid rgba(220, 80, 80, 0.6);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 24px 0;
+    color: #ffffff;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.warning h2 {
+    font-size: 1.2rem;
+    margin: 0 0 16px 0;
+    color: #ffdddd;
+    font-weight: 600;
+}
+
+.warning strong {
+    color: #ffeeee;
+    font-weight: 700;
+}
+
+/* ====== Responsive Design ====== */
+@media (max-width: 640px) {
     body {
-        padding: 5vh;
-    }
-
-    .login-menu {
-        width: 80vw;
-        height: 70vh;
-        padding: 20px;
-    }
-
-    .login-title {
-        font-size: 40px;
+        padding: 8px;
+        align-items: flex-start;
+        padding-top: 16px;
     }
     
-    .accCreationCard {
-        width: 80vw;
-        padding: 20px;
+    .container,
+    .card,
+    .login-menu,
+    .accCreationCard,
+    .accCreationInfoCard {
+        padding: 24px;
+        padding-right: calc(24px + 12px);
+        max-width: 100%;
+        max-height: 75vh;
+        margin: 0;
     }
-
-    .accCreationCard input {
-        width: 100%;
+    
+    .button-group-horizontal {
+        flex-direction: column;
     }
-
-    .help-link {
-        font-size: 10px;
+    
+    .title,
+    .login-title {
+        font-size: 2rem;
     }
 }
+
+/* Media query variables already converted to direct values above */
