@@ -19,8 +19,8 @@ export default function Home() {
               Register
             </Link>
           </Button>
-          <div className="ayuda">
-            Help
+          <div className="help-link">
+            <a href="#">Need Help?</a>
           </div>
         </div>
       </div>

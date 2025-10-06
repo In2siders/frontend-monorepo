@@ -1,48 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
 body {
     background: linear-gradient( to right bottom, #232323,  #fff);
     
-    width: auto;
+    width: 100vw;
     height: 100vh;
-    
-    margin: 0;
-    padding: 0;
+
+    overflow: hidden;
     
     display: flex;
-    
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 
-    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+
+    font-family: "Ubuntu", Arial, Helvetica, sans-serif;
     font-size: xx-large;
 }
 
 .login-menu {
-    background-color: rgb(255, 0, 0);
+    background: linear-gradient(165deg, rgb(160, 160, 160) 0%, rgba(117, 117, 117, 0.9) 100%);
+    box-shadow: 1px -1px 18px 3px rgba(0,0,0,1);
+    -webkit-box-shadow: 1px -1px 18px 3px rgba(0,0,0,1);
+    -moz-box-shadow: 1px -1px 18px 3px rgba(0,0,0,1);
+    border: 1px solid black;
 
-    width: 50%;
-    height: 50%;
-    
-    padding: 100px;
+    width: 50vw;
+    height: fit-content;
+    max-width: 600px;
+
+    padding: 20%;
+
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    flex-direction: column; 
+    align-items: center;
+    text-align: center;
 
     border-radius: 25px;
 
-    align-content: center;
-    text-align: center;
+    transition: all 0.3s ease;
 }
 
 .login-title {
-    color: white;
     font-weight: bold;
-    font-size: xx-large;
-   
-    margin-bottom: 50%;
+    font-size: 60px;
+    cursor: default;
+    
+    margin: 0 auto 24px auto;
+    text-align: center;
+    width: 100%;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.ayuda {
-    color: white;
+.help-link {
     font-weight: bold;
-    font-size: small;
-    text-decoration: underline;
+    font-size: 12px;
+    text-decoration: none;
+    color: blue;
+    cursor: pointer;
+
+    margin-top: 24px;
+}
+
+.accCreationCard {
+    background: linear-gradient(165deg, rgb(160, 160, 160) 0%, rgba(117, 117, 117, 0.9) 100%);
+    box-shadow: 1px -1px 18px 3px rgba(0,0,0,1);
+    -webkit-box-shadow: 1px -1px 18px 3px rgba(0,0,0,1);
+    -moz-box-shadow: 1px -1px 18px 3px rgba(0,0,0,1);
+    border: 1px solid black;
+
+    width: 50vw;
+    height: fit-content;
+    max-width: 600px;
+
+    padding: 20%;
+
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    flex-direction: column; 
+    align-items: center;
+    text-align: center;
+
+    font-family: "Ubuntu";
+
+    border-radius: 25px;
+
+    transition: all 0.3s ease;
+}
+
+.accCreationCard input {
+    background-color: rgba(48, 48, 48, 0.5);
+    border-radius: 35px;
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 80%;
+
+    transition: all 0.1s ease;
+}
+
+.accCreationCard input:focus {
+    outline: none;
+    border-color: #777;
+    box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+    font-weight: bold;
+}
+
+@media screen and (max-width: 768px) {
+    body {
+        padding: 5vh;
+    }
+
+    .login-menu {
+        width: 80vw;
+        height: 70vh;
+        padding: 20px;
+    }
+
+    .login-title {
+        font-size: 40px;
+    }
     
-    margin-top: 50%;
+    .accCreationCard {
+        width: 80vw;
+        padding: 20px;
+    }
+
+    .accCreationCard input {
+        width: 100%;
+    }
+
+    .help-link {
+        font-size: 10px;
+    }
 }
