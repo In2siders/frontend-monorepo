@@ -272,3 +272,18 @@ input:focus {
 }
 
 /* Media query variables already converted to direct values above */
+
+.input-success {
+    border-color: #4caf50 !important;
+    border-width: 3px !important;
+}
+
+.input-error {
+    border-color: #f44336 !important;
+    border-width: 3px !important;
+}
+
+.input-incorrect {
+    border-color: #ffae00 !important;
+    border-width: 3px !important;
+}

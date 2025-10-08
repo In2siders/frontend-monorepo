@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
+import { apiFetch } from '@repo/connection/utils/api'
 import { generateUserKey } from '@repo/connection/utils/userRegistration'
 import { Button } from '@repo/components/button'
-import { Card } from '@repo/components/card'
 import '@repo/common/style.css'
 
 const FirstStep = ({ onNext }) => (
@@ -33,38 +33,60 @@ const FirstStep = ({ onNext }) => (
 const SecondStep = ({ onNext, onBack }) => {
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isAvailable, setIsAvailable] = useState(null);
+  
   useEffect(() => {
     setLoading(false);
   }, []);
 
-  const setProtectedUsername = (unsafeUsername) => {
-    // only allow a-z A-Z 0-9 _ - .
-    const regex = /^[a-zA-Z0-9_.]*$/;
-    if (regex.test(unsafeUsername)) {
-      const randomNumSuffix = Math.floor(Math.random() * (999 - 1 + 1)) + 1; // We generate a random number between 001 and 999 (1 as identifier for the random suffix)
-      return unsafeUsername + '-' + randomNumSuffix;
-    }
-
-    throw new Error('Invalid username. Only a-z A-Z 0-9 _ - . are allowed.');
+  const isUsernameAvailable = async (toCheck) => {
+    const apiData = await apiFetch(`/auth/check?username=${toCheck}`, {
+      method: 'GET',
+    });
+    return apiData.available;
   }
 
-  const processUserRegistration = async (e) => {
-    e.preventDefault();
-    const secureUsername = setProtectedUsername(username);
-    const { privateKey, publicKey } = await generateUserKey(secureUsername);
-    console.log({ privateKey, publicKey, username: secureUsername });
-    if (window.localStorage) {
-      const oldKeys = window.localStorage.getItem(`upk`); // json { 'username': 'privateKey' } base64 encoded
-      let keys = {};
-      if (oldKeys) {
-        const parsedOldKeys = JSON.parse(atob(oldKeys));
-        keys = { ...parsedOldKeys };
-      }
-      keys[secureUsername] = privateKey;
-      window.localStorage.setItem(`upk`, btoa(JSON.stringify(keys)));
+  const debounceRef = useState(null);
 
-      // TODO: Send data to server.
+  // Debounced check
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setUsername(value);
+    setIsAvailable(null);
+    if (debounceRef[0]) clearTimeout(debounceRef[0]);
+    if (value.length >= 3) {
+      debounceRef[1](setTimeout(async () => {
+        const available = await isUsernameAvailable(value);
+        setIsAvailable(available);
+      }, 500)); // 500ms debounce
     }
+  };
+
+  // Manual check on blur
+  const handleBlur = async () => {
+    if (username.length >= 3) {
+      const available = await isUsernameAvailable(username);
+      setIsAvailable(available);
+    }
+  };
+
+  // Manual check on submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (username.length < 3) {
+      alert('Username must be at least 3 characters long.');
+      return;
+    }
+    setLoading(true);
+    const available = await isUsernameAvailable(username);
+    setIsAvailable(available);
+    if (!available) {
+      alert('Username is already taken.');
+      setLoading(false);
+      return;
+    }
+
+    if (onNext) onNext();
   }
 
   return (
@@ -75,13 +97,14 @@ const SecondStep = ({ onNext, onBack }) => {
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <form onSubmit={processUserRegistration} className="form-group">
+        <form onSubmit={handleSubmit} className='form-group'>
           <input 
             type="text" 
-            value={username} 
-            onChange={(e) => setUsername(e.target.value)}
+            value={username}
+            onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="Enter username"
-            className="input"
+            className={`input ${isAvailable === null ? '' : isAvailable ? 'input-success' : 'input-error'} ${username.length > 0 && username.length < 3 ? 'input-incorrect' : ''}`}
             required
           />
           <Button variant="accent" width="full" type="submit">Register</Button>
@@ -89,6 +112,55 @@ const SecondStep = ({ onNext, onBack }) => {
       )}
     </div>
   )
+}
+
+function ThirdStep({ onBack }) {
+  const [generating, setGenerating] = useState(true);
+  const [privateKey, setPrivateKey] = useState('');
+
+  useEffect(() => {
+    generateUserKey()
+
+    const timer = setTimeout(() => {
+      setGenerating(false);
+      // Simulate fetching private key from localStorage
+      const key = localStorage.getItem('privateKey') || 'MIIBVwIBADANBgkqh...';
+      setPrivateKey(key);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleDownload = () => {
+    const blob = new Blob([privateKey], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'in2sider-private-key.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className='container'>
+      <h1 className="title">Finalizando registro...</h1>
+      <p className="subtitle">Por favor espera mientras generamos tus claves.</p>
+      <div style={{ marginTop: '32px' }}>
+        {generating ? (
+          <span>🔑 Generando claves...</span>
+        ) : (
+          <>
+            <span style={{ fontWeight: 'bold', color: '#2ecc40' }}>✔️ Claves generadas</span>
+            <div style={{ margin: '16px 0' }}>
+              <Button variant="accent" width="auto" onClick={handleDownload}>Descargar llave privada</Button>
+            </div>
+            <small style={{ color: '#888' }}>
+              La llave privada está guardada en tu navegador (localStorage).
+            </small>
+          </>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function RegisterPage() {
