@@ -28,7 +28,7 @@ const fnSaveKeyToLocalStorage = (u, key) => {
   localStorage.setItem('upk', compressed);
 }
 
-const FirstStep = ({ onNext }) => (
+const FirstStep = ({ onNext, nextSignal }) => (
   <div className="container">
     <h1 className="title">Create Account</h1>
     <p className="subtitle">This application uses PGP keys for authentication.</p>
@@ -45,7 +45,7 @@ const FirstStep = ({ onNext }) => (
     </div>
     
     <div className="content-section">
-      <p>We are working on a feature to allow you to export your private key for backup purposes.</p>
+      <p>You can download your private key after completing the registration process.</p>
       
       <p>By clicking "Next", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.</p>
     </div>
@@ -54,7 +54,7 @@ const FirstStep = ({ onNext }) => (
   </div>
 )
 
-const SecondStep = ({ onNext, onBack, data, setData }) => {
+const SecondStep = ({ onNext, onBack, data, setData, nextSignal }) => {
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(true);
   const [isAvailable, setIsAvailable] = useState(null);
@@ -73,7 +73,7 @@ const SecondStep = ({ onNext, onBack, data, setData }) => {
   const debounceRef = useState(null);
 
   const handleChange = (e) => {
-    const value = e.target.value;
+    const value = e.target.value.replace(/\s/g, '').replace(/[^a-zA-Z_-]/g, ''); // Remove spaces and disallowed characters
     setUsername(value);
     setIsAvailable(null);
     if (debounceRef[0]) clearTimeout(debounceRef[0]);
@@ -130,6 +130,7 @@ const SecondStep = ({ onNext, onBack, data, setData }) => {
             placeholder="Enter username"
             className={`input ${isAvailable === null ? '' : isAvailable ? 'input-success' : 'input-error'} ${username.length > 0 && username.length < 3 ? 'input-incorrect' : ''}`}
             required
+            pattern='^[a-zA-Z_-]{3,20}$'
           />
           <Button variant="accent" width="full" type="submit">Continue</Button>
           <span>Keys will be generated in the next step.</span>
@@ -139,17 +140,29 @@ const SecondStep = ({ onNext, onBack, data, setData }) => {
   )
 }
 
-function ThirdStep({ onBack, data, setData }) {
+function ThirdStep({ onBack, data, setData, nextSignal }) {
   const [generating, setGenerating] = useState(true);
-  const [privateKey, setPrivateKey] = useState('');
+  const [showSkip, setShowSkip] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
 
   useEffect(() => {
-    // Generating keys (pub & priv)
+    setGenerating(true);
+
+    if (!data.username) {
+      alert('Username is missing. Please go back and enter a username.');
+      if (onBack) onBack();
+      return;
+    }
+
     generateUserKey(data.username).then(({ publicKey, privateKey }) => {
-      setData({...data, publicKey, privateKey}); // Save it on parent state
-      fnSaveKeyToLocalStorage(data.username, privateKey); // Save private key to browser
-      setGenerating(false); // Remove loading state
+      setData({ ...data, publicKey, privateKey });
+      fnSaveKeyToLocalStorage(data.username, privateKey);
+      setGenerating(false);
     });
+
+    // Show skip after 10 seconds
+    const skipTimer = setTimeout(() => setShowSkip(true), 10000);
+    return () => clearTimeout(skipTimer);
   }, []);
 
   const handleDownload = () => {
@@ -161,24 +174,40 @@ function ThirdStep({ onBack, data, setData }) {
     a.download = 'in2sider-key-' + data.username + '.txt';
     a.click();
     URL.revokeObjectURL(url);
+    setDownloaded(true);
+  };
+
+  const goToLogin = () => {
+    window.location.href = '/login';
   };
 
   return (
     <div className='container'>
-      <h1 className="title">Finalizando registro...</h1>
-      <p className="subtitle">Por favor espera mientras generamos tus claves.</p>
+      <h1 className="title">Final step</h1>
+      <p className="subtitle">Your account keys are being generated. Please wait...</p>
       <div style={{ marginTop: '32px' }}>
         {generating ? (
-          <span>🔑 Generando claves...</span>
+          <span>🔑 Generating keys...</span>
         ) : (
           <>
-            <span style={{ fontWeight: 'bold', color: '#2ecc40' }}>✔️ Keys Generated</span>
+            <span style={{ fontWeight: 'bold', color: '#2ecc40' }}>✔️ Keys generated successfully!</span>
             <div style={{ margin: '16px 0' }}>
-              <Button variant="accent" width="auto" onClick={handleDownload}>Download Key</Button>
+              <Button variant="accent" width="auto" onClick={handleDownload}>Download Private Key</Button>
             </div>
-            <small style={{ color: '#888' }}>
-              Private key is stored in your browser.
+            <small style={{ color: '#888', display: 'block', marginBottom: '12px' }}>
+              Your private key is stored securely in your browser (localStorage).<br />
+              <span style={{ color: '#e67e22' }}>Warning: If you lose your private key, you will lose access to your account.</span>
             </small>
+            {(downloaded || showSkip) && (
+              <div style={{ marginTop: '18px', display: 'flex', flexDirection: 'column', width: 'fit-content' }} className='mx-auto space-y-2'>
+                <Button variant="ghost" width="auto" onClick={goToLogin}>
+                  Go to Login
+                </Button>
+                <small style={{ color: '#888', marginLeft: '8px' }}>
+                  {downloaded ? 'You can now log in.' : 'Skip and go to login (not recommended)'}
+                </small>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -201,9 +230,6 @@ function RegisterPage() {
       <div className='button-group-horizontal' style={{ marginBottom: '24px' }}>
         <Button variant="ghost" size="small" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>
           ← Previous
-        </Button>
-        <Button variant="ghost" size="small" onClick={() => setStep(Math.min(step + 1, stepAssignment.length - 1))} disabled={step === stepAssignment.length - 1}>
-          Next →
         </Button>
       </div>
       {stepAssignment[step]}
