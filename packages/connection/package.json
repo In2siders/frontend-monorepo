@@ -9,6 +9,10 @@
   ],
   "dependencies": {
     "@scure/bip39": "^2.0.1",
-    "openpgp": "^6.2.2"
+    "openpgp": "^6.2.2",
+    "pako": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/pako": "^2.0.4"
   }
 }
