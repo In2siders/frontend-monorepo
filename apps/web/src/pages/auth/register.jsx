@@ -28,7 +28,7 @@ const fnSaveKeyToLocalStorage = (u, key) => {
   localStorage.setItem('upk', compressed);
 }
 
-const FirstStep = ({ onNext, nextSignal }) => (
+const FirstStep = ({ onNext }) => (
   <div className="container">
     <h1 className="title">Create Account</h1>
     <p className="subtitle">This application uses PGP keys for authentication.</p>
@@ -54,7 +54,7 @@ const FirstStep = ({ onNext, nextSignal }) => (
   </div>
 )
 
-const SecondStep = ({ onNext, onBack, data, setData, nextSignal }) => {
+const SecondStep = ({ onNext, onBack, data, setData }) => {
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(true);
   const [isAvailable, setIsAvailable] = useState(null);
@@ -140,7 +140,7 @@ const SecondStep = ({ onNext, onBack, data, setData, nextSignal }) => {
   )
 }
 
-function ThirdStep({ onBack, data, setData, nextSignal }) {
+function ThirdStep({ onBack, data, setData }) {
   const [generating, setGenerating] = useState(true);
   const [showSkip, setShowSkip] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
@@ -158,6 +158,14 @@ function ThirdStep({ onBack, data, setData, nextSignal }) {
       setData({ ...data, publicKey, privateKey });
       fnSaveKeyToLocalStorage(data.username, privateKey);
       setGenerating(false);
+      apiFetch('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ username: data.username, pk: publicKey })
+      }).catch(err => {
+        console.error('Error registering user:', err);
+        alert('There was an error registering your account. Please try again.');
+        if (onBack) onBack();
+      });
     });
 
     // Show skip after 10 seconds
