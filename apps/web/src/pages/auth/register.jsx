@@ -1,8 +1,32 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@repo/connection/utils/api'
-import { generateUserKey } from '@repo/connection/utils/userRegistration'
+import { generateUserKey, compress, decompress } from '@repo/connection/utils/userRegistration'
 import { Button } from '@repo/components/button'
 import '@repo/common/style.css'
+
+/* Storage keys on browser */
+const fnSaveKeyToLocalStorage = (u, key) => {
+  const compressedStorage = localStorage.getItem('upk');
+  let upkJson = {};
+  if (compressedStorage) {
+    try {
+      upkJson = JSON.parse(decompress(compressedStorage));
+    } catch (e) {
+      // Si falla, inicializa como objeto vacío
+      upkJson = {};
+    }
+  }
+
+  if (upkJson[u]) {
+    console.warn(`Warning: Overwriting existing key for user ${u} in localStorage.`);
+  }
+
+  upkJson[u] = key;
+
+  // Guarda como string comprimido
+  const compressed = compress(JSON.stringify(upkJson));
+  localStorage.setItem('upk', compressed);
+}
 
 const FirstStep = ({ onNext }) => (
   <div className="container">
@@ -30,7 +54,7 @@ const FirstStep = ({ onNext }) => (
   </div>
 )
 
-const SecondStep = ({ onNext, onBack }) => {
+const SecondStep = ({ onNext, onBack, data, setData }) => {
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(true);
   const [isAvailable, setIsAvailable] = useState(null);
@@ -48,7 +72,6 @@ const SecondStep = ({ onNext, onBack }) => {
 
   const debounceRef = useState(null);
 
-  // Debounced check
   const handleChange = (e) => {
     const value = e.target.value;
     setUsername(value);
@@ -62,7 +85,6 @@ const SecondStep = ({ onNext, onBack }) => {
     }
   };
 
-  // Manual check on blur
   const handleBlur = async () => {
     if (username.length >= 3) {
       const available = await isUsernameAvailable(username);
@@ -70,7 +92,7 @@ const SecondStep = ({ onNext, onBack }) => {
     }
   };
 
-  // Manual check on submit
+  // TODO: Fix alerts to use better UI feedback
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (username.length < 3) {
@@ -85,6 +107,8 @@ const SecondStep = ({ onNext, onBack }) => {
       setLoading(false);
       return;
     }
+
+    setData({...data, username});
 
     if (onNext) onNext();
   }
@@ -107,35 +131,34 @@ const SecondStep = ({ onNext, onBack }) => {
             className={`input ${isAvailable === null ? '' : isAvailable ? 'input-success' : 'input-error'} ${username.length > 0 && username.length < 3 ? 'input-incorrect' : ''}`}
             required
           />
-          <Button variant="accent" width="full" type="submit">Register</Button>
+          <Button variant="accent" width="full" type="submit">Continue</Button>
+          <span>Keys will be generated in the next step.</span>
         </form>
       )}
     </div>
   )
 }
 
-function ThirdStep({ onBack }) {
+function ThirdStep({ onBack, data, setData }) {
   const [generating, setGenerating] = useState(true);
   const [privateKey, setPrivateKey] = useState('');
 
   useEffect(() => {
-    generateUserKey()
-
-    const timer = setTimeout(() => {
-      setGenerating(false);
-      // Simulate fetching private key from localStorage
-      const key = localStorage.getItem('privateKey') || 'MIIBVwIBADANBgkqh...';
-      setPrivateKey(key);
-    }, 3000);
-    return () => clearTimeout(timer);
+    // Generating keys (pub & priv)
+    generateUserKey(data.username).then(({ publicKey, privateKey }) => {
+      setData({...data, publicKey, privateKey}); // Save it on parent state
+      fnSaveKeyToLocalStorage(data.username, privateKey); // Save private key to browser
+      setGenerating(false); // Remove loading state
+    });
   }, []);
 
   const handleDownload = () => {
-    const blob = new Blob([privateKey], { type: 'text/plain' });
+    const template = `# IN2SIDER PRIVATE KEY\n# DANGER! PLAIN TEXT FORMAT | PROTECT THIS FILE!!\n: ${data.username}\n${data.privateKey}\n# Keep this file safe and do not share it with anyone.\n`;
+    const blob = new Blob([template], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'in2sider-private-key.txt';
+    a.download = 'in2sider-key-' + data.username + '.txt';
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -149,12 +172,12 @@ function ThirdStep({ onBack }) {
           <span>🔑 Generando claves...</span>
         ) : (
           <>
-            <span style={{ fontWeight: 'bold', color: '#2ecc40' }}>✔️ Claves generadas</span>
+            <span style={{ fontWeight: 'bold', color: '#2ecc40' }}>✔️ Keys Generated</span>
             <div style={{ margin: '16px 0' }}>
-              <Button variant="accent" width="auto" onClick={handleDownload}>Descargar llave privada</Button>
+              <Button variant="accent" width="auto" onClick={handleDownload}>Download Key</Button>
             </div>
             <small style={{ color: '#888' }}>
-              La llave privada está guardada en tu navegador (localStorage).
+              Private key is stored in your browser.
             </small>
           </>
         )}
@@ -165,10 +188,12 @@ function ThirdStep({ onBack }) {
 
 function RegisterPage() {
   const [step, setStep] = useState(0);
+  const [registerData, setRegisterData] = useState({username: '', publicKey: '', privateKey: ''});
 
   const stepAssignment = [
     <FirstStep onNext={() => setStep(1)} />,
-    <SecondStep onNext={() => setStep(2)} onBack={() => setStep(0)} />
+    <SecondStep onNext={() => setStep(2)} onBack={() => setStep(0)} data={registerData} setData={setRegisterData} />,
+    <ThirdStep onBack={() => setStep(1)} data={registerData} setData={setRegisterData} />
   ]
 
   return (
