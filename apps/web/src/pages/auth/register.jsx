@@ -236,9 +236,15 @@ function RegisterPage() {
   return (
     <div>
       <div className='button-group-horizontal' style={{ marginBottom: '24px' }}>
-        <Button variant="ghost" size="small" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>
-          ← Previous
-        </Button>
+        {step == 0 ? (
+          <Button variant="ghost" size="small" asChild>
+            <a href="/">Back</a>
+          </Button>
+        ) : (
+          <Button variant="ghost" size="small" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>
+            ← Previous
+          </Button>
+        )}
       </div>
       {stepAssignment[step]}
     </div>
