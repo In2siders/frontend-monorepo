@@ -1,7 +1,8 @@
-import React from 'react';
+import * as React from 'react';
 import './module.css';
 import { Slot } from '@radix-ui/react-slot';
-import { cva } from 'class-variance-authority'
+import { cva, VariantProps } from 'class-variance-authority'
+import { cn } from '../lib/utils';
 
 const buttonVariants = cva('btn', {
     variants: {
@@ -32,28 +33,24 @@ const buttonVariants = cva('btn', {
 
 function Button({
     className,
-    variant = 'default',
-    size = 'default',
-    width = 'default',
+    variant,
+    size,
+    width,
     asChild = false,
-    children,
     ...props
-}: any) {
-    const classes = buttonVariants({ variant, size, width, className });
-    
-    if (asChild) {
-        return React.createElement(Slot, { className: classes, ...props }, children);
-    }
+}: React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+  }) {
+  const Comp: React.ElementType = asChild ? Slot : "button"
 
-    return (
-        <button
-            data-slot="button"
-            className={classes}
-            {...props}
-        >
-            {children}
-        </button>
-    );
+  return (
+    <Comp
+      data-slot="button"
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
+  )
 }
 
 export { Button, buttonVariants };

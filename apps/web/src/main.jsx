@@ -6,7 +6,5 @@ import App from './App.jsx'
 import '@repo/tailwind-config';
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+  <App />,
 )
