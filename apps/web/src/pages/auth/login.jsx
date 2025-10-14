@@ -15,7 +15,7 @@ function LoginPage() {
   };
 
   return (
-    <div className="container">
+    <div className="container space-y-4">
       <h1 className="title">Welcome Back</h1>
       <div className="content-section">
         <p className="subtitle">Sign in to your account</p>
@@ -34,7 +34,10 @@ function LoginPage() {
           {loading ? 'Signing in...' : 'Login'}
         </Button>
       </form>
-      
+      <Button variant="accent" width="full" type="submit" disabled={loading}>
+          {loading ? 'Signing in...' : 'Login'}
+        </Button>
+
       <a href="/auth/register" className="help-link">Don't have an account? Register</a>
     </div>
   )

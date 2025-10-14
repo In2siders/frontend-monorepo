@@ -1,0 +1,1 @@
+{"root":["./src/App.jsx","./src/main.jsx","./src/components/ButtonShowcase.jsx","./src/pages/home.jsx","./src/pages/auth/login.jsx","./src/pages/auth/register.jsx","./src/pages/chat/index.jsx","./vite.config.js","./eslint.config.js","./postcss.config.js"],"version":"5.8.3"}

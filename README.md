@@ -14,26 +14,14 @@ This Turborepo includes the following:
 - `@repo/common`: Common code
 - `@repo/connection`: I don't know if we will use it. But is to put all the code for connections (or api calls, idk)
 
-## Ejecutar
+## Quick deploy (web)
+
+We publish a Docker image for the `web` app to GitHub Container Registry on pushes to `master`.
+
+To run the latest published web image locally:
 
 ```bash
-pnpm install
-
-pnpm run dev
+docker-compose -f docker-compose.web.yml up -d
 ```
 
-## Reglas para colaborar
-
-Diferenciamos dos ramas:
-
-- `master`
-- `dev`
-
-`master` es nuestra version en producción (una version sin errores a poder ser). Y la versión `dev` es nuestrsa version en espera de perfección.
-
-Si quieres arreglar algun problema de la rama `dev` debes clonar la rama y hacer los cambios ahí, o si quieres añadir algun cambio, puedes clonar la rama `master` y hacer los cambios ahí.
-
-Para subir los cambios, debes crear una nueva rama, la rama se debe llamar `tuUsername-dev-elCambioResumidamente`. Por ejemplo,
-yo hago que el servidor espere en otro puerto, pues quedaria: `ezequiel-dev-server-puerto-nuevo`
-
-Luego para añadir los cambios, hago una Pull Request de mi rama, a la rama dev y esperamos a que el equipo apruebe la solicitud (3 solicitudes requeridas, sin contar al autor.)
+CI notes: the workflow `.github/workflows/publish-web-image.yml` builds `apps/web/Dockerfile` and pushes the image to `ghcr.io/<ORG>/frontend-web:latest`.
