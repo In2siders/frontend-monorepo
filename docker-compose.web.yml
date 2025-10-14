@@ -2,9 +2,22 @@ version: '3.8'
 
 services:
   web:
-    image: ghcr.io/In2siders/frontend-web:latest
+    depends_on:
+      - backend
+    build: apps/web
     ports:
       - '8080:80'
     restart: always
     environment:
       - NODE_ENV=production
+  backend:
+    image: ghcr.io/In2siders/backend:latest
+    ports:
+      - '5000:5000'
+    restart: always
+    volumes:
+      - backend-data:/data
+    environment:
+      - NODE_ENV=production
+volumes:
+  backend-data: {}
