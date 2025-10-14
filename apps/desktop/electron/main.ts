@@ -1,9 +1,11 @@
 import { app, BrowserWindow } from 'electron'
-import { createRequire } from 'node:module'
+// import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
-const require = createRequire(import.meta.url)
+// `require` is intentionally unused in ESM build; keep the import available for potential use but
+// comment out the assignment to avoid TypeScript TS6133 (variable declared but its value is never read).
+// const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // The built directory structure
