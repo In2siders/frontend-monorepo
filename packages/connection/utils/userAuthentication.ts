@@ -1,8 +1,6 @@
-import { generateKey } from 'openpgp/lightweight';
+import { generateKey, decrypt, readMessage, readPrivateKey } from 'openpgp/lightweight';
 import { deflate, inflate } from 'pako'
 
-const API_BASE_URL = 'http://127.0.0.1:5000';
-const API_VERSION = 'v1';
 
 export async function generateUserKey(username: string) {
     const userMaskedEmail = `masked+${username}@app-domain.com`;
@@ -15,17 +13,14 @@ export async function generateUserKey(username: string) {
     return { username, privateKey, publicKey };
 }
 
-export async function sendAuthRequest(username: string, pgpPublicKey: string) {
-    const response = await fetch(`${API_BASE_URL}/${API_VERSION}/auth/request`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            username,
-            pgp: pgpPublicKey
-        })
-    })
+export async function solveChallenge(challenge: string, privateKey: string) {
+    const decrypted = await decrypt({
+        format: 'binary',
+        message: await readMessage({ armoredMessage: challenge }),
+        decryptionKeys: await readPrivateKey({ armoredKey: privateKey }),
+    });
+
+    return new TextDecoder().decode(decrypted.data as Uint8Array);
 }
 
 /**
