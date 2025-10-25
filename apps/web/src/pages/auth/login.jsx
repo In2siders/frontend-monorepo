@@ -94,14 +94,20 @@ const LoginWithFile = ({ credentials, setCredentials, loading, clearMethod, setL
   return (
     <div className="space-y-4">
       <form onSubmit={handleLogin} className="form-group space-y-4">
+        <label htmlFor="auth-file" className="block text-sm font-medium text-gray-700">
+          Choose your authentication file
+        </label>
         <input
+          id="auth-file"
           type="file"
           onChange={(e) => setFile(e.target.files[0])}
-          className="input"
+          className="file_input"
+          aria-label="Upload your authentication file"
           required
         />
+        <div className="text-sm text-gray-600">{file ? file.name : 'No file selected'}</div>
         <Button variant="accent" width="full" type="submit" disabled={loading}>
-          {loading ? 'Signing in...' : 'Login'}
+          {loading ? 'Signing in...' : 'Login with File'}
         </Button>
       </form>
       <Button variant="ghost" width="full" onClick={clearMethod}>

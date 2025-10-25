@@ -30,7 +30,6 @@ body {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     padding: 48px;
     width: 100%;
-    max-width: 500px;
     max-height: 70vh;
     text-align: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -41,30 +40,6 @@ body {
 .container:hover {
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
     transform: translateY(-2px);
-}
-
-/* ====== Legacy Support (use same styles as container) ====== */
-.card,
-.login-menu,
-.accCreationCard,
-.accCreationInfoCard {
-    background: rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    padding: 48px;
-    width: 100%;
-    max-width: 500px;
-    max-height: 70vh;
-    text-align: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow-y: auto;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
 }
 
 /* ====== Custom Scrollbar ====== */
@@ -215,6 +190,17 @@ input:focus {
     background: rgba(0, 0, 0, 0.4);
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
     color: #ffffff;
+}
+
+.file_input {
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+    font-size: 1rem;
+    font-family: inherit;
+    cursor: pointer;
 }
 
 /* ====== Warning Box ====== */

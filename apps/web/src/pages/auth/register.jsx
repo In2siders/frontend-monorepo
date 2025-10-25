@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@repo/connection/utils/api'
-import { generateUserKey, compress, decompress } from '@repo/connection/utils/userRegistration'
+import { generateUserKey, compress, decompress } from '@repo/connection/utils/userAuthentication'
 import { Button } from '@repo/components/button'
 import '@repo/common/style.css'
 
@@ -29,7 +29,7 @@ const fnSaveKeyToLocalStorage = (u, key) => {
 }
 
 const FirstStep = ({ onNext }) => (
-  <div className="container">
+  <div className="container max-w-md mx-auto">
     <h1 className="title">Create Account</h1>
     <p className="subtitle">This application uses PGP keys for authentication.</p>
     
@@ -115,7 +115,7 @@ const SecondStep = ({ onNext, onBack, data, setData }) => {
 
   return (
     <div className="container">
-      <h1 className="title">Choose Username</h1>
+      <h1 className="title">Choose<br></br>Username</h1>
       <p className="subtitle">Enter your desired username</p>
       
       {loading ? (
