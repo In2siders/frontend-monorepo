@@ -17,7 +17,6 @@
     
     /* Spacing */
     padding: 12px 24px;
-    min-width: 120px;
     min-height: 44px;
     
     /* Styling */
@@ -184,4 +183,10 @@
 .btn-group-horizontal {
     flex-direction: row;
     flex-wrap: wrap;
+}
+
+.btn-fit {
+    width: auto;
+    min-width: auto;
+    max-width: fit-content;
 }

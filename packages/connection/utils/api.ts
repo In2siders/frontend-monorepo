@@ -6,6 +6,12 @@ interface FetchOptions extends RequestInit {
     body?: any;
 }
 
+/**
+ * API fetch utility function
+ * @param endpoint Endpoint (without version)
+ * @param options Fetch options
+ * @returns JSON with response
+ */
 const apiFetch = async (endpoint: string, options: FetchOptions = {}) => {
     if (endpoint.startsWith('/')) {
         endpoint = endpoint.slice(1);
