@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@repo/connection/utils/api'
-import { generateUserKey, compress, decompress } from '@repo/connection/utils/userRegistration'
+import { generateUserKey, compress, decompress } from '@repo/connection/utils/userAuthentication'
 import { Button } from '@repo/components/button'
 import '@repo/common/style.css'
 
