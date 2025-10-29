@@ -1,53 +1,36 @@
-# Multi-stage Dockerfile for building the `web` app in the monorepo
-# - Build stage uses node + pnpm to install workspace deps and build only the `web` package
-# - Runner stage uses nginx to serve the static `dist` folder
+# Development Dockerfile for the `web` app (no nginx)
+# - Installs workspace deps and runs Vite dev server inside the container
 
-# -------- Build stage --------
-FROM node:20-alpine AS builder
+FROM node:20-alpine AS dev
 
-# Install pnpm (via corepack) and basic tools
+# Enable corepack and pnpm
 RUN corepack enable \
-  && corepack prepare pnpm@latest --activate
+  && corepack prepare pnpm@latest --activate \
+  && apk add --no-cache wget
 
 WORKDIR /app
 
-# Copy workspace-level manifests first (helps Docker cache)
+# Copy workspace-level manifests first to leverage Docker cache
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
-# Copy web package manifest (so pnpm can resolve workspace dependencies)
-COPY apps/web/package.json apps/web/package.json
-
-# Copy package sources required for install (common packages). This is intentionally
-# conservative: copy the packages folder so pnpm can resolve workspace packages.
-# If your repo has other folders needed at install time, include them here.
+# Copy local workspace packages so pnpm can resolve them
 COPY packages ./packages
 
-# Install dependencies (will read workspace manifests and pnpm-lock.yaml)
-RUN pnpm install --frozen-lockfile --reporter=silent
+# Copy web package manifest
+COPY apps/web/package.json apps/web/package.json
 
-# Copy the rest of the repo (source code)
+# Install dependencies (allow lockfile changes in dev image)
+RUN pnpm install --reporter=silent
+
+# Copy source files
 COPY . .
 
-# Build only the web package using pnpm workspace filter
-RUN pnpm --filter ./apps/web... build
+# Expose the port used in docker-compose (3000)
+EXPOSE 3000
 
-
-# -------- Production stage (nginx) --------
-FROM nginx:stable-alpine AS runner
-
-# Remove default nginx content
-RUN rm -rf /usr/share/nginx/html/*
-
-# Copy built web app from builder
-COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
-
-# Add a small nginx config with SPA fallback (try_files)
-RUN mkdir -p /etc/nginx/conf.d
-COPY --chmod=0644 ./nginx/web.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
+# Healthcheck to verify dev server responds
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget -qO- --timeout=2 http://localhost/ || exit 1
+  CMD wget -qO- --timeout=2 http://localhost:3000/ || exit 1
 
-CMD ["nginx", "-g", "daemon off;"]
+# Start Vite dev server for the `web` package and bind to 0.0.0.0 on port 3000
+CMD ["pnpm", "--filter", "web", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]
