@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@repo/connection/utils/api'
-import { generateUserKey, compress, decompress } from '@repo/connection/utils/userRegistration'
+import { generateUserKey, compress, decompress } from '@repo/connection/utils/userAuthentication'
 import { Button } from '@repo/components/button'
 import '@repo/common/style.css'
 
@@ -50,7 +50,7 @@ const FirstStep = ({ onNext }) => (
       <p>By clicking "Next", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.</p>
     </div>
     
-    <Button variant="accent" width="full" onClick={onNext}>Next</Button>
+    <Button className="btn primary-btn w-full" onClick={onNext}>Next</Button>
   </div>
 )
 
@@ -132,7 +132,7 @@ const SecondStep = ({ onNext, onBack, data, setData }) => {
             required
             pattern='^[a-zA-Z_-]{3,20}$'
           />
-          <Button variant="accent" width="full" type="submit">Continue</Button>
+          <Button className="btn primary-btn w-full" type="submit">Continue</Button>
           <span>Keys will be generated in the next step.</span>
         </form>
       )}
@@ -237,11 +237,11 @@ function RegisterPage() {
     <div>
       <div className='button-group-horizontal' style={{ marginBottom: '24px' }}>
         {step == 0 ? (
-          <Button variant="ghost" size="small" asChild>
+          <Button className='btn secondary-btn w-full' asChild>
             <a href="/">Back</a>
           </Button>
         ) : (
-          <Button variant="ghost" size="small" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>
+          <Button className='btn secondary-btn w-full' size="small" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>
             ← Previous
           </Button>
         )}

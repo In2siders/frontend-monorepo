@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ====== Base Design System ====== */
-
-/* ====== Base Styles ====== */
 * {
     box-sizing: border-box;
 }
@@ -21,7 +18,6 @@ body {
     overflow-y: auto;
 }
 
-/* ====== Container Template ====== */
 .container {
     background: rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(20px);
@@ -36,82 +32,18 @@ body {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow-y: auto;
     overflow-x: hidden;
+    scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
+    scrollbar-width: 1px;
 }
 
-.container:hover {
+.hoverAnimationY:hover {
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
     transform: translateY(-2px);
 }
 
-/* ====== Legacy Support (use same styles as container) ====== */
-.card,
-.login-menu,
-.accCreationCard,
-.accCreationInfoCard {
-    background: rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    padding: 48px;
-    width: 100%;
-    max-width: 500px;
-    max-height: 70vh;
-    text-align: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow-y: auto;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-}
-
-/* ====== Custom Scrollbar ====== */
-.container::-webkit-scrollbar,
-.card::-webkit-scrollbar,
-.login-menu::-webkit-scrollbar,
-.accCreationCard::-webkit-scrollbar,
-.accCreationInfoCard::-webkit-scrollbar {
-    width: 0px;
-}
-
-.container::-webkit-scrollbar-track,
-.card::-webkit-scrollbar-track,
-.login-menu::-webkit-scrollbar-track,
-.accCreationCard::-webkit-scrollbar-track,
-.accCreationInfoCard::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.container::-webkit-scrollbar-thumb,
-.card::-webkit-scrollbar-thumb,
-.login-menu::-webkit-scrollbar-thumb,
-.accCreationCard::-webkit-scrollbar-thumb,
-.accCreationInfoCard::-webkit-scrollbar-thumb {
-    background: transparent;
-}
-
-.container::-webkit-scrollbar-thumb:hover,
-.card::-webkit-scrollbar-thumb:hover,
-.login-menu::-webkit-scrollbar-thumb:hover,
-.accCreationCard::-webkit-scrollbar-thumb:hover,
-.accCreationInfoCard::-webkit-scrollbar-thumb:hover {
-    background: transparent;
-}
-
-.card:hover,
-.login-menu:hover,
-.accCreationCard:hover,
-.accCreationInfoCard:hover {
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-    transform: translateY(-2px);
-}
-
-/* ====== Typography ====== */
 .title,
 .login-title {
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: 2.5rem;
     font-weight: 700;
     margin: 0 0 32px 0;
     color: #ffffff;
@@ -137,11 +69,19 @@ body {
 
 .primary-btn {
     background: linear-gradient(135deg, #5a3d7a 0%, #4a5bb8 100%);
+    border: 1px solid rgb(255, 255, 255);
     color: #ffffff;
-    border: none;
     font-size: 1rem;
     font-weight: 600;
-    box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);
+    transition: all 0.2s ease;
+}
+
+.secondary-btn {
+    background: rgba(0, 0, 0, 0.277);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    font-size: 1rem;
+    font-weight: 500;
     transition: all 0.2s ease;
 }
 
@@ -165,7 +105,6 @@ body {
     margin-bottom: 24px;
 }
 
-/* ====== Content Spacing ====== */
 .content-section {
     margin-bottom: 32px;
 }
@@ -179,7 +118,6 @@ body {
     margin-bottom: 48px;
 }
 
-/* ====== Form Styles ====== */
 .form-group {
     display: flex;
     flex-direction: column;
@@ -188,7 +126,6 @@ body {
     max-width: 400px;
 }
 
-/* ====== Links ====== */
 .help-link {
     color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
@@ -202,7 +139,6 @@ body {
     color: #ffffff;
 }
 
-/* ====== Form Inputs ====== */
 .input,
 input[type="text"],
 input[type="email"],
@@ -234,7 +170,6 @@ input:focus {
     color: #ffffff;
 }
 
-/* ====== Warning Box ====== */
 .warning {
     background: rgba(120, 20, 20, 0.4);
     border: 1px solid rgba(220, 80, 80, 0.6);
@@ -258,7 +193,6 @@ input:focus {
     font-weight: 700;
 }
 
-/* ====== Responsive Design ====== */
 @media (max-width: 640px) {
     body {
         padding: 8px;

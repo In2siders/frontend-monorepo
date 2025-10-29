@@ -10,12 +10,12 @@ export default function Home() {
       </div>
       
       <div className="button-group">
-        <Button variant="accent" size="large" asChild>
+        <Button className="btn primary-btn w-full" asChild>
           <Link to={"/auth/login"}>
             Login
           </Link>
         </Button>
-        <Button variant="secondary" size="large" asChild>
+        <Button className="btn primary-btn w-full" asChild>
           <Link to={"/auth/register"}>
             Register
           </Link>

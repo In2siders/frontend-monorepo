@@ -3,51 +3,36 @@
 # - Runner stage uses nginx to serve the static `dist` folder
 
 # -------- Build stage --------
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 
-# Install pnpm (via corepack) and basic tools
-RUN corepack enable \
-  && corepack prepare pnpm@latest --activate
+# Enable corepack and pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-WORKDIR /app
+# Optional: git may be needed by some packages
+RUN apk add --no-cache git
 
-# Copy workspace-level manifests first (helps Docker cache)
+WORKDIR /workspace
+
+# Copy workspace-level manifests first to leverage Docker layer cache
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
-# Copy web package manifest (so pnpm can resolve workspace dependencies)
-COPY apps/web/package.json apps/web/package.json
+# Also copy the app's package.json to help pnpm cache (optional but useful)
+COPY apps/web/package.json ./apps/web/package.json
 
-# Copy package sources required for install (common packages). This is intentionally
-# conservative: copy the packages folder so pnpm can resolve workspace packages.
-# If your repo has other folders needed at install time, include them here.
-COPY packages ./packages
-
-# Install dependencies (will read workspace manifests and pnpm-lock.yaml)
+# Install workspace dependencies
 RUN pnpm install --frozen-lockfile --reporter=silent
 
-# Copy the rest of the repo (source code)
+# Copy the rest of the repository
 COPY . .
 
-# Build only the web package using pnpm workspace filter
-RUN pnpm --filter ./apps/web... build
+# Switch to the web app folder for runtime
+WORKDIR /workspace/apps/web
 
+# Ensure Vite listens on all interfaces and on port 3000
+ENV HOST=0.0.0.0
+ENV PORT=3000
 
-# -------- Production stage (nginx) --------
-FROM nginx:stable-alpine AS runner
+EXPOSE 3000
 
-# Remove default nginx content
-RUN rm -rf /usr/share/nginx/html/*
-
-# Copy built web app from builder
-COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
-
-# Add a small nginx config with SPA fallback (try_files)
-RUN mkdir -p /etc/nginx/conf.d
-COPY --chmod=0644 ./nginx/web.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget -qO- --timeout=2 http://localhost/ || exit 1
-
-CMD ["nginx", "-g", "daemon off;"]
+# Start the dev server (dev image). Use the pnpm workspace filter to run the web dev script.
+CMD ["pnpm", "--filter", "./apps/web...", "dev"]
