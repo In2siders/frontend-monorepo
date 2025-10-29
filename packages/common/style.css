@@ -38,74 +38,44 @@ body {
     overflow-x: hidden;
 }
 
-.container:hover {
+/** Container & Card hover effect (now requires .with-float class to work) | Ezequiel **/
+
+.container.with-float:hover {
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
     transform: translateY(-2px);
-}
-
-/* ====== Legacy Support (use same styles as container) ====== */
-.card,
-.login-menu,
-.accCreationCard,
-.accCreationInfoCard {
-    background: rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    padding: 48px;
-    width: 100%;
-    max-width: 500px;
-    max-height: 70vh;
-    text-align: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow-y: auto;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
 }
 
 /* ====== Custom Scrollbar ====== */
-.container::-webkit-scrollbar,
-.card::-webkit-scrollbar,
-.login-menu::-webkit-scrollbar,
-.accCreationCard::-webkit-scrollbar,
-.accCreationInfoCard::-webkit-scrollbar {
+.container::-webkit-scrollbar {
     width: 0px;
 }
 
-.container::-webkit-scrollbar-track,
-.card::-webkit-scrollbar-track,
-.login-menu::-webkit-scrollbar-track,
-.accCreationCard::-webkit-scrollbar-track,
-.accCreationInfoCard::-webkit-scrollbar-track {
+.container::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.container::-webkit-scrollbar-thumb,
-.card::-webkit-scrollbar-thumb,
-.login-menu::-webkit-scrollbar-thumb,
-.accCreationCard::-webkit-scrollbar-thumb,
-.accCreationInfoCard::-webkit-scrollbar-thumb {
+.container::-webkit-scrollbar-thumb {
     background: transparent;
 }
 
-.container::-webkit-scrollbar-thumb:hover,
-.card::-webkit-scrollbar-thumb:hover,
-.login-menu::-webkit-scrollbar-thumb:hover,
-.accCreationCard::-webkit-scrollbar-thumb:hover,
-.accCreationInfoCard::-webkit-scrollbar-thumb:hover {
+.container::-webkit-scrollbar-thumb:hover {
     background: transparent;
 }
 
-.card:hover,
-.login-menu:hover,
-.accCreationCard:hover,
-.accCreationInfoCard:hover {
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-    transform: translateY(-2px);
+/** Scroll Indicator | Ezequiel C. **/
+
+.scroll-indicator {
+    z-index: 10;
+    position: relative;
+    top: -25px;
+    border-radius: 0 0 20px 20px;
+    /* Center */
+    text-align: center;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    animation: scrollIndicatorAnim 2s infinite;
+    background-color: rgba(0, 0, 0, 1);
+    height: 24px;
 }
 
 /* ====== Typography ====== */
@@ -286,4 +256,10 @@ input:focus {
 .input-incorrect {
     border-color: #ffae00 !important;
     border-width: 3px !important;
+}
+
+/* === Container Preferences === */
+
+.container[data-container-pref="auth_register"] {
+    width: 620px;
 }
