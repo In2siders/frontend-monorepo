@@ -34,4 +34,9 @@ const apiFetch = async (endpoint: string, options: FetchOptions = {}) => {
     return response.json();
 };
 
-export { apiFetch };
+const healthCheck = async () => {
+    const r = await fetch(`${API_BASE_URL}/`);
+    return r.ok;
+};
+
+export { apiFetch, healthCheck };
