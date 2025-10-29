@@ -127,7 +127,24 @@ body {
     line-height: 1.6;
 }
 
-/* ====== Button Layouts ====== */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, #5a3d7a 0%, #4a5bb8 100%);
+    color: #ffffff;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);
+    transition: all 0.2s ease;
+}
+
 .button-group {
     display: flex;
     flex-direction: column;
