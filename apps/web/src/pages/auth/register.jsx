@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { apiFetch } from '@repo/connection/utils/api'
+import { apiFetch, healthCheck } from '@repo/connection/utils/api'
 import { generateUserKey, compress, decompress } from '@repo/connection/utils/userAuthentication'
 import { Button } from '@repo/components/button'
 import '@repo/common/style.css'
+import toast from 'react-hot-toast'
 
 /* Storage keys on browser */
 const fnSaveKeyToLocalStorage = (u, key) => {
@@ -28,31 +29,53 @@ const fnSaveKeyToLocalStorage = (u, key) => {
   localStorage.setItem('upk', compressed);
 }
 
-const FirstStep = ({ onNext }) => (
-  <div className="container">
-    <h1 className="title">Create Account</h1>
-    <p className="subtitle">This application uses PGP keys for authentication.</p>
-    
-    <div className="content-section">
-      <p>Both keys, public and private are generated in your browser and the private key is stored in your browser's local storage. The public key is sent to the server with your username to create your account.</p>
-    </div>
-    
-    <div className="warning">
-      <h2>Important</h2>
-      <strong>If you clear your browser's local storage or use a different browser or device, you will lose access to your account.</strong>
-      <br />
-      Make sure to back up your private key if you want to access your account from another device or after clearing your browser data.
-    </div>
-    
-    <div className="content-section">
-      <p>You can download your private key after completing the registration process.</p>
+const FirstStep = ({ onNext }) => {
+  const [serverReady, setServerReady] = useState(false);
+
+  useEffect(() => {
+    const checkServer = async () => {
+      try {
+        const serverOnline = await healthCheck();
+        setServerReady(serverOnline);
+      } catch (error) {
+        setServerReady(false);
+        toast.error('Cannot connect to the server. Please try again later.');
+      }
+    }
+    checkServer();
+  }, []);
+
+  return (
+    <>
+      <h1 className="title">Create Account</h1>
+      <p className="subtitle">This application uses PGP keys for authentication.</p>
       
-      <p>By clicking "Next", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.</p>
-    </div>
-    
-    <Button variant="accent" width="full" onClick={onNext}>Next</Button>
-  </div>
-)
+      <div className="content-section">
+        <p>Both keys, public and private are generated in your browser and the private key is stored in your browser's local storage. The public key is sent to the server with your username to create your account.</p>
+      </div>
+      
+      <div className="warning">
+        <h2>Important</h2>
+        <strong>If you clear your browser's local storage or use a different browser or device, you will lose access to your account.</strong>
+        <br />
+        Make sure to back up your private key if you want to access your account from another device or after clearing your browser data.
+      </div>
+      
+      <div className="content-section">
+        <p>You can download your private key after completing the registration process.</p>
+        
+        <p>By clicking "Next", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.</p>
+      </div>
+
+      <Button variant="accent" width="full" onClick={onNext} disabled={!serverReady}>Next</Button>
+      {!serverReady && (
+        <p style={{ color: 'rgba(220, 10, 10, 1)', marginTop: '12px' }}>
+          Cannot connect to the server. Please try again later.
+        </p>
+      )}
+    </>
+  )
+}
 
 const SecondStep = ({ onNext, onBack, data, setData }) => {
   const [username, setUsername] = useState('');
@@ -81,7 +104,7 @@ const SecondStep = ({ onNext, onBack, data, setData }) => {
       debounceRef[1](setTimeout(async () => {
         const available = await isUsernameAvailable(value);
         setIsAvailable(available);
-      }, 500)); // 500ms debounce
+      }, 500));
     }
   };
 
@@ -96,14 +119,14 @@ const SecondStep = ({ onNext, onBack, data, setData }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (username.length < 3) {
-      alert('Username must be at least 3 characters long.');
+      toast.error('Username must be at least 3 characters long.');
       return;
     }
     setLoading(true);
     const available = await isUsernameAvailable(username);
     setIsAvailable(available);
     if (!available) {
-      alert('Username is already taken.');
+      toast.error('Username is already taken.');
       setLoading(false);
       return;
     }
@@ -114,7 +137,7 @@ const SecondStep = ({ onNext, onBack, data, setData }) => {
   }
 
   return (
-    <div className="container">
+    <>
       <h1 className="title">Choose Username</h1>
       <p className="subtitle">Enter your desired username</p>
       
@@ -136,7 +159,7 @@ const SecondStep = ({ onNext, onBack, data, setData }) => {
           <span>Keys will be generated in the next step.</span>
         </form>
       )}
-    </div>
+    </>
   )
 }
 
@@ -190,7 +213,7 @@ function ThirdStep({ onBack, data, setData }) {
   };
 
   return (
-    <div className='container'>
+    <>
       <h1 className="title">Final step</h1>
       <p className="subtitle">Your account keys are being generated. Please wait...</p>
       <div style={{ marginTop: '32px' }}>
@@ -219,7 +242,7 @@ function ThirdStep({ onBack, data, setData }) {
           </>
         )}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -228,25 +251,40 @@ function RegisterPage() {
   const [registerData, setRegisterData] = useState({username: '', publicKey: '', privateKey: ''});
 
   const stepAssignment = [
-    <FirstStep onNext={() => setStep(1)} />,
-    <SecondStep onNext={() => setStep(2)} onBack={() => setStep(0)} data={registerData} setData={setRegisterData} />,
-    <ThirdStep onBack={() => setStep(1)} data={registerData} setData={setRegisterData} />
+    {
+      element: <FirstStep onNext={() => setStep(1)}/>,
+      outside: null,
+      button: <Button variant="ghost" size="small" asChild><a href="/">Back</a></Button>,
+      scrollNeeded: true,
+    },
+    {
+      element: <SecondStep onNext={() => setStep(2)} onBack={() => setStep(0)} data={registerData} setData={setRegisterData} />,
+      outside: null,
+      button: <Button variant="ghost" size="small" onClick={() => setStep(0)}>← Previous</Button>,
+    },
+    {
+      element: <ThirdStep onBack={() => setStep(1)} data={registerData} setData={setRegisterData} />,
+      outside: null,
+      button: <Button variant="ghost" size="small" onClick={() => setStep(1)}>← Previous</Button>,
+    }
   ]
 
   return (
-    <div>
+    <div className='page-content'>
       <div className='button-group-horizontal' style={{ marginBottom: '24px' }}>
-        {step == 0 ? (
-          <Button variant="ghost" size="small" asChild>
-            <a href="/">Back</a>
-          </Button>
-        ) : (
-          <Button variant="ghost" size="small" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>
-            ← Previous
-          </Button>
-        )}
+        {stepAssignment[step].button}
       </div>
-      {stepAssignment[step]}
+      <div className={'container' + (stepAssignment[step].scrollNeeded ? ' scroll-needed' : '')} data-container-pref='auth_register'>
+        {stepAssignment[step].element}
+      </div>
+      {stepAssignment[step].scrollNeeded && (
+        <p className='scroll-indicator'>Scroll to bottom to continue</p>
+      )}
+      {stepAssignment[step].outside && (
+        <div className='container-outside-note'>
+          {stepAssignment[step].outside}
+        </div>
+      )}
     </div>
   )
 }

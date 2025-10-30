@@ -1,3 +1,5 @@
+import { Toaster } from 'react-hot-toast'
+
 import '@repo/common/style.css'
 import Home from './pages/home'
 import Register from './pages/auth/register'
@@ -21,6 +23,7 @@ function App() {
           {/* <Route path="/chat" element={<Chat />} /> */}
         </Routes>
       </div>
+      <Toaster position='bottom-right'/>
     </Router>
   )
 }

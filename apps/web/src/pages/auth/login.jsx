@@ -3,6 +3,7 @@ import { Button } from '@repo/components/button'
 import '@repo/common/style.css'
 import { apiFetch } from '@repo/connection/utils/api';
 import { decompress, solveChallenge } from '@repo/connection/utils/userAuthentication';
+import toast from 'react-hot-toast';
 
 const LoginWithName = ({ credentials, setCredentials, loading, clearMethod, setLoading }) => {
   const [username, setUsername] = useState('');
@@ -35,12 +36,9 @@ const LoginWithName = ({ credentials, setCredentials, loading, clearMethod, setL
         throw new Error('Private key for the given username not found.');
       }
 
-      console.log('Private key found:', privateKey);
-
       // 4 - Resolve challenge with private key
       const solution = await solveChallenge(challenge, privateKey);
 
-      console.log('Challenge solution:', solution);
       // 5 - POST /auth/challenge/verify - { challengeId, solution }
       const verifyResponse = await apiFetch('/auth/challenge/verify', {
         method: 'POST',
@@ -50,10 +48,15 @@ const LoginWithName = ({ credentials, setCredentials, loading, clearMethod, setL
       // 6 - Receive session token
       const { session } = verifyResponse.data;
 
-      localStorage.setItem('in2-session', session);
+      cookieStore.set('session', session, { path: '/' });
+
+      toast.success('Login successful!');
+      // Redirect to chat page
+      window.location.href = '/chat';
     }
     catch (error) {
       console.error('Login error:', error);
+      toast.error('Login failed. Please try again.');
     }
     finally {
       setLoading(false);
