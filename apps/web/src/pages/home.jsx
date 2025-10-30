@@ -1,21 +1,21 @@
 import { Button } from "@repo/components/button";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 export default function Home() {
   return (
-    <div className="container">
+    <div className="container hoverAnimationY">
       <h1 className="title">Welcome</h1>
       <div className="content-section">
         <p className="subtitle">Sign in to your account or create a new one</p>
       </div>
       
       <div className="button-group">
-        <Button className="btn primary-btn w-full" asChild>
+        <Button className="btn primary-btn w-full hoverAnimationY" asChild>
           <Link to={"/auth/login"}>
             Login
           </Link>
         </Button>
-        <Button className="btn primary-btn w-full" asChild>
+        <Button className="btn secondary-btn w-full hoverAnimationY" asChild>
           <Link to={"/auth/register"}>
             Register
           </Link>

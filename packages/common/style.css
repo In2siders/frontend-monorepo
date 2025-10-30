@@ -61,28 +61,38 @@ body {
 
 .btn {
     display: inline-block;
-    padding: 10px 20px;
+    padding: 10px;
     border-radius: 12px;
     cursor: pointer;
     text-align: center;
 }
 
+.btn:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
 .primary-btn {
     background: linear-gradient(135deg, #5a3d7a 0%, #4a5bb8 100%);
-    border: 1px solid rgb(255, 255, 255);
+    border: 1px solid rgba(227, 227, 227, 0.65);
     color: #ffffff;
-    font-size: 1rem;
     font-weight: 600;
     transition: all 0.2s ease;
+}
+
+.primary-btn:hover {
+    background: linear-gradient(135deg, #6b4e8a 0%, #5b6cc8 100%);
 }
 
 .secondary-btn {
     background: rgba(0, 0, 0, 0.277);
     color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.4);
-    font-size: 1rem;
     font-weight: 500;
     transition: all 0.2s ease;
+}
+
+.secondary-btn:hover {
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .button-group {
@@ -128,7 +138,7 @@ body {
 
 .help-link {
     color: rgba(255, 255, 255, 0.9);
-    text-decoration: none;
+    text-decoration: underline;
     font-size: 0.9rem;
     font-weight: 500;
     margin-top: 24px;
@@ -136,13 +146,10 @@ body {
 }
 
 .help-link:hover {
-    color: #ffffff;
+    color: rgb(160, 160, 160)
 }
 
-.input,
-input[type="text"],
-input[type="email"],
-input[type="password"] {
+.input {
     width: 100%;
     padding: 16px;
     font-size: 1rem;
@@ -155,14 +162,12 @@ input[type="password"] {
     backdrop-filter: blur(10px);
 }
 
-.input::placeholder,
-input::placeholder {
+.input::placeholder {
     color: rgba(255, 255, 255, 0.7);
     font-weight: 400;
 }
 
-.input:focus,
-input:focus {
+.input:focus {
     outline: none;
     border-color: rgba(255, 255, 255, 0.6);
     background: rgba(0, 0, 0, 0.4);

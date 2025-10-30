@@ -71,11 +71,11 @@ const LoginWithName = ({ credentials, setCredentials, loading, clearMethod, setL
           className="input"
           required
         />
-        <Button variant="accent" width="full" type="submit" disabled={loading}>
+        <Button className='btn primary-btn hoverAnimationY' type="submit" disabled={loading}>
           {loading ? 'Signing in...' : 'Login'}
         </Button>
       </form>
-      <Button variant="ghost" width="full" onClick={clearMethod}>
+      <Button className='btn secondary-btn text-sm hoverAnimationY' onClick={clearMethod}>
         Back
       </Button>
     </div>
@@ -100,11 +100,11 @@ const LoginWithFile = ({ credentials, setCredentials, loading, clearMethod, setL
           className="input"
           required
         />
-        <Button variant="accent" width="full" type="submit" disabled={loading}>
+        <Button className='btn primary-btn hoverAnimationY' type="submit" disabled={loading}>
           {loading ? 'Signing in...' : 'Login'}
         </Button>
       </form>
-      <Button variant="ghost" width="full" onClick={clearMethod}>
+      <Button className='btn secondary-btn text-sm hoverAnimationY' onClick={clearMethod}>
         Back
       </Button>
     </div>
@@ -123,8 +123,8 @@ function LoginPage() {
   const Method = method === 'username' ? LoginWithName : LoginWithFile;
 
   return (
-    <div className="container space-y-4">
-      <h1 className="title">Welcome Back!</h1> {/* TODO: Mateo, no seria mejor disminuir el tamaño de la fuente? */}
+    <div className="container space-y-4 hoverAnimationY">
+      <h1 className="title">Welcome Back!</h1>
       <div className="content-section">
         <p className="subtitle">
           {method === '' && 'Please choose a login method to continue.'}
@@ -134,11 +134,11 @@ function LoginPage() {
       </div>
       
       {method === '' ? (
-        <div className='flex flex-row divide-x divide-black space-x-4'>
-          <Button onClick={() => setMethod('username')}>
+        <div className='flex flex-col divide-y divide-black space-y-4'>
+          <Button className='btn primary-btn hoverAnimationY' onClick={() => setMethod('username')}>
             Login with Username
           </Button>
-          <Button onClick={() => setMethod('file')}>
+          <Button className='btn secondary-btn text-xs self-center w-50 hoverAnimationY' onClick={() => setMethod('file')}>
             Login with File
           </Button>
         </div>
@@ -152,7 +152,7 @@ function LoginPage() {
         />
       )}
 
-      <a href="/auth/register" className="help-link">Don't have an account? Register</a>
+      Don't have an account? <a href="/auth/register" className="help-link">Register</a>
     </div>
   )
 }
