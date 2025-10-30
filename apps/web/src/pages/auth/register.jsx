@@ -4,6 +4,7 @@ import { generateUserKey, compress, decompress } from '@repo/connection/utils/us
 import { Button } from '@repo/components/button'
 import '@repo/common/style.css'
 import toast from 'react-hot-toast'
+import { s } from 'motion/react-client'
 
 /* Storage keys on browser */
 const fnSaveKeyToLocalStorage = (u, key) => {
@@ -29,7 +30,7 @@ const fnSaveKeyToLocalStorage = (u, key) => {
   localStorage.setItem('upk', compressed);
 }
 
-const FirstStep = ({ onNext }) => {
+const FirstStep = ({ signalReady }) => {
   const [serverReady, setServerReady] = useState(false);
 
   useEffect(() => {
@@ -64,24 +65,50 @@ const FirstStep = ({ onNext }) => {
       <div className="content-section">
         <p>You can download your private key after completing the registration process.</p>
         
-        <p>By clicking "Next", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.</p>
+        <p>By clicking "Select username", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.</p>
       </div>
 
-      <Button variant="accent" width="full" onClick={onNext} disabled={!serverReady}>Next</Button>
-      {!serverReady && (
-        <p style={{ color: 'rgba(220, 10, 10, 1)', marginTop: '12px' }}>
-          Cannot connect to the server. Please try again later.
-        </p>
-      )}
+      <div className='p-4 rounded-sm bg-yellow-900/80 border-yellow-600 border w-full h-fit'>
+        <label className='risk-checkbox-required'>
+          <input type="checkbox" onChange={(e) => {
+            if (e.target.checked) {
+              signalReady();
+            } else {
+              signalReady(false);
+            }
+          }} /> I understand my private key must be kept safe and that losing it means losing access to my account.
+        </label>
+      </div>
     </>
   )
 }
 
-const SecondStep = ({ onNext, onBack, data, setData }) => {
+const SecondStep = ({ data, setData, signalReady }) => {
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(true);
   const [isAvailable, setIsAvailable] = useState(null);
   
+  const handleSubmit = async () => {
+    setData({...data, username});
+
+    if (data.username.length < 3) {
+      toast.error('Username must be at least 3 characters long.');
+      setData({...data, username: ''});
+      return;
+    }
+    setLoading(true);
+    const available = await isUsernameAvailable(data.username);
+    setIsAvailable(available);
+    if (!available) {
+      toast.error('Username is already taken.');
+      setData({...data, username: ''});
+      setLoading(false);
+      return;
+    }
+
+    if (onNext) onNext();
+  }
+
   useEffect(() => {
     setLoading(false);
   }, []);
@@ -104,6 +131,7 @@ const SecondStep = ({ onNext, onBack, data, setData }) => {
       debounceRef[1](setTimeout(async () => {
         const available = await isUsernameAvailable(value);
         setIsAvailable(available);
+        signalReady(available);
       }, 500));
     }
   };
@@ -112,29 +140,9 @@ const SecondStep = ({ onNext, onBack, data, setData }) => {
     if (username.length >= 3) {
       const available = await isUsernameAvailable(username);
       setIsAvailable(available);
+      signalReady(available);
     }
   };
-
-  // TODO: Fix alerts to use better UI feedback
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (username.length < 3) {
-      toast.error('Username must be at least 3 characters long.');
-      return;
-    }
-    setLoading(true);
-    const available = await isUsernameAvailable(username);
-    setIsAvailable(available);
-    if (!available) {
-      toast.error('Username is already taken.');
-      setLoading(false);
-      return;
-    }
-
-    setData({...data, username});
-
-    if (onNext) onNext();
-  }
 
   return (
     <>
@@ -144,7 +152,7 @@ const SecondStep = ({ onNext, onBack, data, setData }) => {
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <form onSubmit={handleSubmit} className='form-group'>
+        <div className='form-group'>
           <input 
             type="text" 
             value={username}
@@ -155,15 +163,14 @@ const SecondStep = ({ onNext, onBack, data, setData }) => {
             required
             pattern='^[a-zA-Z_-]{3,20}$'
           />
-          <Button variant="accent" width="full" type="submit">Continue</Button>
           <span>Keys will be generated in the next step.</span>
-        </form>
+        </div>
       )}
     </>
   )
 }
 
-function ThirdStep({ onBack, data, setData }) {
+function ThirdStep({ onBack, data, setData, signalReady, callback }) {
   const [generating, setGenerating] = useState(true);
   const [showSkip, setShowSkip] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
@@ -249,28 +256,37 @@ function ThirdStep({ onBack, data, setData }) {
 function RegisterPage() {
   const [step, setStep] = useState(0);
   const [registerData, setRegisterData] = useState({username: '', publicKey: '', privateKey: ''});
+  const [canContinue, setCanContinue] = useState(false);
+
+  const proceedToNextStep = () => {
+    
+    setCanContinue(false);
+    setStep(step + 1);
+  }
 
   const stepAssignment = [
     {
-      element: <FirstStep onNext={() => setStep(1)}/>,
+      element: <FirstStep signalReady={(v = true) => setCanContinue(v)} />,
       outside: null,
       button: <Button variant="ghost" size="small" asChild><a href="/">Back</a></Button>,
-      scrollNeeded: true,
+      continueText: 'Select username',
     },
     {
-      element: <SecondStep onNext={() => setStep(2)} onBack={() => setStep(0)} data={registerData} setData={setRegisterData} />,
+      element: <SecondStep data={registerData} setData={setRegisterData} signalReady={(v = true) => setCanContinue(v)} />,
       outside: null,
       button: <Button variant="ghost" size="small" onClick={() => setStep(0)}>← Previous</Button>,
+      continueText: 'Select username and generate keys',
     },
     {
-      element: <ThirdStep onBack={() => setStep(1)} data={registerData} setData={setRegisterData} />,
+      element: <ThirdStep data={registerData} setData={setRegisterData} signalReady={(v = true) => setCanContinue(v)} />,
       outside: null,
       button: <Button variant="ghost" size="small" onClick={() => setStep(1)}>← Previous</Button>,
+      continueText: 'Continue to Final Step',
     }
   ]
 
   return (
-    <div className='page-content'>
+    <div className='page-content flex flex-col items-center'>
       <div className='button-group-horizontal' style={{ marginBottom: '24px' }}>
         {stepAssignment[step].button}
       </div>
@@ -280,11 +296,9 @@ function RegisterPage() {
       {stepAssignment[step].scrollNeeded && (
         <p className='scroll-indicator'>Scroll to bottom to continue</p>
       )}
-      {stepAssignment[step].outside && (
-        <div className='container-outside-note'>
-          {stepAssignment[step].outside}
-        </div>
-      )}
+      <Button onClick={proceedToNextStep} disabled={!canContinue} className='mx-auto mt-4'>
+        {stepAssignment[step].continueText}
+      </Button>
     </div>
   )
 }

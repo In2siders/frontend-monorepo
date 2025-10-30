@@ -143,16 +143,36 @@ body {
 
 /* ====== Links ====== */
 .help-link {
+    position: relative;
     color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 500;
     margin-top: 24px;
-    transition: color 0.2s ease;
+    display: inline-block;
+    transition: color 125ms ease;
+    padding-bottom: 3px;
+}
+
+.help-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: #ffffffaf;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 125ms ease-out;
 }
 
 .help-link:hover {
     color: #ffffff;
+}
+
+.help-link:hover::after {
+  transform: scaleX(1);
 }
 
 /* ====== Form Inputs ====== */
