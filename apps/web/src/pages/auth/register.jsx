@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react'
+import '@repo/common/style.css'
+import { useEffect, useRef, useState } from 'react'
 import { apiFetch, healthCheck } from '@repo/connection/utils/api'
 import { generateUserKey, compress, decompress } from '@repo/connection/utils/userAuthentication'
 import { Button } from '@repo/components/button'
-import '@repo/common/style.css'
 import toast from 'react-hot-toast'
+import { m } from 'motion/react'
 
-/* Storage keys on browser */
+/* Save user key to localStorage */
 const fnSaveKeyToLocalStorage = (u, key) => {
   const compressedStorage = localStorage.getItem('upk');
   let upkJson = {};
@@ -70,25 +71,12 @@ const SecondStep = ({ data, setData, signalReady }) => {
   const [loading, setLoading] = useState(true);
   const [isAvailable, setIsAvailable] = useState(null);
   
-  const handleSubmit = async () => {
-    setData({...data, username});
-
-    if (data.username.length < 3) {
-      toast.error('Username must be at least 3 characters long.');
-      setData({...data, username: ''});
-      return;
+  const setAvailableUsername = (itIs) => {
+    setIsAvailable(itIs);
+    if (itIs) {
+      setData({ ...data, username });
     }
-    setLoading(true);
-    const available = await isUsernameAvailable(data.username);
-    setIsAvailable(available);
-    if (!available) {
-      toast.error('Username is already taken.');
-      setData({...data, username: ''});
-      setLoading(false);
-      return;
-    }
-
-    if (onNext) onNext();
+    signalReady(!!itIs);
   }
 
   useEffect(() => {
@@ -107,13 +95,12 @@ const SecondStep = ({ data, setData, signalReady }) => {
   const handleChange = (e) => {
     const value = e.target.value.replace(/\s/g, '').replace(/[^a-zA-Z_-]/g, ''); // Remove spaces and disallowed characters
     setUsername(value);
-    setIsAvailable(null);
+    setAvailableUsername(null);
     if (debounceRef[0]) clearTimeout(debounceRef[0]);
     if (value.length >= 3) {
       debounceRef[1](setTimeout(async () => {
         const available = await isUsernameAvailable(value);
-        setIsAvailable(available);
-        signalReady(available);
+        setAvailableUsername(available);
       }, 500));
     }
   };
@@ -121,8 +108,7 @@ const SecondStep = ({ data, setData, signalReady }) => {
   const handleBlur = async () => {
     if (username.length >= 3) {
       const available = await isUsernameAvailable(username);
-      setIsAvailable(available);
-      signalReady(available);
+      setAvailableUsername(available);
     }
   };
 
@@ -152,87 +138,144 @@ const SecondStep = ({ data, setData, signalReady }) => {
   )
 }
 
-function ThirdStep({ onBack, data, setData, signalReady, callback }) {
-  const [generating, setGenerating] = useState(true);
-  const [showSkip, setShowSkip] = useState(false);
-  const [downloaded, setDownloaded] = useState(false);
+function ThirdStep({ onBack, data, setData, signalReady }) {
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState([false, null]);
 
   useEffect(() => {
-    setGenerating(true);
+    let currentProgress = 0;
 
-    if (!data.username) {
-      alert('Username is missing. Please go back and enter a username.');
-      if (onBack) onBack();
-      return;
-    }
+    const int = setInterval(() => {
+      currentProgress += Math.floor(Math.random() * 4) + 1; // Incrementa entre 1 y 4
+      if (currentProgress >= 100) {
+        currentProgress = 100;
+        clearInterval(int);
+      }
+      setProgress(currentProgress);
+    }, 145);
 
-    generateUserKey(data.username).then(({ publicKey, privateKey }) => {
+    (async () => {
+      const { publicKey, privateKey } = await generateUserKey(data.username);
       setData({ ...data, publicKey, privateKey });
       fnSaveKeyToLocalStorage(data.username, privateKey);
-      setGenerating(false);
-      apiFetch('/auth/register', {
+      await apiFetch('/auth/register', {
         method: 'POST',
         body: JSON.stringify({ username: data.username, pk: publicKey })
-      }).catch(err => {
-        console.error('Error registering user:', err);
-        alert('There was an error registering your account. Please try again.');
-        if (onBack) onBack();
       });
+    })().catch(err => {
+      console.error('Error during key generation:', err);
+      setError([true, err.message || 'Unknown error']);
+      clearInterval(int);
     });
 
-    // Show skip after 10 seconds
-    const skipTimer = setTimeout(() => setShowSkip(true), 10000);
-    return () => clearTimeout(skipTimer);
+    return () => clearInterval(int);
   }, []);
 
-  const handleDownload = () => {
-    const template = `# IN2SIDER PRIVATE KEY\n# DANGER! PLAIN TEXT FORMAT | PROTECT THIS FILE!!\n: ${data.username}\n${data.privateKey}\n# Keep this file safe and do not share it with anyone.\n`;
-    const blob = new Blob([template], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'in2sider-key-' + data.username + '.txt';
-    a.click();
-    URL.revokeObjectURL(url);
-    setDownloaded(true);
-  };
+  useEffect(() => {
+    if(progress !== 100) return;
+    if(error[0]) return;
 
-  const goToLogin = () => {
-    window.location.href = '/login';
-  };
+    // Signal ready after short delay
+    const timeout = setTimeout(() => {
+      signalReady();
+    }, 350);
+
+    return () => clearTimeout(timeout);
+  }, [error, progress]);
 
   return (
     <>
-      <h1 className="title">Final step</h1>
-      <p className="subtitle">Your account keys are being generated. Please wait...</p>
-      <div style={{ marginTop: '32px' }}>
-        {generating ? (
-          <span>🔑 Generating keys...</span>
+      <h1 className="title">Almost done!</h1>
+      <p>
+        {
+          error[0]
+            ? 'An error occurred during registration.'
+            : progress === 100
+              ? 'Registration complete!'
+              : 'Generating your keys and registering your account...'
+        }
+      </p>
+      {error[0] ? (
+        <div>
+          {error[0] && <p style={{ color: 'red' }}>Error: {error[1]}</p>}
+        </div>
+      ) : (
+        <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+          <div style={{ width: '100%', height: '12px', background: '#eee', borderRadius: '12px', overflow: 'hidden' }}>
+            <div style={{ width: `${progress}%`, height: '100%', backgroundColor: progress < 100 ? '#0e1fa1ff' : '#2ecc40' }} />
+          </div>
+          <span>{progress}%</span>
+        </div>
+      )}
+    </>
+  )
+}
+
+function FinalStep({ data, setData, signalReady }) {
+  const [canLogin, setCanLogin] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setCanLogin(true);
+    }, 10_000);
+  }, []);
+
+  /* Download key */
+  const handleDownloadKey = () => {
+    const text_content = `\n# IN2SIDERS PRIVATE KEY DOWNLOAD\n# ===========================\n# PROTECT THIS FILE AS IT CONTAINS YOUR PRIVATE KEY.\n# IF YOU LOSE IT, YOU WILL LOSE ACCESS TO YOUR ACCOUNT.\n; u=${data.username}\n; pub=${compress(data.publicKey)}\n; priv=${compress(data.privateKey)}\n; exported_at=${new Date().toISOString()}\n; instance_id=${crypto.randomUUID()}\n# ===========================\n# You should never share this file with anyone.\n# ===========================\n# To import this key back into your browser, go to the login page and use the "Login with file" option.\n# Ensure you are uploading this file to a trusted instance of the application.\n# For your safety, you exported this key from ${window.location.origin}\n# And therefore, you should only import it back into the same origin.\n# ===========================`.trim();
+
+    const blob = new Blob([text_content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `in2siders_${data.username}_export_${new Date().toISOString()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    setCanLogin(true);
+  }
+
+  /* Login redirect handle */
+  const handleProceedToLogin = () => {
+    if(!canLogin) return;
+    window.location.href = '/auth/login';
+  }
+
+  return (
+    <>
+      <h1 className="title">Registration Successful!</h1>
+      <p className="subtitle">Your account has been created successfully.</p>
+
+      <div className="content-section">
+        <p>Your private key has been saved to your browser's local storage. For security reasons, it is highly recommended to download a backup of your private key.</p>
+        <p>If you lose access to your browser's local storage (e.g., clearing browser data, using a different device), you will not be able to access your account without the private key.</p>
+      </div>
+      
+      <div>
+        <Button onClick={handleDownloadKey} className="mx-auto mb-4">
+          Download Private Key
+        </Button>
+        <br />
+        <span className="text-sm text-gray-400">Make sure to store it in a safe place.</span>
+      </div>
+      <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+        {canLogin ? (
+          <Button onClick={handleProceedToLogin} className="mx-auto mb-4" disabled={!canLogin}>
+            Proceed to Login
+          </Button>
         ) : (
           <>
-            <span style={{ fontWeight: 'bold', color: '#2ecc40' }}>✔️ Keys generated successfully!</span>
-            <div style={{ margin: '16px 0' }}>
-              <Button variant="accent" width="auto" onClick={handleDownload}>Download Private Key</Button>
-            </div>
-            <small style={{ color: '#888', display: 'block', marginBottom: '12px' }}>
-              Your private key is stored securely in your browser (localStorage).<br />
-              <span style={{ color: '#e67e22' }}>Warning: If you lose your private key, you will lose access to your account.</span>
-            </small>
-            {(downloaded || showSkip) && (
-              <div style={{ marginTop: '18px', display: 'flex', flexDirection: 'column', width: 'fit-content' }} className='mx-auto space-y-2'>
-                <Button variant="ghost" width="auto" onClick={goToLogin}>
-                  Go to Login
-                </Button>
-                <small style={{ color: '#888', marginLeft: '8px' }}>
-                  {downloaded ? 'You can now log in.' : 'Skip and go to login (not recommended)'}
-                </small>
-              </div>
-            )}
+            <Button disabled className="mx-auto mb-4">
+              Proceed to Login
+            </Button>
+            <p>You should download your private key before proceeding. If you don't want, the button will become available after 10 seconds.</p>
           </>
         )}
       </div>
     </>
-  );
+  )
 }
 
 function RegisterPage() {
@@ -311,6 +354,12 @@ function RegisterPage() {
       outside: null,
       button: <Button variant="ghost" size="small" onClick={() => setStep(1)}>← Previous</Button>,
       continueText: 'Continue to Final Step',
+    },
+    {
+      element: <FinalStep data={registerData} setData={setRegisterData} signalReady={(_any) => {setCanContinue(false)}} />,
+      outside: null,
+      button: <Button variant="ghost" size="small" onClick={() => toast.info("You can't go back from here.")}>← Previous</Button>,
+      continueText: 'No more steps',
     }
   ]
 
