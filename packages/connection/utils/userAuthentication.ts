@@ -1,4 +1,4 @@
-import { generateKey, decrypt, readMessage, readPrivateKey } from 'openpgp/lightweight';
+import { generateKey, decrypt, readMessage, readPrivateKey, decryptKey } from 'openpgp/lightweight';
 import { deflate, inflate } from 'pako'
 
 
@@ -17,7 +17,7 @@ export async function solveChallenge(challenge: string, privateKey: string) {
     const decrypted = await decrypt({
         format: 'binary',
         message: await readMessage({ armoredMessage: challenge }),
-        decryptionKeys: await readPrivateKey({ armoredKey: privateKey }),
+        decryptionKeys: await readPrivateKey({ armoredKey: privateKey })
     });
 
     return new TextDecoder().decode(decrypted.data as Uint8Array);
@@ -47,3 +47,12 @@ export const decompress = (data: string): string => (
 )
 
 /* Fin de las funciones de compresión */
+
+export const getFromStorage = (u: string): string | null => {
+    if (typeof window === 'undefined') return null;
+    const compressedKey = window.localStorage.getItem(`upk`);
+    if (!compressedKey) return null;
+
+    const decompressedJson = JSON.parse(decompress(compressedKey));
+    return decompressedJson[u] || null;
+}
