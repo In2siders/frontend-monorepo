@@ -4,7 +4,6 @@ import { generateUserKey, compress, decompress } from '@repo/connection/utils/us
 import { Button } from '@repo/components/button'
 import '@repo/common/style.css'
 import toast from 'react-hot-toast'
-import { s } from 'motion/react-client'
 
 /* Storage keys on browser */
 const fnSaveKeyToLocalStorage = (u, key) => {
