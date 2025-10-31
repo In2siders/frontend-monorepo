@@ -30,58 +30,41 @@ const fnSaveKeyToLocalStorage = (u, key) => {
   localStorage.setItem('upk', compressed);
 }
 
-const FirstStep = ({ signalReady }) => {
-  const [serverReady, setServerReady] = useState(false);
-
-  useEffect(() => {
-    const checkServer = async () => {
-      try {
-        const serverOnline = await healthCheck();
-        setServerReady(serverOnline);
-      } catch (error) {
-        setServerReady(false);
-        toast.error('Cannot connect to the server. Please try again later.');
-      }
-    }
-    checkServer();
-  }, []);
-
-  return (
-    <>
-      <h1 className="title">Create Account</h1>
-      <p className="subtitle">This application uses PGP keys for authentication.</p>
+const FirstStep = ({ signalReady }) => (
+  <>
+    <h1 className="title">Create Account</h1>
+    <p className="subtitle">This application uses PGP keys for authentication.</p>
+    
+    <div className="content-section">
+      <p>Both keys, public and private are generated in your browser and the private key is stored in your browser's local storage. The public key is sent to the server with your username to create your account.</p>
+    </div>
+    
+    <div className="warning">
+      <h2>Important</h2>
+      <strong>If you clear your browser's local storage or use a different browser or device, you will lose access to your account.</strong>
+      <br />
+      Make sure to back up your private key if you want to access your account from another device or after clearing your browser data.
+    </div>
+    
+    <div className="content-section">
+      <p>You can download your private key after completing the registration process.</p>
       
-      <div className="content-section">
-        <p>Both keys, public and private are generated in your browser and the private key is stored in your browser's local storage. The public key is sent to the server with your username to create your account.</p>
-      </div>
-      
-      <div className="warning">
-        <h2>Important</h2>
-        <strong>If you clear your browser's local storage or use a different browser or device, you will lose access to your account.</strong>
-        <br />
-        Make sure to back up your private key if you want to access your account from another device or after clearing your browser data.
-      </div>
-      
-      <div className="content-section">
-        <p>You can download your private key after completing the registration process.</p>
-        
-        <p>By clicking "Select username", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.</p>
-      </div>
+      <p>By clicking "Select username", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.</p>
+    </div>
 
-      <div className='p-4 rounded-sm bg-yellow-900/80 border-yellow-600 border w-full h-fit'>
-        <label className='risk-checkbox-required'>
-          <input type="checkbox" onChange={(e) => {
-            if (e.target.checked) {
-              signalReady();
-            } else {
-              signalReady(false);
-            }
-          }} /> I understand my private key must be kept safe and that losing it means losing access to my account.
-        </label>
-      </div>
-    </>
-  )
-}
+    <div className='p-4 rounded-sm bg-yellow-900/80 border-yellow-600 border w-full h-fit'>
+      <label className='risk-checkbox-required'>
+        <input type="checkbox" onChange={(e) => {
+          if (e.target.checked) {
+            signalReady();
+          } else {
+            signalReady(false);
+          }
+        }} /> I understand my private key must be kept safe and that losing it means losing access to my account.
+      </label>
+    </div>
+  </>
+)
 
 const SecondStep = ({ data, setData, signalReady }) => {
   const [username, setUsername] = useState('');
@@ -257,11 +240,42 @@ function RegisterPage() {
   const [step, setStep] = useState(0);
   const [registerData, setRegisterData] = useState({username: '', publicKey: '', privateKey: ''});
   const [canContinue, setCanContinue] = useState(false);
+  const [serverReady, setServerReady] = useState(false);
+
+  useEffect(() => {
+    const checkServer = async () => {
+      toast.promise(() => healthCheck(), {
+        loading: 'Checking server status...',
+        success: (serverOnline) => {
+          setServerReady(serverOnline);
+          if (!serverOnline) {
+            return 'Server is offline. Please try again later.';
+          }
+          return 'Server check successful!';
+        },
+        error: 'Cannot connect to the server. Please try again later.',
+      });
+    }
+    checkServer();
+  }, []);
 
   const proceedToNextStep = () => {
+    if (!canContinue) return;
+    if (!serverReady) {
+      toast.error('We are experiencing connectivity issues. Please try again later.');
+      return;
+    }
     
-    setCanContinue(false);
-    setStep(step + 1);
+    if (stepAssignment[step].checkFn) {
+      stepAssignment[step].checkFn().then((result) => {
+        setCanContinue(false);
+        if (result) setStep(step + 1);
+      });
+      return;
+    } else {
+      setCanContinue(false);
+      setStep(step + 1);
+    }
   }
 
   const stepAssignment = [
@@ -276,6 +290,22 @@ function RegisterPage() {
       outside: null,
       button: <Button variant="ghost" size="small" onClick={() => setStep(0)}>← Previous</Button>,
       continueText: 'Select username and generate keys',
+      checkFn: async () => {
+        if (registerData.username.length < 3) {
+          toast.error('Username must be at least 3 characters long.');
+          return false;
+        }
+
+        const available = await apiFetch(`/auth/check?username=${registerData.username}`, {
+          method: 'GET',
+        });
+        if (!available) {
+          toast.error('Username is already taken.');
+          return false;
+        }
+
+        return true;
+      }
     },
     {
       element: <ThirdStep data={registerData} setData={setRegisterData} signalReady={(v = true) => setCanContinue(v)} />,
