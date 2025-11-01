@@ -1,5 +1,6 @@
 import { Button } from "@repo/components/button";
 import { Link } from "react-router";
+import { motion } from "motion/react";
 
 export default function Home() {
   return (
@@ -21,8 +22,10 @@ export default function Home() {
           </Link>
         </Button>
       </div>
-      
-      <a href="#" className="help-link">Need Help?</a>
+
+      <a href="#" className="help-link">
+        Need Help?
+      </a>
     </div>
   )
 }
