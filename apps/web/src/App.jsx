@@ -4,27 +4,38 @@ import '@repo/common/style.css'
 import Home from './pages/home'
 import Register from './pages/auth/register'
 import Login from './pages/auth/login'
-// import Chat from './pages/chat/index'
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Link
-} from 'react-router-dom'
+import { NewChatRoom, ChatRoom, ChatOverlay } from './pages/chat/index'
+import { BrowserRouter, Routes, Route } from 'react-router'
+
+const General404 = () => (
+  <h1>Page Not Found</h1>
+)
 
 function App() {
   return (
-    <Router>
-      <div>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/auth/register" element={<Register />} />
-          <Route path="/auth/login" element={<Login />} />
-          {/* <Route path="/chat" element={<Chat />} /> */}
-        </Routes>
-      </div>
+    <BrowserRouter>
+      <Routes>
+        <Route index element={<Home />} />
+
+        {/* Auth Routes */}
+        <Route path="/auth">
+          <Route path="register" element={<Register />} />
+          <Route path="login" element={<Login />} />
+          <Route path="*" element={<General404 />} />
+        </Route>
+        
+        {/* Chat Routes */}
+        <Route path="/chat" element={<ChatOverlay />}>
+          <Route index element={<General404 />} />
+          <Route path="new" element={<NewChatRoom />} />
+          <Route path=":chatId" element={<ChatRoom />} />
+          <Route path="*" element={<General404 />} />
+        </Route>
+
+        <Route path="*" element={<General404 />} />
+      </Routes>
       <Toaster position='bottom-right'/>
-    </Router>
+    </BrowserRouter>
   )
 }
 
