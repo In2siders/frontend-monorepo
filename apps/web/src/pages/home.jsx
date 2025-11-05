@@ -9,17 +9,13 @@ export default function Home() {
       <div className="content-section">
         <p className="subtitle">Sign in to your account or create a new one</p>
       </div>
-      
-      <div className="button-group">
+
+      <div className="flex gap-4 flex-col">
         <Button variant="accent" size="large" asChild>
-          <Link to={"/auth/login"}>
-            Login
-          </Link>
+          <Link to={"/auth/login"}>Login</Link>
         </Button>
         <Button variant="secondary" size="large" asChild>
-          <Link to={"/auth/register"}>
-            Register
-          </Link>
+          <Link to={"/auth/register"}>Register</Link>
         </Button>
       </div>
 
@@ -27,5 +23,5 @@ export default function Home() {
         Need Help?
       </a>
     </div>
-  )
+  );
 }
