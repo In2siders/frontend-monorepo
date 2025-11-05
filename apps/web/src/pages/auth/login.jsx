@@ -55,9 +55,9 @@ const SelectMethod = ({ setMethod }) => {
     <>
       <h1 className='title'>Select a login method</h1>
       <p className='subtitle'>You may prefer using <strong>one of the following methods:</strong></p>
-      <div className='button-group stack-vertical'>
-        <Button onClick={() => setMethod('username')}>Login with Username</Button>
-        <Button onClick={() => setMethod('file')}>Login with File</Button>
+      <div className='flex flex-col gap-4 justify-center items-center'>
+        <Button className='w-full' variant='secondary' size='large' onClick={() => setMethod('username')}>Login with Username</Button>
+        <Button className='flex flex-col gap-4 ' variant='secondary' size='small' onClick={() => setMethod('file')}>Login with File</Button>
       </div>
     </>
   )

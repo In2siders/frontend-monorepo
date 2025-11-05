@@ -12,6 +12,7 @@ export default ({ mode }) => {
   return defineConfig({
     plugins: [react()],
     server: {
+      allowedHosts: ["exclusive-internal-web.leiuq.fun"],
       port: Number(port),
       host,
       open: true,

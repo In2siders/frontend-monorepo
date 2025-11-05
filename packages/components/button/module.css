@@ -112,7 +112,7 @@
 /* ====== Button Sizes ====== */
 .btn-small {
     padding: 8px 16px;
-    min-width: 80px;
+    width: fit-content;
     min-height: 36px;
     font-size: 0.875rem;
 }
