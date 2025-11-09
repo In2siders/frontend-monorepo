@@ -26,13 +26,13 @@ docker-compose -f docker-compose.web.yml up -d
 
 CI notes: the workflow `.github/workflows/publish-web-image.yml` builds `apps/web/Dockerfile` and pushes the image to `ghcr.io/<ORG>/frontend-web:latest`.
 
-# 💻 Proyecto Intermodular (Monorepo)
+# Proyecto Intermodular (Monorepo)
 
 Repositorio privado para el **desarrollo de nuestro proyecto**. A continuación, se presentan guías y normas a seguir.
 
 ---
 
-## 📦 ¿Qué hay dentro?
+## ¿Qué hay dentro?
 
 Este **Turborepo** incluye lo siguiente:
 
@@ -46,7 +46,7 @@ Este **Turborepo** incluye lo siguiente:
 
 ---
 
-## 🚀 Despliegue Rápido (web)
+## Despliegue Rápido (web)
 
 Publicamos una imagen de **Docker** para la aplicación `web` en el **GitHub Container Registry** en cada *push* a la rama `master`.
 
