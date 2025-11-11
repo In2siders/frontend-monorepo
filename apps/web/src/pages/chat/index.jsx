@@ -1,4 +1,5 @@
 import { Outlet, useParams } from "react-router"
+import {WebsocketProvider} from "@repo/connection/context/Websocket"
 
 export const Chat404 = () => (
     <h1>Chat Not Found</h1>
@@ -16,10 +17,10 @@ export const ChatRoom = () => {
     )
 }
 export const ChatOverlay = () => (
-    <main>
+    <WebsocketProvider>
         <h1>Chat Overlay</h1>
         <div>
             <Outlet />
         </div>
-    </main>
+    </WebsocketProvider>
 )

@@ -330,7 +330,7 @@ function RegisterPage() {
     {
       element: <SecondStep data={registerData} setData={setRegisterData} signalReady={(v = true) => setCanContinue(v)} />,
       outside: null,
-      button: <Button variant="ghost" size="small" onClick={() => setStep(0)}>← Previous</Button>,
+      button: <Button variant="ghost" size="small" onClick={() => setStep(0)}>Previous</Button>,
       continueText: 'Select username and generate keys',
       checkFn: async () => {
         if (registerData.username.length < 3) {
@@ -352,31 +352,32 @@ function RegisterPage() {
     {
       element: <ThirdStep data={registerData} setData={setRegisterData} signalReady={(v = true) => setCanContinue(v)} />,
       outside: null,
-      button: <Button variant="ghost" size="small" onClick={() => setStep(1)}>← Previous</Button>,
+      button: <Button variant="ghost" size="small" onClick={() => setStep(1)}>Previous</Button>,
       continueText: 'Continue to Final Step',
     },
     {
       element: <FinalStep data={registerData} setData={setRegisterData} signalReady={(_any) => {setCanContinue(false)}} />,
       outside: null,
-      button: <Button variant="ghost" size="small" onClick={() => toast.info("You can't go back from here.")}>← Previous</Button>,
+      button: <Button variant="ghost" size="small" onClick={() => toast.info("You can't go back from here.")}>Previous</Button>,
       continueText: 'No more steps',
     }
   ]
 
   return (
+    // TODO: El aviso PGP Esta roto no se que ha pasado, he agregado flex, items-center y justify-center en Style.css .container / Mateo
     <div className='page-content flex flex-col items-center'>
       <div className='button-group-horizontal' style={{ marginBottom: '24px' }}>
         {stepAssignment[step].button}
       </div>
       <div className={'container' + (stepAssignment[step].scrollNeeded ? ' scroll-needed' : '')} data-container-pref='auth_register'>
         {stepAssignment[step].element}
-      </div>
-      {stepAssignment[step].scrollNeeded && (
+            {stepAssignment[step].scrollNeeded && (
         <p className='scroll-indicator'>Scroll to bottom to continue</p>
       )}
-      <Button onClick={proceedToNextStep} disabled={!canContinue} className='mx-auto mt-4'>
+      <Button onClick={proceedToNextStep} disabled={!canContinue} className='mx-auto mt-8'>
         {stepAssignment[step].continueText}
       </Button>
+      </div>
     </div>
   )
 }
