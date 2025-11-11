@@ -262,12 +262,12 @@ function FinalStep({ data, setData, signalReady }) {
       </div>
       <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
         {canLogin ? (
-          <Button onClick={handleProceedToLogin} className="mx-auto mb-4" disabled={!canLogin}>
+          <Button onClick={handleProceedToLogin} className="mx-auto mb-4" variant='ghost' disabled={!canLogin}>
             Proceed to Login
           </Button>
         ) : (
           <>
-            <Button disabled className="mx-auto mb-4">
+            <Button disabled className="mx-auto mb-4" variant='ghost'>
               Proceed to Login
             </Button>
             <p>You should download your private key before proceeding. If you don't want, the button will become available after 10 seconds.</p>
@@ -374,7 +374,7 @@ function RegisterPage() {
             {stepAssignment[step].scrollNeeded && (
         <p className='scroll-indicator'>Scroll to bottom to continue</p>
       )}
-      <Button onClick={proceedToNextStep} disabled={!canContinue} className='mx-auto mt-8'>
+      <Button onClick={proceedToNextStep} disabled={!canContinue} variant='ghost' className='mx-auto mt-8'>
         {stepAssignment[step].continueText}
       </Button>
       </div>
