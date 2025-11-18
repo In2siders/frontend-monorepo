@@ -24,28 +24,38 @@ export const WebsocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const socketRef = React.useRef<Socket | null>(null);
 
     React.useEffect(() => {
-        const { url, path } = buildUrl();
-
-        const token =
-            getEnv("REACT_APP_WS_TOKEN", "VITE_WS_TOKEN", "NEXT_PUBLIC_WS_TOKEN", "WS_TOKEN") ??
-            typeof window !== "undefined"
-                ? localStorage.getItem("AUTH_TOKEN") || undefined
-                : undefined;
+        // AI bullshit
+        const url = getEnv("VITE_WS_URI") ?? "wss://exclusive-internal-api.leiuq.fun";
+        
+        // Get session token from cookies ('i2session')
+        const token = document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("i2session="))
+            ?.split("=")[1];
 
         const opts: any = {
             transports: ["websocket"],
             reconnection: true,
-            reconnectionAttempts: Infinity,
+            reconnectionAttempts: 3,
         };
-        if (path) opts.path = path;
+        
         if (token) opts.auth = { token };
 
         const socket = io(url, opts);
         socketRef.current = socket;
 
-        const onConnect = () => setConnected(true);
-        const onDisconnect = () => setConnected(false);
-        const onConnectError = () => setConnected(false);
+        const onConnect = () => {
+            setConnected(true);
+            console.log("Websocket connected");
+        };
+        const onDisconnect = () => {
+            setConnected(false);
+            console.log("Websocket disconnected");
+        };
+        const onConnectError = () => {
+            setConnected(false);
+            console.log("Websocket connection error");
+        };
 
         socket.on("connect", onConnect);
         socket.on("disconnect", onDisconnect);
@@ -66,7 +76,7 @@ export const WebsocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, []);
 
     const on = React.useCallback((event: string, cb: (...args: any[]) => void) => {
-        socketRef.current?.on(event, cb);
+        if (socketRef.current) socketRef.current.on(event, cb);
     }, []);
 
     const off = React.useCallback((event: string, cb?: (...args: any[]) => void) => {
