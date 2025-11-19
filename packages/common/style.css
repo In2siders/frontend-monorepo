@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ====== Base Design System ====== */
-
-/* ====== Base Styles ====== */
 * {
     box-sizing: border-box;
 }
@@ -14,14 +11,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #4a5bb8 0%, #5a3d7a 100%);
+    background: linear-gradient(135deg, #696969 0%, #303030 100%);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: #ffffff;
     overflow-x: hidden;
     overflow-y: auto;
 }
 
-/* ====== Container Template ====== */
 .container {
     background: rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(20px);
@@ -45,14 +41,11 @@ body {
     justify-content: center;
 }
 
-/** Container & Card hover effect (now requires .with-float class to work) | Ezequiel **/
-
 .container.with-float:hover {
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
     transform: translateY(-2px);
 }
 
-/* ====== Custom Scrollbar ====== */
 .container::-webkit-scrollbar {
     width: 0px;
 }
@@ -69,8 +62,6 @@ body {
     background: transparent;
 }
 
-/** Scroll Indicator | Ezequiel C. **/
-
 .scroll-indicator {
     z-index: 10;
     position: relative;
@@ -85,7 +76,6 @@ body {
     height: 24px;
 }
 
-/* ====== Typography ====== */
 .title,
 .login-title {
     font-size: 2.5rem;
@@ -104,7 +94,6 @@ body {
     line-height: 1.6;
 }
 
-/* ====== Button Layouts ====== */
 .button-group {
     display: flex;
     gap: 16px;
@@ -125,7 +114,6 @@ body {
     margin-bottom: 24px;
 }
 
-/* ====== Content Spacing ====== */
 .content-section {
     margin-bottom: 16px;
 }
@@ -139,7 +127,6 @@ body {
     margin-bottom: 48px;
 }
 
-/* ====== Form Styles ====== */
 .form-group {
     display: flex;
     flex-direction: column;
@@ -148,7 +135,6 @@ body {
     max-width: 400px;
 }
 
-/* ====== Links ====== */
 .help-link {
     position: relative;
     color: rgba(255, 255, 255, 0.9);
@@ -178,10 +164,9 @@ body {
 }
 
 .help-link:hover::after {
-  transform: scaleX(1);
+    transform: scaleX(1);
 }
 
-/* ====== Form Inputs ====== */
 .input,
 input[type="text"],
 input[type="email"],
@@ -213,7 +198,6 @@ input:focus {
     color: #ffffff;
 }
 
-/* ====== Warning Box ====== */
 .warning {
     background: rgba(120, 20, 20, 0.4);
     border: 1px solid rgba(220, 80, 80, 0.6);
@@ -237,14 +221,13 @@ input:focus {
     font-weight: 700;
 }
 
-/* ====== Responsive Design ====== */
 @media (max-width: 640px) {
     body {
         padding: 8px;
         align-items: flex-start;
         padding-top: 16px;
     }
-    
+
     .container,
     .card,
     .login-menu,
@@ -256,18 +239,16 @@ input:focus {
         max-height: 75vh;
         margin: 0;
     }
-    
+
     .button-group-horizontal {
         flex-direction: column;
     }
-    
+
     .title,
     .login-title {
         font-size: 2rem;
     }
 }
-
-/* Media query variables already converted to direct values above */
 
 .input-success {
     border-color: #4caf50 !important;
@@ -283,8 +264,6 @@ input:focus {
     border-color: #ffae00 !important;
     border-width: 3px !important;
 }
-
-/* === Container Preferences === */
 
 .container[data-container-pref="auth_register"] {
     width: 620px;
