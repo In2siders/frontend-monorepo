@@ -54,7 +54,8 @@ export const ChatOverlay = () => {
                     <aside className="p-4 h-full overflow-y-auto">
                         <h1 className="p-10 center bg-black/20 rounded-lg text-white hover:bg-black/40 cursor-pointer">Global Chat</h1>
                         <br />
-                        <h2 className="text-white text-2xl underline underline-offset-4 mb-4 text-center">Chats</h2>
+                        <h2 className="text-white text-2xl underline underline-offset-4 text-center">Chats</h2>
+                        <br />
                         <ul className="space-y-2">
                             {chatExamples.map(chat => (
                                 <li key={chat.id} className="p-4 bg-black/20 rounded-sm text-white hover:bg-black/40 cursor-pointer">
