@@ -19,21 +19,21 @@ export const ChatRoom = () => {
 export const ChatOverlay = () => {
     const msg = [{
         onThisSide: true, // Sent by user
-        decryptedContent: "Hello, how are you?",
+        decryptedContent: "Cuando era que se entregaba el trabajo?",
         messageChecksum: "abc123",
         timestamp: 1625247600,
         senderId: "user1",
         recipientId: "user2"
     }, {
         onThisSide: false, // Received message
-        decryptedContent: "I'm good, thank you!",
+        decryptedContent: "Ni puta idea hermano kekw",
         messageChecksum: "def456",
         timestamp: 1625247660,
         senderId: "user2",
         recipientId: "user1"
     }, {
         onThisSide: true, // Sent by user
-        decryptedContent: "What about you?",
+        decryptedContent: "joer hermano",
         messageChecksum: "ghi789",
         timestamp: 1625247720,
         senderId: "user1",
@@ -41,9 +41,9 @@ export const ChatOverlay = () => {
     }]
 
     const chatExamples = [
-        { id: 1, name: "Chat with Alice" },
-        { id: 2, name: "Project Discussion" },
-        { id: 3, name: "Random Talks" },
+        { id: 1, name: "ReinadoRojo" },
+        { id: 2, name: "Pequeño grupo de amigos" },
+        { id: 3, name: "(IN2)siders Dev Chat" },
     ];
 
     return (
@@ -54,47 +54,42 @@ export const ChatOverlay = () => {
                     <aside className="p-4 h-full overflow-y-auto">
                         <h1 className="p-10 center bg-black/20 rounded-lg text-white hover:bg-black/40 cursor-pointer">Global Chat</h1>
                         <br />
-                        <h2 className="text-white text-lg mb-4 text-center">Chats</h2>
+                        <h2 className="text-white text-2xl underline underline-offset-4 mb-4 text-center">Chats</h2>
                         <ul className="space-y-2">
                             {chatExamples.map(chat => (
-                                <li key={chat.id} className="p-4 bg-black/20 rounded-lg text-white hover:bg-black/40 cursor-pointer">
+                                <li key={chat.id} className="p-4 bg-black/20 rounded-sm text-white hover:bg-black/40 cursor-pointer">
                                     {chat.name}
                                 </li>
-                            ))} 
+                            ))}
                         </ul>
                     </aside>
-
                 </div>
+
                 <div className="h-[90vh] w-[70%] bg-black/50">
                     {/* Main chat area */}
-
                     {/* Header */}
-
-                    <header className="h-[10vh] pb-4 pt-2 pr-8 pl-8 border-b border-white/10 flex items-center ">
+                    <header className="h-[10vh] pr-8 pl-8 border-b border-white/10 flex items-center ">
                         <div className="flex items-center space-x-4">
-                        <Outlet />
+                            <Outlet />
                         </div>
-
                         <div className="ml-auto flex items-center space-x-4">
-                        <button className="text-sm text-white/50 hover:text-white">...</button>
+                            <button className="text-sm text-white/50 hover:text-white">...</button>
                         </div>
                     </header>
                     {/* Messages area */}
-
                     <div className="p-4 overflow-y-auto overflow-hidden h-[calc(90vh-10vh-10vh)] flex flex-col space-y-4">
                         {msg.map((message, index) => (
                             <div
-                                className={`mb-4 p-3 rounded-lg max-w-[70%] ${message.onThisSide ? 'bg-blue-800 text-white self-end' : 'bg-gray-200 text-black self-start'}`}
+                                className={`mb-4 p-3 rounded-lg max-w-[70%] ${message.onThisSide ? 'bg-yellow-500 text-black self-end' : 'bg-gray-200 text-black self-start'}`}
                                 key={index}>
                                 {/* TODO: Ezequiel, Esto es un placeholder cuando puedas implementar el contenido real del mensaje */}
-                                {message.onThisSide ? 'Tu: ' : 'Ellos: '}
+                                {message.onThisSide ? 'Mteoo: ' : 'ReinadoRojo: '}
+                                <br />
                                 {message.decryptedContent}
                             </div>
                         ))}
                     </div>
-
                     {/* Footer */}
-
                     <footer className="p-4 h-[10vh] border-t backdrop-blur border-white/10">
                         <form className="flex items-center space-x-4">
                             <input
