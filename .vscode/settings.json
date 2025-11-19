@@ -3,5 +3,10 @@
     {
       "mode": "auto"
     }
+  ],
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "file": ".github/copilot/commit_message_instructions.md",
+    }
   ]
 }
