@@ -1,10 +1,9 @@
 import '@repo/common/style.css'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { apiFetch, healthCheck } from '@repo/connection/utils/api'
 import { generateUserKey, compress, decompress } from '@repo/connection/utils/userAuthentication'
 import { Button } from '@repo/components/button'
 import toast from 'react-hot-toast'
-import { m } from 'motion/react'
 
 /* Save user key to localStorage */
 const fnSaveKeyToLocalStorage = (u, key) => {
