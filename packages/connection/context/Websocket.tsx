@@ -1,6 +1,6 @@
 // '* as React' cuz this shit doesn't work without it.
 import * as React from "react";
-import { io, Socket } from "socket.io-client";
+import { io, ManagerOptions, Socket, SocketOptions } from "socket.io-client";
 
 type WSContext = {
     socket: Socket | null;
@@ -24,22 +24,25 @@ export const WebsocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const socketRef = React.useRef<Socket | null>(null);
 
     React.useEffect(() => {
-        // AI bullshit
-        const url = getEnv("VITE_WS_URI") ?? "wss://exclusive-internal-api.leiuq.fun";
-        
+        const url = getEnv("VITE_WS_URI") ?? "ws://localhost:5000";
+
         // Get session token from cookies ('i2session')
-        const token = document.cookie
+        const session = document.cookie
             .split("; ")
             .find((row) => row.startsWith("i2session="))
             ?.split("=")[1];
 
-        const opts: any = {
-            transports: ["websocket"],
-            reconnection: true,
-            reconnectionAttempts: 3,
+        const opts: Partial<ManagerOptions & SocketOptions> = {
+          transports: ["websocket"],
+          reconnection: true,
+          reconnectionDelay: 1000,
+          reconnectionDelayMax: 5000,
+          reconnectionAttempts: 3,
+          auth: session ? { token: session } : {},
+          rememberUpgrade: true,
         };
-        
-        if (token) opts.auth = { token };
+
+        if (!session) console.warn("No session token found in cookies; connecting without authentication.");
 
         const socket = io(url, opts);
         socketRef.current = socket;
@@ -68,7 +71,6 @@ export const WebsocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             socket.disconnect();
             socketRef.current = null;
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const emit = React.useCallback((event: string, ...args: any[]) => {
