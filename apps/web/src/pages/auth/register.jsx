@@ -1,10 +1,9 @@
 import '@repo/common/style.css'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { apiFetch, healthCheck } from '@repo/connection/utils/api'
 import { generateUserKey, compress, decompress } from '@repo/connection/utils/userAuthentication'
 import { Button } from '@repo/components/button'
 import toast from 'react-hot-toast'
-import { m } from 'motion/react'
 
 /* Save user key to localStorage */
 const fnSaveKeyToLocalStorage = (u, key) => {
@@ -262,12 +261,12 @@ function FinalStep({ data, setData, signalReady }) {
       </div>
       <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
         {canLogin ? (
-          <Button onClick={handleProceedToLogin} className="mx-auto mb-4" disabled={!canLogin}>
+          <Button onClick={handleProceedToLogin} className="mx-auto mb-4" variant='ghost' disabled={!canLogin}>
             Proceed to Login
           </Button>
         ) : (
           <>
-            <Button disabled className="mx-auto mb-4">
+            <Button disabled className="mx-auto mb-4" variant='ghost'>
               Proceed to Login
             </Button>
             <p>You should download your private key before proceeding. If you don't want, the button will become available after 10 seconds.</p>
@@ -330,7 +329,7 @@ function RegisterPage() {
     {
       element: <SecondStep data={registerData} setData={setRegisterData} signalReady={(v = true) => setCanContinue(v)} />,
       outside: null,
-      button: <Button variant="ghost" size="small" onClick={() => setStep(0)}>← Previous</Button>,
+      button: <Button variant="ghost" size="small" onClick={() => setStep(0)}>Previous</Button>,
       continueText: 'Select username and generate keys',
       checkFn: async () => {
         if (registerData.username.length < 3) {
@@ -352,31 +351,32 @@ function RegisterPage() {
     {
       element: <ThirdStep data={registerData} setData={setRegisterData} signalReady={(v = true) => setCanContinue(v)} />,
       outside: null,
-      button: <Button variant="ghost" size="small" onClick={() => setStep(1)}>← Previous</Button>,
+      button: <Button variant="ghost" size="small" onClick={() => setStep(1)}>Previous</Button>,
       continueText: 'Continue to Final Step',
     },
     {
       element: <FinalStep data={registerData} setData={setRegisterData} signalReady={(_any) => {setCanContinue(false)}} />,
       outside: null,
-      button: <Button variant="ghost" size="small" onClick={() => toast.info("You can't go back from here.")}>← Previous</Button>,
+      button: <Button variant="ghost" size="small" onClick={() => toast.info("You can't go back from here.")}>Previous</Button>,
       continueText: 'No more steps',
     }
   ]
 
   return (
+    // TODO: El aviso PGP Esta roto no se que ha pasado, he agregado flex, items-center y justify-center en Style.css .container / Mateo
     <div className='page-content flex flex-col items-center'>
       <div className='button-group-horizontal' style={{ marginBottom: '24px' }}>
         {stepAssignment[step].button}
       </div>
       <div className={'container' + (stepAssignment[step].scrollNeeded ? ' scroll-needed' : '')} data-container-pref='auth_register'>
         {stepAssignment[step].element}
-      </div>
-      {stepAssignment[step].scrollNeeded && (
+            {stepAssignment[step].scrollNeeded && (
         <p className='scroll-indicator'>Scroll to bottom to continue</p>
       )}
-      <Button onClick={proceedToNextStep} disabled={!canContinue} className='mx-auto mt-4'>
+      <Button onClick={proceedToNextStep} disabled={!canContinue} variant='ghost' className='mx-auto mt-8'>
         {stepAssignment[step].continueText}
       </Button>
+      </div>
     </div>
   )
 }

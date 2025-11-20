@@ -78,11 +78,11 @@ function LoginPage() {
       element: <LoginWithName credentials={credentials} setCredentials={setCredentials} />,
       button: <Button onClick={() => setMethod('username')}>Login with Username</Button>,
       submitFn: async () => {
-        if(!credentials.username) {
+        if (!credentials.username) {
           toast.error('Please enter your username.');
           return;
         }
-        if(credentials.username.length < 3) {
+        if (credentials.username.length < 3) {
           toast.error('Username must be at least 3 characters long.');
           return;
         }
@@ -96,7 +96,7 @@ function LoginPage() {
           body: JSON.stringify({ username: credentials.username }),
         });
 
-        if(!challengeResponse.challengeId || !challengeResponse.challenge) {
+        if (!challengeResponse.challengeId || !challengeResponse.challenge) {
           toast.error('Failed to get challenge from server.');
           setLoading(false);
           return;
@@ -109,7 +109,7 @@ function LoginPage() {
           body: JSON.stringify({ challengeId: challengeResponse.challengeId, solution: solvedChallenge, })
         });
 
-        if(solutionResponse.message && solutionResponse.data.session ) {
+        if (solutionResponse.message && solutionResponse.data.session) {
           toast.success('Login successful!');
           cookieStore.set('i2session', solutionResponse.data.session, { path: '/' });
 
@@ -137,16 +137,16 @@ function LoginPage() {
   return (
     <div className='page-content flex flex-col items-center'>
       <div className='button-group stack-horizontal' style={{ marginBottom: '24px' }}>
-        <Button variant="ghost" size="small" onClick={() => setMethod('none')}>← Back</Button>
+        <Button variant="ghost" size="small" onClick={() => setMethod('none')}><a href='/'>Back</a></Button>
       </div>
       <div className={'container'} data-container-pref='auth_login'>
         {methods[method].element}
+        {methods[method].finishButton && (
+          <div className='button-group stack-horizontal w-90' style={{ marginTop: '24px' }}>
+            {methods[method].finishButton}
+          </div>
+        )}
       </div>
-      {methods[method].finishButton && (
-        <div className='button-group stack-horizontal w-90' style={{ marginTop: '24px' }}>
-          {methods[method].finishButton}
-        </div>
-      )}
     </div>
   )
 }
