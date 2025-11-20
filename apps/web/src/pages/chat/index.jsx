@@ -1,21 +1,37 @@
 import { Outlet, useParams } from "react-router"
-import { WebsocketProvider } from "@repo/connection/context/Websocket"
+import { useWebsocket, WebsocketProvider } from "@repo/connection/context/Websocket"
 
 export const Chat404 = () => (
     <h1>Chat Not Found</h1>
 )
+
 export const NewChatRoom = () => (
     <h1>New Chat Room</h1>
 )
-export const ChatRoom = () => {
-    const params = useParams();
 
-    console.log("chatId:", params.chatId);
+export const ChatRoom = (
+  { msg }
+) => {
+  if (!msg || msg.length === 0) {
+    return <p>No messages yet.</p>;
+  }
 
-    return (
-        <h1>{params.chatId}</h1>
-    )
+  return (
+    <>
+      {msg.map((message, index) => (
+        <div
+          className={`mb-4 p-3 rounded-lg max-w-[70%] ${message.onThisSide ? 'bg-blue-500 border border-white text-black self-end' : 'bg-gray-200 text-black border border-black self-start'}`}
+          key={index}>
+          {/* TODO: Ezequiel, Esto es un placeholder cuando puedas implementar el contenido real del mensaje */}
+          {message.onThisSide ? 'Mteoo: ' : 'ReinadoRojo: '}
+          <br />
+          {message.decryptedContent}
+        </div>
+      ))}
+    </>
+  )
 }
+
 export const ChatOverlay = () => {
     const msg = [{
         onThisSide: true, // Sent by user
@@ -45,6 +61,14 @@ export const ChatOverlay = () => {
         { id: 2, name: "Pequeño grupo de amigos" },
         { id: 3, name: "(IN2)siders Dev Chat" },
     ];
+
+    const params = useParams();
+    const isGroup = params.chatId.startsWith("g-");
+    // const webSocket = useWebsocket();
+
+    if(isGroup) {
+      // Websocket connection for group
+    }
 
     {/* Todo lo que sea una imagen y tenga el logo de (2) es un placeholder */ }
 
@@ -93,16 +117,8 @@ export const ChatOverlay = () => {
                     </header>
                     {/* Messages area */}
                     <div className="p-4 overflow-y-auto overflow-hidden h-[calc(90vh-10vh-10vh)] flex flex-col space-y-4">
-                        {msg.map((message, index) => (
-                            <div
-                                className={`mb-4 p-3 rounded-lg max-w-[70%] ${message.onThisSide ? 'bg-blue-500 border border-white text-black self-end' : 'bg-gray-200 text-black border border-black self-start'}`}
-                                key={index}>
-                                {/* TODO: Ezequiel, Esto es un placeholder cuando puedas implementar el contenido real del mensaje */}
-                                {message.onThisSide ? 'Mteoo: ' : 'ReinadoRojo: '}
-                                <br />
-                                {message.decryptedContent}
-                            </div>
-                        ))}
+                      {/* Children */}
+                      <ChatRoom msg={msg} />
                     </div>
                     {/* Footer */}
                     <footer className="p-4 h-[10vh] border-t backdrop-blur border-white/10">
