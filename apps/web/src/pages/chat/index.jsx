@@ -13,7 +13,7 @@ export const ChatRoom = () => {
     console.log("chatId:", params.chatId);
 
     return (
-        <h1>Chat Room {params.chatId}</h1>
+        <h1>{params.chatId}</h1>
     )
 }
 export const ChatOverlay = () => {
@@ -46,23 +46,36 @@ export const ChatOverlay = () => {
         { id: 3, name: "(IN2)siders Dev Chat" },
     ];
 
+    {/* Todo lo que sea una imagen y tenga el logo de (2) es un placeholder */ }
+
     return (
         <WebsocketProvider>
-            <div className="flex w-[90vw] rounded-xl overflow-hidden border border-white/10 shadow-lg">
+            <div className="flex flex-row w-[90vw] rounded-xl overflow-hidden border border-white/10 shadow-lg">
                 <div className="h-[90vh] w-[30%] bg-black/30 border-r border-white/10">
                     {/* Sidebar or chat list can go here */}
-                    <aside className="p-4 h-full overflow-y-auto">
-                        <h1 className="p-10 center bg-black/20 rounded-lg text-white hover:bg-black/40 cursor-pointer">Global Chat</h1>
-                        <br />
-                        <h2 className="text-white text-2xl underline underline-offset-4 text-center">Chats</h2>
-                        <br />
-                        <ul className="space-y-2">
-                            {chatExamples.map(chat => (
-                                <li key={chat.id} className="p-4 bg-black/20 rounded-sm text-white hover:bg-black/40 cursor-pointer">
-                                    {chat.name}
-                                </li>
-                            ))}
-                        </ul>
+                    <aside className="p-4 overflow-y-auto">
+                        <div className="h-[79vh]">
+                            <h1 className="p-10 center bg-black/20 rounded-lg text-white hover:bg-black/40 cursor-pointer">Global Chat</h1>
+                            <br />
+                            <h2 className="text-white text-2xl underline underline-offset-4 text-center">Chats</h2>
+                            <br />
+                            <ul className="space-y-2">
+                                {chatExamples.map(chat => (
+                                    <li key={chat.id} className="p-4 flex flex-row items-center gap-6 bg-black/20 rounded-sm text-white hover:bg-black/40 cursor-pointer">
+                                        <img src="/2.png" alt="userLogo" className="h-10 rounded-[100%]" />
+                                        {chat.name}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="h-[8vh] w-[25vw] bg-black/50 p-5 rounded-xl flex items-center gap-5">
+                            <img src="/2.png" className="h-15 rounded-[100%]" />
+                            <div className="flex flex-col">
+                                <h1 className="text-xl">Mteoo</h1>
+                                <p>Online</p>
+                            </div>
+                            <h1 className="ml-auto">Config</h1>
+                        </div>
                     </aside>
                 </div>
 
@@ -71,6 +84,7 @@ export const ChatOverlay = () => {
                     {/* Header */}
                     <header className="h-[10vh] pr-8 pl-8 border-b border-white/10 flex items-center ">
                         <div className="flex items-center space-x-4">
+                            <img src="/2.png" className="h-10 w-10 rounded-[100%]"></img>
                             <Outlet />
                         </div>
                         <div className="ml-auto flex items-center space-x-4">
@@ -81,7 +95,7 @@ export const ChatOverlay = () => {
                     <div className="p-4 overflow-y-auto overflow-hidden h-[calc(90vh-10vh-10vh)] flex flex-col space-y-4">
                         {msg.map((message, index) => (
                             <div
-                                className={`mb-4 p-3 rounded-lg max-w-[70%] ${message.onThisSide ? 'bg-yellow-500 text-black self-end' : 'bg-gray-200 text-black self-start'}`}
+                                className={`mb-4 p-3 rounded-lg max-w-[70%] ${message.onThisSide ? 'bg-blue-500 border border-white text-black self-end' : 'bg-gray-200 text-black border border-black self-start'}`}
                                 key={index}>
                                 {/* TODO: Ezequiel, Esto es un placeholder cuando puedas implementar el contenido real del mensaje */}
                                 {message.onThisSide ? 'Mteoo: ' : 'ReinadoRojo: '}
