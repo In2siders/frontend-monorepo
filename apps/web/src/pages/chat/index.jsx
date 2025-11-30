@@ -1,22 +1,51 @@
-import { Outlet, useParams } from "react-router"
-import { WebsocketProvider } from "@repo/connection/context/Websocket"
+import { Link, Outlet, useParams } from "react-router"
+import { useWebsocket, WebsocketProvider } from "@repo/connection/context/Websocket"
+import { useEffect, useState } from "react"
 
-export const Chat404 = () => (
-  <h1>Chat Not Found</h1>
-)
-export const NewChatRoom = () => (
-  <h1>New Chat Room</h1>
-)
-export const ChatRoom = () => {
-  const params = useParams();
+const ChatHeader = ({ cId }) => {
+  const ws = useWebsocket();
 
-  console.log("chatId:", params.chatId);
+  const [metadata, setMetadata] = useState({ "chat_id": cId, "name": "", "people": [], "online": [], "chatType": "group" });
+
+  useEffect(() => {
+    ws.emit("metadata", { chat_id: cId }, (val) => {
+      setMetadata(val);
+    });
+  }, [cId]);
 
   return (
-    <h1>{params.chatId}</h1>
+    <header className="h-[10vh] pr-8 pl-8 border-b border-white/10 flex items-center">
+      <div className="flex items-center space-x-4">
+        <div className="relative">
+          <img src="/2.png" className="h-10 w-10 rounded-[100%]"></img>
+          {metadata.online.length > 0 ? (
+            <div className="absolute bottom-0 right-0 size-3 bg-green-500 border-2 border-black rounded-[100%]"></div>
+          ) : null}
+        </div>
+        <span>
+          <h1 className="text-xl">{metadata.name}</h1>
+          {(metadata.chatType === "group" ) ? <p className="text-sm text-white/50">{metadata.online.length} of {metadata.people.length} members online</p> : null}
+        </span>
+      </div>
+      <div className="ml-auto flex items-center space-x-4">
+        <button className="text-sm text-white/50 hover:text-white">...</button>
+      </div>
+    </header>
   )
 }
+
 export const ChatOverlay = () => {
+  const params = useParams();
+  const chatId = params.chatId; // TODO: What closely to see if it changes and reload messages
+
+  const [roomInformation, setRoomInformation] = useState({
+    id: chatId,
+    name: "No name chat",
+    people: [],
+    online: [],
+    poolType: "group", // or "direct"
+  });
+
   const msg = [{
     onThisSide: true, // Sent by user
     decryptedContent: "Cuando era que se entregaba el trabajo?",
@@ -31,20 +60,17 @@ export const ChatOverlay = () => {
     timestamp: 1625247660,
     senderId: "user2",
     recipientId: "user1"
-  }, {
-    onThisSide: true, // Sent by user
-    decryptedContent: "joer hermano",
-    messageChecksum: "ghi789",
-    timestamp: 1625247720,
-    senderId: "user1",
-    recipientId: "user2"
-  }]
+  }];
 
   const chatExamples = [
     { id: 1, name: "ReinadoRojo" },
     { id: 2, name: "Pequeño grupo de amigos" },
     { id: 3, name: "(IN2)siders Dev Chat" },
   ];
+
+  useEffect(() => {
+
+  }, [chatId])
 
   {/* Todo lo que sea una imagen y tenga el logo de (2) es un placeholder */ }
 
@@ -55,16 +81,16 @@ export const ChatOverlay = () => {
           {/* Sidebar or chat list can go here */}
           <aside className="p-4 overflow-y-auto">
             <div className="h-[79vh]">
-              <h1 className="p-10 center bg-black/20 rounded-lg text-white hover:bg-black/40 cursor-pointer">Global Chat</h1>
+              <Link to="/chat/g-0" className="p-10 center bg-black/20 rounded-lg text-white hover:bg-black/40 cursor-pointer">Global Chat</Link>
               <br />
               <h2 className="text-white text-2xl underline underline-offset-4 text-center">Chats</h2>
               <br />
               <ul className="space-y-2">
                 {chatExamples.map(chat => (
-                  <li key={chat.id} className="p-4 flex flex-row items-center gap-6 bg-black/20 rounded-sm text-white hover:bg-black/40 cursor-pointer">
+                  <Link to={`/chat/${chat.id}`} key={chat.id} className="p-4 flex flex-row items-center gap-6 bg-black/20 rounded-sm text-white hover:bg-black/40 cursor-pointer">
                     <img src="/2.png" alt="userLogo" className="h-10 rounded-[100%]" />
                     {chat.name}
-                  </li>
+                  </Link>
                 ))}
               </ul>
             </div>
@@ -81,28 +107,10 @@ export const ChatOverlay = () => {
 
         <div className="h-[90vh] w-[70%] bg-black/50">
           {/* Main chat area */}
-          {/* Header */}
-          <header className="h-[10vh] pr-8 pl-8 border-b border-white/10 flex items-center ">
-            <div className="flex items-center space-x-4">
-              <img src="/2.png" className="h-10 w-10 rounded-[100%]"></img>
-              <Outlet />
-            </div>
-            <div className="ml-auto flex items-center space-x-4">
-              <button className="text-sm text-white/50 hover:text-white">...</button>
-            </div>
-          </header>
+          <ChatHeader cId={chatId} />
           {/* Messages area */}
           <div className="p-4 overflow-y-auto overflow-hidden h-[calc(90vh-10vh-10vh)] flex flex-col space-y-4">
-            {msg.map((message, index) => (
-              <div
-                className={`mb-4 p-3 rounded-lg max-w-[70%] ${message.onThisSide ? 'bg-black/50 border border-white text-white self-end' : 'bg-gray-200 text-black border border-black self-start'}`}
-                key={index}>
-                {/* TODO: Ezequiel, Esto es un placeholder cuando puedas implementar el contenido real del mensaje */}
-                {message.onThisSide ? 'Mteoo: ' : 'ReinadoRojo: '}
-                <br />
-                {message.decryptedContent}
-              </div>
-            ))}
+            <Outlet />
           </div>
           {/* Footer */}
           <footer className="p-4 h-[10vh] border-t backdrop-blur border-white/10">
