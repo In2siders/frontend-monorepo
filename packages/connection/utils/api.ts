@@ -1,5 +1,11 @@
-const API_BASE_URL = 'https://exclusive-internal-api.leiuq.fun';
-const API_VERSION = 'v1';
+const API_BASE_URL = import.meta.env.VITE_API_URI || '';
+const API_VERSION = import.meta.env.VITE_API_VERSION || 'v1';
+
+console.log(import.meta.env)
+
+if (!API_BASE_URL) {
+  throw new Error("Environment variable VITE_API_URI is required but not set.");
+}
 
 interface FetchOptions extends RequestInit {
     headers?: Record<string, string>;
