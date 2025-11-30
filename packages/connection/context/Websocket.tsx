@@ -13,9 +13,12 @@ type WSContext = {
 const WebsocketContext = React.createContext<WSContext | undefined>(undefined);
 
 // AI bullshit
-function getEnv(key: string) {
+function getEnv(key: string, required: boolean = false) {
     if (import.meta.env[key]) {
-        return import.meta.env[key]
+      if(required && !import.meta.env[key]) {
+        throw new Error(`Environment variable ${key} is required but not set.`);
+      }
+      return import.meta.env[key]
     }
 }
 
@@ -24,7 +27,7 @@ export const WebsocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const socketRef = React.useRef<Socket | null>(null);
 
     React.useEffect(() => {
-        const url = getEnv("VITE_WS_URI") ?? "ws://localhost:5000";
+        const url = getEnv("VITE_WS_URI", true);
 
         // Get session token from cookies ('i2session')
         const session = document.cookie
