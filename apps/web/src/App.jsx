@@ -1,11 +1,14 @@
 import { Toaster } from 'react-hot-toast'
+import { BrowserRouter, Routes, Route } from 'react-router'
 
 import '@repo/common/style.css'
+
 import Home from './pages/home'
 import Register from './pages/auth/register'
 import Login from './pages/auth/login'
-import { NewChatRoom, ChatRoom, ChatOverlay } from './pages/chat/index'
-import { BrowserRouter, Routes, Route } from 'react-router'
+import { ChatOverlay } from './pages/chat/index'
+import { ChatRoom } from './pages/chat/[chatId]'
+import { NewChatRoom } from './pages/chat/new'
 
 const General404 = () => (
   <h1>Page Not Found</h1>
@@ -23,7 +26,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="*" element={<General404 />} />
         </Route>
-        
+
         {/* Chat Routes */}
         <Route path="/chat" element={<ChatOverlay />}>
           <Route index element={<General404 />} />
