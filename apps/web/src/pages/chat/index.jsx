@@ -2,14 +2,16 @@ import { Link, Outlet, useParams } from "react-router"
 import { useWebsocket, WebsocketProvider } from "@repo/connection/context/Websocket"
 import { useEffect, useState } from "react"
 
-const ChatHeader = ({ cId }) => {
+const ChatHeader = ({ cId, markReady }) => {
   const ws = useWebsocket();
 
   const [metadata, setMetadata] = useState({ "chat_id": cId, "name": "", "people": [], "online": [], "chatType": "group" });
 
   useEffect(() => {
-    ws.emit("metadata", { chat_id: cId }, (val) => {
+    ws.emit("chat:metadata", { chat_id: cId }, (val) => {
       setMetadata(val);
+      console.log("Chat metadata loaded:", val);
+      markReady();
     });
   }, [cId]);
 
@@ -34,9 +36,51 @@ const ChatHeader = ({ cId }) => {
   )
 }
 
+const ChatFooter = ({ cId, disabled }) => {
+  const ws = useWebsocket();
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if(disabled) return;
+
+    const messageInput = e.target.elements[0];
+    const message = messageInput.value.trim();
+    if(message.length === 0) return;
+
+    ws.emit("message:send", { chat_id: cId, text: message, attachments: [] }, (response) => {
+      if(response.success) {
+        console.log(`message send | success=${response.success} push_id=${response._id} fingerprint=${response.data._checksum} timestamp=${response._timestamp}`);
+        messageInput.value = "";
+      } else {
+        alert("Failed to send message: " + response.error);
+      }
+    });
+  }
+
+  return (
+    <footer className="p-4 h-[10vh] border-t backdrop-blur border-white/10">
+      <form className="flex items-center space-x-4" onSubmit={onSubmit}>
+        <input
+          type="text"
+          placeholder="Type your message..."
+          className="flex-grow bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={disabled}
+        />
+        <button
+          type="submit"
+          className="btn btn-primary"
+        >
+          Send
+        </button>
+      </form>
+    </footer>
+  )
+}
+
 export const ChatOverlay = () => {
   const params = useParams();
   const chatId = params.chatId; // TODO: What closely to see if it changes and reload messages
+  const [readyStates, setReadyStates] = useState({ header: false }); // TODO: More ready states for different components
 
   const [roomInformation, setRoomInformation] = useState({
     id: chatId,
@@ -68,9 +112,7 @@ export const ChatOverlay = () => {
     { id: 3, name: "(IN2)siders Dev Chat" },
   ];
 
-  useEffect(() => {
-
-  }, [chatId])
+  const allReady = Object.values(readyStates).every(v => v === true);
 
   {/* Todo lo que sea una imagen y tenga el logo de (2) es un placeholder */ }
 
@@ -107,27 +149,13 @@ export const ChatOverlay = () => {
 
         <div className="h-[90vh] w-[70%] bg-black/50">
           {/* Main chat area */}
-          <ChatHeader cId={chatId} />
+          <ChatHeader cId={chatId} markReady={() => { setReadyStates((prev) => ({...prev, header: true}) ) }}/>
           {/* Messages area */}
           <div className="p-4 overflow-y-auto overflow-hidden h-[calc(90vh-10vh-10vh)] flex flex-col space-y-4">
             <Outlet />
           </div>
           {/* Footer */}
-          <footer className="p-4 h-[10vh] border-t backdrop-blur border-white/10">
-            <form className="flex items-center space-x-4">
-              <input
-                type="text"
-                placeholder="Type your message..."
-                className="flex-grow bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                type="submit"
-                className="btn btn-primary"
-              >
-                Send
-              </button>
-            </form>
-          </footer>
+          <ChatFooter cId={chatId} disabled={!allReady} />
         </div>
       </div>
     </WebsocketProvider>
