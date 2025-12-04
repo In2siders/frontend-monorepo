@@ -47,9 +47,15 @@ const ChatFooter = ({ cId, disabled }) => {
     const message = messageInput.value.trim();
     if(message.length === 0) return;
 
-    ws.emit("message:send", { chat_id: cId, text: message, attachments: [] }, (response) => {
+    const curated_object = {
+      chat_id: cId,
+      body: message,      // TODO: Encrypt message before sending
+      attachments: [],    // TODO: Handle attachments
+    }
+
+    ws.emit("message:send", curated_object, (response) => {
       if(response.success) {
-        console.log(`message send | success=${response.success} push_id=${response._id} fingerprint=${response.data._checksum} timestamp=${response._timestamp}`);
+        console.log(`message send | success=${response.success}`);
         messageInput.value = "";
       } else {
         alert("Failed to send message: " + response.error);
@@ -82,29 +88,14 @@ export const ChatOverlay = () => {
   const chatId = params.chatId; // TODO: What closely to see if it changes and reload messages
   const [readyStates, setReadyStates] = useState({ header: false }); // TODO: More ready states for different components
 
-  const [roomInformation, setRoomInformation] = useState({
-    id: chatId,
-    name: "No name chat",
-    people: [],
-    online: [],
-    poolType: "group", // or "direct"
-  });
-
-  const msg = [{
-    onThisSide: true, // Sent by user
-    decryptedContent: "Cuando era que se entregaba el trabajo?",
-    messageChecksum: "abc123",
-    timestamp: 1625247600,
-    senderId: "user1",
-    recipientId: "user2"
-  }, {
-    onThisSide: false, // Received message
-    decryptedContent: "Ni puta idea hermano kekw",
-    messageChecksum: "def456",
-    timestamp: 1625247660,
-    senderId: "user2",
-    recipientId: "user1"
-  }];
+  // const msg = [{
+  //   onThisSide: true, // Sent by user
+  //   decryptedContent: "Cuando era que se entregaba el trabajo?",
+  //   messageChecksum: "abc123",
+  //   timestamp: 1625247600,
+  //   senderId: "user1",
+  //   recipientId: "user2"
+  // }];
 
   const chatExamples = [
     { id: 1, name: "ReinadoRojo" },
@@ -137,12 +128,12 @@ export const ChatOverlay = () => {
               </ul>
             </div>
             <div className="h-[8vh] w-[25vw] bg-black/50 p-5 rounded-xl flex items-center gap-5">
-              <img src="/2.png" className="h-15 rounded-[100%]" />
+              <img src="/2.png" className="size-12 rounded-[100%]" />
               <div className="flex flex-col">
                 <h1 className="text-xl">Mteoo</h1>
                 <p>Online</p>
               </div>
-              <h1 className="ml-auto"><img src="/config.svg" alt="Configuration Icon" className="h-10" /></h1>
+              <h1 className="ml-auto"><img src="/config.svg" alt="Configuration Icon" className="size-6" /></h1>
             </div>
           </aside>
         </div>
