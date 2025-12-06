@@ -74,7 +74,11 @@
     background: rgb(66, 66, 66);
     color: #fff;
     border-color: #9e9d9d;
-    box-shadow: 0 4px 15px #000;
+}
+
+.btn-accent:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .btn-ghost {

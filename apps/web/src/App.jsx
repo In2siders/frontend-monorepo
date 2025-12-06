@@ -6,6 +6,7 @@ import '@repo/common/style.css'
 import Home from './pages/home'
 import Register from './pages/auth/register'
 import Login from './pages/auth/login'
+import Test from './pages/test'
 import { ChatOverlay } from './pages/chat/index'
 import { ChatRoom } from './pages/chat/[chatId]'
 import { NewChatRoom } from './pages/chat/new'
@@ -35,9 +36,11 @@ function App() {
           <Route path="*" element={<General404 />} />
         </Route>
 
+        <Route path="/test" element={<Test />} />
+
         <Route path="*" element={<General404 />} />
       </Routes>
-      <Toaster position='bottom-right'/>
+      <Toaster position='bottom-right' />
     </BrowserRouter>
   )
 }

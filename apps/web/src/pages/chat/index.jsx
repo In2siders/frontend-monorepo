@@ -26,7 +26,7 @@ const ChatHeader = ({ cId, markReady }) => {
         </div>
         <span>
           <h1 className="text-xl">{metadata.name}</h1>
-          {(metadata.chatType === "group" ) ? <p className="text-sm text-white/50">{metadata.online.length} of {metadata.people.length} members online</p> : null}
+          {(metadata.chatType === "group") ? <p className="text-sm text-white/50">{metadata.online.length} of {metadata.people.length} members online</p> : null}
         </span>
       </div>
       <div className="ml-auto flex items-center space-x-4">
@@ -41,11 +41,11 @@ const ChatFooter = ({ cId, disabled }) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if(disabled) return;
+    if (disabled) return;
 
     const messageInput = e.target.elements[0];
     const message = messageInput.value.trim();
-    if(message.length === 0) return;
+    if (message.length === 0) return;
 
     const curated_object = {
       chat_id: cId,
@@ -54,7 +54,7 @@ const ChatFooter = ({ cId, disabled }) => {
     }
 
     ws.emit("message:send", curated_object, (response) => {
-      if(response.success) {
+      if (response.success) {
         console.log(`message send | success=${response.success}`);
         messageInput.value = "";
       } else {
@@ -66,6 +66,12 @@ const ChatFooter = ({ cId, disabled }) => {
   return (
     <footer className="p-4 h-[10vh] border-t backdrop-blur border-white/10">
       <form className="flex items-center space-x-4" onSubmit={onSubmit}>
+        <button
+          type="button"
+          className="btn btn-secondary btn-icon"
+        >
+          <img src="/attach.svg" alt="Attach Icon" className="size-6" />
+        </button>
         <input
           type="text"
           placeholder="Type your message..."
@@ -74,7 +80,7 @@ const ChatFooter = ({ cId, disabled }) => {
         />
         <button
           type="submit"
-          className="btn btn-primary"
+          className="btn btn-secondary"
         >
           Send
         </button>
@@ -140,7 +146,7 @@ export const ChatOverlay = () => {
 
         <div className="h-[90vh] w-[70%] bg-black/50">
           {/* Main chat area */}
-          <ChatHeader cId={chatId} markReady={() => { setReadyStates((prev) => ({...prev, header: true}) ) }}/>
+          <ChatHeader cId={chatId} markReady={() => { setReadyStates((prev) => ({ ...prev, header: true })) }} />
           {/* Messages area */}
           <div className="p-4 overflow-y-auto overflow-hidden h-[calc(90vh-10vh-10vh)] flex flex-col space-y-4">
             <Outlet />

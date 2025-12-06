@@ -2,6 +2,14 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
+.shadow-hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.shadow-hover:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
 body {
     background: #161616;
     color: #ffffff;
@@ -31,12 +39,23 @@ body {
     gap: 20px;
     overflow-y: auto;
     overflow-x: hidden;
-
-    /* Scrollbar Settings */
-
-    scrollbar-width: thin;
-    scrollbar-color: #989898 #1e1e1e;
 }
+
+/* Scrollbar Settings */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #989898;
+}
+
+/* General Settings */
 
 .title {
     font-size: 3rem;
@@ -45,16 +64,38 @@ body {
 
 .subtitle {
     font-size: 1.3rem;
-    font-weight: normal;
+    font-weight: bold;
 }
 
-.input {
-    border: 2px solid #ffffff;
-    border-radius: 10px;
-    padding: 10px;
+.input,
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 16px;
     font-size: 1rem;
+    font-family: inherit;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
     color: #ffffff;
-    background-color: #1e1e1e;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+}
+
+.input::placeholder,
+input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 400;
+}
+
+.input:focus,
+input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    color: #ffffff;
 }
 
 /* Home.jsx focused */
@@ -72,6 +113,10 @@ body {
 }
 
 /* register.jsx focused */
+
+.scroll-needed {
+    overflow-y: scroll;
+}
 
 /* firstStep focused */
 
@@ -100,14 +145,6 @@ body {
     margin-bottom: 10px;
 }
 
-.understand {
-    background-color: #1e1e1e;
-    color: #ffffff;
-    padding: 80px;
-    text-align: center;
-    font-weight: bold;
-}
-
 .understand input {
     width: 30px;
     height: 30px;
@@ -115,16 +152,19 @@ body {
 
 /* secondStep focused */
 
-.input-correct {
-    border-color: green;
-}
-
-.input-incorrect {
-    border-color: yellow;
+.input-success {
+    border-color: #4caf50 !important;
+    border-width: 3px !important;
 }
 
 .input-error {
-    border-color: red;
+    border-color: #f44336 !important;
+    border-width: 3px !important;
+}
+
+.input-incorrect {
+    border-color: #ffae00 !important;
+    border-width: 3px !important;
 }
 
 /* login.jsx focused */

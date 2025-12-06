@@ -11,7 +11,7 @@ export default function Home() {
       transition={{ duration: 0.5 }}
     >
 
-      <div className="container">
+      <div className="container shadow">
         <h1 className="title">Welcome</h1>
 
         <div className="subtitle">
@@ -20,7 +20,7 @@ export default function Home() {
 
 
         <div className="flex gap-4 flex-col w-full">
-          <Button variant="accent" size="large" asChild>
+          <Button className="shadow-hover" variant="accent" size="large" asChild>
             <Link to={"/auth/login"}>Login</Link>
           </Button>
           <Button variant="secondary" asChild>

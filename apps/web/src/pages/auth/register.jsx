@@ -31,27 +31,27 @@ const fnSaveKeyToLocalStorage = (u, key) => {
 }
 
 const FirstStep = ({ signalReady }) => (
-  <div className="h-full flex flex-col gap-4 text-center">
+  <div className="h-screen">
     <h1 className="title" >Create Account</h1>
-    <p className="subtitle text-red-500 ">This application uses PGP keys for authentication.</p>
+    <p className="subtitle text-red-500 " > This application uses PGP keys for authentication.</p>
 
-    <div className="flex flex-col gap-4">
+    <div className="">
       <p>Both keys, public and private are generated in your browser and the private key is stored in your browser's local storage. The public key is sent to the server with your username to create your account.</p>
     </div>
 
-    <div className="warning flex flex-col gap-4">
+    <div className="warning">
       <h2>Important</h2>
       <strong>If you clear your browser's local storage or use a different browser or device, you will lose access to your account.</strong>
       <p>Make sure to back up your private key if you want to access your account from another device or after clearing your browser data.</p>
     </div>
 
-    <div className="flex flex-col gap-4">
+    <div className="">
       <p>You can download your private key after completing the registration process.</p>
 
       <p>By clicking "Select username", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.</p>
     </div>
 
-    <div className='understand mt-5 mb-4'>
+    <div className='understand'>
       <label className='risk-checkbox-required flex flex-row items-center gap-2'>
         <input type="checkbox" onChange={(e) => {
           if (e.target.checked) {
@@ -62,7 +62,7 @@ const FirstStep = ({ signalReady }) => (
         }} /> I understand my private key must be kept safe and that losing it means losing access to my account.
       </label>
     </div>
-  </div>
+  </div >
 )
 
 const SecondStep = ({ data, setData, signalReady }) => {
@@ -373,12 +373,14 @@ function RegisterPage() {
         <div className='mb-4'>
           {stepAssignment[step].button}
         </div>
-        <div className={'container shadow h-full' + (stepAssignment[step].scrollNeeded ? ' scroll-needed' : '')} data-container-pref='auth_register'>
+        <div className={'container shadow h-screen' + (stepAssignment[step].scrollNeeded ? 'scroll-needed' : '')} data-container-pref='auth_register'>
           {stepAssignment[step].element}
           {stepAssignment[step].scrollNeeded && (
             <p className='scroll-indicator'>Scroll to bottom to continue</p>
           )}
         </div>
+
+
         <Button onClick={proceedToNextStep} disabled={!canContinue} variant='ghost' className="mt-4">
           {stepAssignment[step].continueText}
         </Button>
