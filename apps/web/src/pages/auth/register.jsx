@@ -31,11 +31,11 @@ const fnSaveKeyToLocalStorage = (u, key) => {
 }
 
 const FirstStep = ({ signalReady }) => (
-  <div className="h-screen">
+  <div className="flex flex-col items-center gap-2">
     <h1 className="title" >Create Account</h1>
     <p className="subtitle text-red-500 " > This application uses PGP keys for authentication.</p>
 
-    <div className="">
+    <div className="flex flex-col gap-2">
       <p>Both keys, public and private are generated in your browser and the private key is stored in your browser's local storage. The public key is sent to the server with your username to create your account.</p>
     </div>
 
@@ -45,13 +45,13 @@ const FirstStep = ({ signalReady }) => (
       <p>Make sure to back up your private key if you want to access your account from another device or after clearing your browser data.</p>
     </div>
 
-    <div className="">
+    <div className="flex flex-col gap-2">
       <p>You can download your private key after completing the registration process.</p>
 
       <p>By clicking "Select username", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.</p>
     </div>
 
-    <div className='understand'>
+    <div className='understand mt-4'>
       <label className='risk-checkbox-required flex flex-row items-center gap-2'>
         <input type="checkbox" onChange={(e) => {
           if (e.target.checked) {
@@ -113,7 +113,7 @@ const SecondStep = ({ data, setData, signalReady }) => {
 
   return (
     <>
-      <h1 className="title absolute top-60">Choose Username</h1>
+      <h1 className="title">Choose Username</h1>
       <p className="subtitle">Enter your desired username</p>
 
       {loading ? (
@@ -199,7 +199,7 @@ function ThirdStep({ onBack, data, setData, signalReady }) {
           {error[0] && <p style={{ color: 'red' }}>Error: {error[1]}</p>}
         </div>
       ) : (
-        <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', width: '100%' }}>
           <div style={{ width: '100%', height: '12px', background: '#eee', borderRadius: '12px', overflow: 'hidden' }}>
             <div style={{ width: `${progress}%`, height: '100%', backgroundColor: progress < 100 ? '#0e1fa1ff' : '#2ecc40' }} />
           </div>
@@ -244,35 +244,38 @@ function FinalStep({ data, setData, signalReady }) {
 
   return (
     <>
-      <h1 className="title">Registration Successful!</h1>
-      <p className="subtitle">Your account has been created successfully.</p>
+      <div className="flex flex-col gap- w-full text-center">
+        <h1 className="title">Registration Successful!</h1>
+        <p className="subtitle">Your account has been created successfully.</p>
 
-      <div className="content-section">
-        <p>Your private key has been saved to your browser's local storage. For security reasons, it is highly recommended to download a backup of your private key.</p>
-        <p>If you lose access to your browser's local storage (e.g., clearing browser data, using a different device), you will not be able to access your account without the private key.</p>
-      </div>
+        <div className="content-section flex flex-col gap-4">
+          <p>Your private key has been saved to your browser's local storage. For security reasons, it is highly recommended to download a backup of your private key.</p>
+          <p>If you lose access to your browser's local storage (e.g., clearing browser data, using a different device), you will not be able to access your account without the private key.</p>
+        </div>
 
-      <div>
-        <Button onClick={handleDownloadKey} className="mx-auto mb-4">
-          Download Private Key
-        </Button>
-        <br />
-        <span className="text-sm text-gray-400">Make sure to store it in a safe place.</span>
-      </div>
-      <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-        {canLogin ? (
-          <Button onClick={handleProceedToLogin} className="mx-auto mb-4" variant='ghost' disabled={!canLogin}>
-            Proceed to Login
+        <div>
+          <Button onClick={handleDownloadKey} className="mx-auto my-6">
+            Download Private Key
           </Button>
-        ) : (
-          <>
-            <Button disabled className="mx-auto mb-4" variant='ghost'>
+          <br />
+          <span className="text-sm text-gray-400">Make sure to store it in a safe place.</span>
+        </div>
+        <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+          {canLogin ? (
+            <Button onClick={handleProceedToLogin} className="mx-auto mb-4" variant='ghost' disabled={!canLogin}>
               Proceed to Login
             </Button>
-            <p>You should download your private key before proceeding. If you don't want, the button will become available after 10 seconds.</p>
-          </>
-        )}
+          ) : (
+            <>
+              <Button disabled className="mx-auto mb-4" variant='ghost'>
+                Proceed to Login
+              </Button>
+              <p>You should download your private key before proceeding. If you don't want, the button will become available after 10 seconds.</p>
+            </>
+          )}
+        </div>
       </div>
+
     </>
   )
 }
@@ -325,6 +328,7 @@ function RegisterPage() {
       outside: null,
       button: <Button variant="ghost" size="small" asChild><a href="/">Back</a></Button>,
       continueText: 'Select username',
+      scrollNeeded: true,
     },
     {
       element: <SecondStep data={registerData} setData={setRegisterData} signalReady={(v = true) => setCanContinue(v)} />,
@@ -373,17 +377,16 @@ function RegisterPage() {
         <div className='mb-4'>
           {stepAssignment[step].button}
         </div>
-        <div className={'container shadow h-screen' + (stepAssignment[step].scrollNeeded ? 'scroll-needed' : '')} data-container-pref='auth_register'>
+        <div className={'container shadow' + (stepAssignment[step].scrollNeeded ? 'scroll-needed shadow' : '')} data-container-pref='auth_register'>
           {stepAssignment[step].element}
-          {stepAssignment[step].scrollNeeded && (
-            <p className='scroll-indicator'>Scroll to bottom to continue</p>
-          )}
         </div>
 
+        {step < stepAssignment.length - 1 ? (
+          <Button onClick={proceedToNextStep} disabled={!canContinue} variant='ghost' className="mt-4">
+            {stepAssignment[step].continueText}
+          </Button>
+        ) : null}
 
-        <Button onClick={proceedToNextStep} disabled={!canContinue} variant='ghost' className="mt-4">
-          {stepAssignment[step].continueText}
-        </Button>
       </div>
     </motion.div >
   )

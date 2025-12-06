@@ -27,9 +27,10 @@ body {
 }
 
 .container {
+    transition: all 0.2s ease;
     width: 30vw;
-    height: 60vh;
-    padding: 50px;
+    height: fit-content;
+    padding: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -114,10 +115,6 @@ input:focus {
 
 /* register.jsx focused */
 
-.scroll-needed {
-    overflow-y: scroll;
-}
-
 /* firstStep focused */
 
 .warning {
@@ -150,6 +147,16 @@ input:focus {
     height: 30px;
 }
 
+.scroll-indicator {
+    border-radius: 0 0 5px 5px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #ffffff;
+    background-color: #1e1e1e;
+    height: 24px;
+    padding: 10px;
+}
+
 /* secondStep focused */
 
 .input-success {
@@ -170,5 +177,93 @@ input:focus {
 /* login.jsx focused */
 
 /* index.jsx focused */
+
+.user-list {
+    padding: 10px;
+    margin: 0;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.user-list img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.user-list .user-card {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    gap: 30px;
+    color: #ffffff;
+    background-color: #1e1e1e;
+    transition: all 0.2s ease;
+}
+
+.user-list .user-card:hover {
+    background-color: #2e2e2e;
+}
+
+.user-list .user-card img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.user-panel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    text-decoration: none;
+    color: #ffffff;
+    position: fixed;
+    bottom: 50px;
+}
+
+.user-panel img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.sidebar {
+    width: 25%;
+    background-color: #1e1e1e;
+    border-right: 1px solid #2e2e2e;
+}
+
+.chatUI {
+    width: 75%;
+    transition: all 0.2s ease;
+    background-color: #1e1e1e;
+    border-left: 1px solid #2e2e2e;
+}
+
+.header {
+    position: fixed;
+    width: 75%;
+    top: 0;
+    height: 7vh;
+    background-color: #1e1e1e;
+}
+
+.messages {
+    height: 85vh;
+    background-color: #1e1e1e;
+}
+
+.footer {
+    padding: 10px;
+    position: fixed;
+    bottom: 15px;
+    width: 75%;
+    height: 7vh;
+    background-color: #1e1e1e;
+    border-top: 1px solid #2e2e2e;
+}
 
 /* index.tsx focused */

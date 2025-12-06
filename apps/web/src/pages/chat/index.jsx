@@ -64,7 +64,7 @@ const ChatFooter = ({ cId, disabled }) => {
   }
 
   return (
-    <footer className="p-4 h-[10vh] border-t backdrop-blur border-white/10">
+    <footer className="footer">
       <form className="flex items-center space-x-4" onSubmit={onSubmit}>
         <button
           type="button"
@@ -75,7 +75,7 @@ const ChatFooter = ({ cId, disabled }) => {
         <input
           type="text"
           placeholder="Type your message..."
-          className="flex-grow bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className=""
           disabled={disabled}
         />
         <button
@@ -103,7 +103,7 @@ export const ChatOverlay = () => {
   //   recipientId: "user2"
   // }];
 
-  const chatExamples = [
+  const chat = [
     { id: 1, name: "ReinadoRojo" },
     { id: 2, name: "Pequeño grupo de amigos" },
     { id: 3, name: "(IN2)siders Dev Chat" },
@@ -111,50 +111,37 @@ export const ChatOverlay = () => {
 
   const allReady = Object.values(readyStates).every(v => v === true);
 
-  {/* Todo lo que sea una imagen y tenga el logo de (2) es un placeholder */ }
-
   return (
     <WebsocketProvider>
-      <div className="flex flex-row w-[90vw] rounded-xl overflow-hidden border border-white/10 shadow-lg">
-        <div className="h-[90vh] w-[30%] bg-black/30 border-r border-white/10">
-          {/* Sidebar or chat list can go here */}
-          <aside className="p-4 overflow-y-auto">
-            <div className="h-[79vh]">
-              <Link to="/chat/g-0" className="p-10 center bg-black/20 rounded-lg text-white hover:bg-black/40 cursor-pointer">Global Chat</Link>
-              <br />
-              <h2 className="text-white text-2xl underline underline-offset-4 text-center">Chats</h2>
-              <br />
-              <ul className="space-y-2">
-                {chatExamples.map(chat => (
-                  <Link to={`/chat/${chat.id}`} key={chat.id} className="p-4 flex flex-row items-center gap-6 bg-black/20 rounded-sm text-white hover:bg-black/40 cursor-pointer">
-                    <img src="/2.png" alt="userLogo" className="h-10 rounded-[100%]" />
-                    {chat.name}
-                  </Link>
-                ))}
-              </ul>
-            </div>
-            <div className="h-[8vh] w-[25vw] bg-black/50 p-5 rounded-xl flex items-center gap-5">
-              <img src="/2.png" className="size-12 rounded-[100%]" />
-              <div className="flex flex-col">
-                <h1 className="text-xl">Mteoo</h1>
-                <p>Online</p>
-              </div>
-              <h1 className="ml-auto"><img src="/config.svg" alt="Configuration Icon" className="size-6" /></h1>
-            </div>
-          </aside>
+      <div className="flex flex-row h-screen w-screen">
+        <div className="sidebar">
+          <div className="global-chat">
+            <h1>Global Chat</h1>
+          </div>
+          <h1>Users</h1>
+          <div className="user-list">
+            {chat.map(chat => (
+              <Link to={`/chat/${chat.id}`} key={chat.id} className="user-card">
+                <img src="/2.png" alt="userLogo" />
+                <h1>{chat.name}</h1>
+              </Link>
+            ))}
+          </div>
+          <div className="user-panel">
+            <img src="/2.png" alt="userLogo" />
+            <h1>Placeholder</h1>
+          </div>
         </div>
 
-        <div className="h-[90vh] w-[70%] bg-black/50">
-          {/* Main chat area */}
-          <ChatHeader cId={chatId} markReady={() => { setReadyStates((prev) => ({ ...prev, header: true })) }} />
-          {/* Messages area */}
-          <div className="p-4 overflow-y-auto overflow-hidden h-[calc(90vh-10vh-10vh)] flex flex-col space-y-4">
+        <div className="chatUI">
+          <ChatHeader cId={chatId} markReady={() => setReadyStates({ ...readyStates, header: true })} />
+          <div className="messages">
             <Outlet />
           </div>
-          {/* Footer */}
           <ChatFooter cId={chatId} disabled={!allReady} />
         </div>
       </div>
-    </WebsocketProvider>
+
+    </WebsocketProvider >
   )
 }
