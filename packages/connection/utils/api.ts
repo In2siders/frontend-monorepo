@@ -41,7 +41,7 @@ const apiFetch = async (endpoint: string, options: FetchOptions = {}) => {
 };
 
 const healthCheck = async () => {
-    if (!API_BASE_URL) return false;
+    if (!API_BASE_URL) throw new Error("");
     const r = await fetch(`${API_BASE_URL}/`);
     return r.ok;
 };
