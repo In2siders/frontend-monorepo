@@ -5,24 +5,33 @@ import '@repo/common/style.css';
 
 export default function Home() {
   return (
-    <div className="container center" style={{height: 50 + 'vh'}}>
-      <h1 className="title">Welcome</h1>
-      <div className="content-section">
-        <p className="subtitle">Sign in to your account or create a new one</p>
-      </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
 
-      <div className="flex gap-4 flex-col w-full">
-        <Button variant="accent" size="large" asChild>
-          <Link to={"/auth/login"}>Login</Link>
-        </Button>
-        <Button variant="secondary" asChild>
-          <Link to={"/auth/register"}>Register</Link>
-        </Button>
-      </div>
+      <div className="container">
+        <h1 className="title">Welcome</h1>
 
-      <a href="#" className="help-link">
-        Need Help?
-      </a>
-    </div>
+        <div className="subtitle">
+          <p>Sign in to your account or create a new one</p>
+        </div>
+
+
+        <div className="flex gap-4 flex-col w-full">
+          <Button variant="accent" size="large" asChild>
+            <Link to={"/auth/login"}>Login</Link>
+          </Button>
+          <Button variant="secondary" asChild>
+            <Link to={"/auth/register"}>Register</Link>
+          </Button>
+        </div>
+
+        <a href="#" className="help-link">
+          Need Help?
+        </a>
+      </div>
+    </motion.div>
   );
 }

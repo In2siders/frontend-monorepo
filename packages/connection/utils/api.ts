@@ -3,9 +3,9 @@ const API_VERSION = import.meta.env.VITE_API_VERSION || 'v1';
 
 console.log(import.meta.env)
 
-if (!API_BASE_URL) {
-  throw new Error("Environment variable VITE_API_URI is required but not set.");
-}
+// if (!API_BASE_URL) {
+//     throw new Error("Environment variable VITE_API_URI is required but not set.");
+// }
 
 interface FetchOptions extends RequestInit {
     headers?: Record<string, string>;
@@ -41,6 +41,7 @@ const apiFetch = async (endpoint: string, options: FetchOptions = {}) => {
 };
 
 const healthCheck = async () => {
+    if (!API_BASE_URL) return false;
     const r = await fetch(`${API_BASE_URL}/`);
     return r.ok;
 };

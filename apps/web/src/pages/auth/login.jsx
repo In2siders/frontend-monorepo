@@ -4,10 +4,11 @@ import { useState } from 'react'
 import { Button } from '@repo/components/button'
 import { apiFetch } from '@repo/connection/utils/api';
 import { decompress, solveChallenge, getFromStorage } from '@repo/connection/utils/userAuthentication';
+import { motion } from 'motion/react';
 
 const LoginWithName = ({ credentials, setCredentials }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 login">
       <h1 className='title'>Welcome back</h1>
       <p className='subtitle'>Input exactly your username, then click <strong>Login</strong> down below.</p>
       <div className="form-group space-y-4">
@@ -26,6 +27,7 @@ const LoginWithName = ({ credentials, setCredentials }) => {
 
 const LoginWithFile = ({ credentials, setCredentials }) => {
   const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -34,7 +36,7 @@ const LoginWithFile = ({ credentials, setCredentials }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 login">
       <form onSubmit={handleLogin} className="form-group space-y-4">
         <input
           type="file"
@@ -135,19 +137,26 @@ function LoginPage() {
   const Method = method === 'username' ? LoginWithName : LoginWithFile;
 
   return (
-    <div className='page-content flex flex-col items-center'>
-      <div className='button-group stack-horizontal' style={{ marginBottom: '24px' }}>
-        <Button variant="ghost" size="small" onClick={() => setMethod('none')}><a href='/'>Back</a></Button>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+
+      <div className='page-content flex flex-col items-center'>
+        <div className='button-group stack-horizontal' style={{ marginBottom: '24px' }}>
+          <Button variant="ghost" size="small" onClick={() => setMethod('none')}><a href='/'>Back</a></Button>
+        </div>
+        <div className={'container'} data-container-pref='auth_login'>
+          {methods[method].element}
+          {methods[method].finishButton && (
+            <div className='button-group stack-horizontal w-90' style={{ marginTop: '24px' }}>
+              {methods[method].finishButton}
+            </div>
+          )}
+        </div>
       </div>
-      <div className={'container'} data-container-pref='auth_login'>
-        {methods[method].element}
-        {methods[method].finishButton && (
-          <div className='button-group stack-horizontal w-90' style={{ marginTop: '24px' }}>
-            {methods[method].finishButton}
-          </div>
-        )}
-      </div>
-    </div>
+    </motion.div>
   )
 }
 

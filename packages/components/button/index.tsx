@@ -1,44 +1,44 @@
 import * as React from 'react';
 import './module.css';
-import { Slot } from '@radix-ui/react-slot';
-import { cva, VariantProps } from 'class-variance-authority'
 import { cn } from '../lib/utils';
+import { cva, VariantProps } from 'class-variance-authority'
+import { Slot } from '@radix-ui/react-slot'
 
 const buttonVariants = cva('btn', {
-    variants: {
-        variant: {
-            default: '',
-            primary: '',
-            secondary: 'btn-secondary',
-            accent: 'btn-accent',
-            ghost: 'btn-ghost',
-        },
-        size: {
-            default: '',
-            small: 'btn-small',
-            large: 'btn-large',
-            icon: 'btn-icon',
-        },
-        width: {
-            default: '',
-            full: 'btn-full',
-            fit: 'btn-fit',
-        }
+  variants: {
+    variant: {
+      default: '',
+      primary: '',
+      secondary: 'btn-secondary',
+      accent: 'btn-accent',
+      ghost: 'btn-ghost',
     },
-    defaultVariants: {
-        variant: 'default',
-        size: 'default',
-        width: 'default',
+    size: {
+      default: '',
+      small: 'btn-small',
+      large: 'btn-large',
+      icon: 'btn-icon',
     },
+    width: {
+      default: '',
+      full: 'btn-full',
+      fit: 'btn-fit',
+    }
+  },
+  defaultVariants: {
+    variant: 'default',
+    size: 'default',
+    width: 'default',
+  },
 })
 
 function Button({
-    className,
-    variant,
-    size,
-    width,
-    asChild = false,
-    ...props
+  className,
+  variant,
+  size,
+  width,
+  asChild = false,
+  ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean

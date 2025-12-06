@@ -38,9 +38,16 @@ export async function solveChallenge(challenge: string, privateKey: string) {
  * ===========
  */
 
-export const compress = (data: string) => (
-    btoa(String.fromCharCode(...Array.from(new Uint8Array(deflate(new TextEncoder().encode(data))))))
-)
+export const compress = (data: string) => {
+    const compressed = deflate(new TextEncoder().encode(data));
+    // Usamos reduce o un bucle para evitar "Maximum call stack size exceeded" con el spread operator (...)
+    let binary = '';
+    const len = compressed.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(compressed[i]);
+    }
+    return btoa(binary);
+}
 
 export const decompress = (data: string): string => (
     inflate(Uint8Array.from(atob(data), c => c.charCodeAt(0)), { to: 'string' }) as string

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { apiFetch, healthCheck } from '@repo/connection/utils/api'
 import { generateUserKey, compress, decompress } from '@repo/connection/utils/userAuthentication'
 import { Button } from '@repo/components/button'
+import { motion } from 'motion/react'
 import toast from 'react-hot-toast'
 
 /* Save user key to localStorage */
@@ -30,29 +31,28 @@ const fnSaveKeyToLocalStorage = (u, key) => {
 }
 
 const FirstStep = ({ signalReady }) => (
-  <>
-    <h1 className="title">Create Account</h1>
-    <p className="subtitle">This application uses PGP keys for authentication.</p>
-    
-    <div className="content-section">
+  <div className="h-full flex flex-col gap-4 text-center">
+    <h1 className="title" >Create Account</h1>
+    <p className="subtitle text-red-500 ">This application uses PGP keys for authentication.</p>
+
+    <div className="flex flex-col gap-4">
       <p>Both keys, public and private are generated in your browser and the private key is stored in your browser's local storage. The public key is sent to the server with your username to create your account.</p>
     </div>
-    
-    <div className="warning">
+
+    <div className="warning flex flex-col gap-4">
       <h2>Important</h2>
       <strong>If you clear your browser's local storage or use a different browser or device, you will lose access to your account.</strong>
-      <br />
-      Make sure to back up your private key if you want to access your account from another device or after clearing your browser data.
+      <p>Make sure to back up your private key if you want to access your account from another device or after clearing your browser data.</p>
     </div>
-    
-    <div className="content-section">
+
+    <div className="flex flex-col gap-4">
       <p>You can download your private key after completing the registration process.</p>
-      
+
       <p>By clicking "Select username", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.</p>
     </div>
 
-    <div className='p-4 rounded-sm bg-yellow-900/80 border-yellow-600 border w-full h-fit'>
-      <label className='risk-checkbox-required'>
+    <div className='understand mt-5 mb-4'>
+      <label className='risk-checkbox-required flex flex-row items-center gap-2'>
         <input type="checkbox" onChange={(e) => {
           if (e.target.checked) {
             signalReady();
@@ -62,14 +62,14 @@ const FirstStep = ({ signalReady }) => (
         }} /> I understand my private key must be kept safe and that losing it means losing access to my account.
       </label>
     </div>
-  </>
+  </div>
 )
 
 const SecondStep = ({ data, setData, signalReady }) => {
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(true);
   const [isAvailable, setIsAvailable] = useState(null);
-  
+
   const setAvailableUsername = (itIs) => {
     setIsAvailable(itIs);
     if (itIs) {
@@ -113,20 +113,20 @@ const SecondStep = ({ data, setData, signalReady }) => {
 
   return (
     <>
-      <h1 className="title">Choose Username</h1>
+      <h1 className="title absolute top-60">Choose Username</h1>
       <p className="subtitle">Enter your desired username</p>
-      
+
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <div className='form-group'>
-          <input 
-            type="text" 
+        <div className='flex flex-col gap-5 w-full text-center'>
+          <input
+            type="text"
             value={username}
             onChange={handleChange}
             onBlur={handleBlur}
             placeholder="Enter username"
-            className={`input ${isAvailable === null ? '' : isAvailable ? 'input-success' : 'input-error'} ${username.length > 0 && username.length < 3 ? 'input-incorrect' : ''}`}
+            className={`input text-center p-5 ${isAvailable === null ? '' : isAvailable ? 'input-success' : 'input-error'} ${username.length > 0 && username.length < 3 ? 'input-incorrect' : ''}`}
             required
             pattern='^[a-zA-Z_-]{3,20}$'
           />
@@ -171,8 +171,8 @@ function ThirdStep({ onBack, data, setData, signalReady }) {
   }, []);
 
   useEffect(() => {
-    if(progress !== 100) return;
-    if(error[0]) return;
+    if (progress !== 100) return;
+    if (error[0]) return;
 
     // Signal ready after short delay
     const timeout = setTimeout(() => {
@@ -238,7 +238,7 @@ function FinalStep({ data, setData, signalReady }) {
 
   /* Login redirect handle */
   const handleProceedToLogin = () => {
-    if(!canLogin) return;
+    if (!canLogin) return;
     window.location.href = '/auth/login';
   }
 
@@ -251,7 +251,7 @@ function FinalStep({ data, setData, signalReady }) {
         <p>Your private key has been saved to your browser's local storage. For security reasons, it is highly recommended to download a backup of your private key.</p>
         <p>If you lose access to your browser's local storage (e.g., clearing browser data, using a different device), you will not be able to access your account without the private key.</p>
       </div>
-      
+
       <div>
         <Button onClick={handleDownloadKey} className="mx-auto mb-4">
           Download Private Key
@@ -279,7 +279,7 @@ function FinalStep({ data, setData, signalReady }) {
 
 function RegisterPage() {
   const [step, setStep] = useState(0);
-  const [registerData, setRegisterData] = useState({username: '', publicKey: '', privateKey: ''});
+  const [registerData, setRegisterData] = useState({ username: '', publicKey: '', privateKey: '' });
   const [canContinue, setCanContinue] = useState(false);
   const [serverReady, setServerReady] = useState(false);
 
@@ -306,7 +306,7 @@ function RegisterPage() {
       toast.error('We are experiencing connectivity issues. Please try again later.');
       return;
     }
-    
+
     if (stepAssignment[step].checkFn) {
       stepAssignment[step].checkFn().then((result) => {
         setCanContinue(false);
@@ -355,7 +355,7 @@ function RegisterPage() {
       continueText: 'Continue to Final Step',
     },
     {
-      element: <FinalStep data={registerData} setData={setRegisterData} signalReady={(_any) => {setCanContinue(false)}} />,
+      element: <FinalStep data={registerData} setData={setRegisterData} signalReady={(_any) => { setCanContinue(false) }} />,
       outside: null,
       button: <Button variant="ghost" size="small" onClick={() => toast.info("You can't go back from here.")}>Previous</Button>,
       continueText: 'No more steps',
@@ -363,21 +363,27 @@ function RegisterPage() {
   ]
 
   return (
-    // TODO: El aviso PGP Esta roto no se que ha pasado, he agregado flex, items-center y justify-center en Style.css .container / Mateo
-    <div className='page-content flex flex-col items-center'>
-      <div className='button-group-horizontal' style={{ marginBottom: '24px' }}>
-        {stepAssignment[step].button}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+
+      <div className='flex flex-col items-center'>
+        <div className='mb-4'>
+          {stepAssignment[step].button}
+        </div>
+        <div className={'container shadow h-full' + (stepAssignment[step].scrollNeeded ? ' scroll-needed' : '')} data-container-pref='auth_register'>
+          {stepAssignment[step].element}
+          {stepAssignment[step].scrollNeeded && (
+            <p className='scroll-indicator'>Scroll to bottom to continue</p>
+          )}
+        </div>
+        <Button onClick={proceedToNextStep} disabled={!canContinue} variant='ghost' className="mt-4">
+          {stepAssignment[step].continueText}
+        </Button>
       </div>
-      <div className={'container' + (stepAssignment[step].scrollNeeded ? ' scroll-needed' : '')} data-container-pref='auth_register'>
-        {stepAssignment[step].element}
-            {stepAssignment[step].scrollNeeded && (
-        <p className='scroll-indicator'>Scroll to bottom to continue</p>
-      )}
-      <Button onClick={proceedToNextStep} disabled={!canContinue} variant='ghost' className='mx-auto mt-8'>
-        {stepAssignment[step].continueText}
-      </Button>
-      </div>
-    </div>
+    </motion.div >
   )
 }
 
