@@ -19,7 +19,7 @@ const ChatHeader = ({ cId, markReady }) => {
     <header className="h-[10vh] pr-8 pl-8 border-b border-white/10 flex items-center">
       <div className="flex items-center space-x-4">
         <div className="relative">
-          <img src="/2.png" className="h-15 w-15 rounded-[100%]"></img>
+          <img src="/2.png" className="h-10 w-10 rounded-[100%]"></img>
           {metadata.online.length > 0 ? (
             <div className="absolute bottom-0 right-0 size-3 bg-green-500 border-2 border-black rounded-[100%]"></div>
           ) : null}
@@ -94,6 +94,15 @@ export const ChatOverlay = () => {
   const chatId = params.chatId; // TODO: What closely to see if it changes and reload messages
   const [readyStates, setReadyStates] = useState({ header: false }); // TODO: More ready states for different components
 
+  // const msg = [{
+  //   onThisSide: true, // Sent by user
+  //   decryptedContent: "Cuando era que se entregaba el trabajo?",
+  //   messageChecksum: "abc123",
+  //   timestamp: 1625247600,
+  //   senderId: "user1",
+  //   recipientId: "user2"
+  // }];
+
   const chat = [
     { id: 1, name: "ReinadoRojo" },
     { id: 2, name: "Pequeño grupo de amigos" },
@@ -109,7 +118,7 @@ export const ChatOverlay = () => {
           <div className="global-chat">
             <h1>Global Chat</h1>
           </div>
-          <h1 className="center">Users</h1>
+          <h1>Users</h1>
           <div className="user-list">
             {chat.map(chat => (
               <Link to={`/chat/${chat.id}`} key={chat.id} className="user-card">
@@ -120,7 +129,7 @@ export const ChatOverlay = () => {
           </div>
           <div className="user-panel">
             <img src="/2.png" alt="userLogo" />
-            <h1>Placeholder</h1> {/* Here goes the current username */}
+            <h1>Placeholder</h1>
           </div>
         </div>
 
