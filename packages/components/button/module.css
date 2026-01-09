@@ -4,7 +4,6 @@
     justify-content: center;
     gap: 8px;
 
-    font-family: inherit;
     font-weight: 600;
     font-size: 0.95rem;
     text-decoration: none;
@@ -72,11 +71,14 @@
 }
 
 .btn-accent {
-    font-weight: 1000;
-    background: linear-gradient(135deg, #939292 0%, #434343 100%);
+    background: rgb(66, 66, 66);
     color: #fff;
-    border-color: #fff;
-    box-shadow: 0 4px 15px #000;
+    border-color: #9e9d9d;
+}
+
+.btn-accent:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .btn-ghost {
