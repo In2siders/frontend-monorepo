@@ -28,9 +28,16 @@ COPY . .
 # Expose the port used in docker-compose (3000)
 EXPOSE 3000
 
+# Heathcheck
+ENV HEALTHCHECK_URL=http://localhost:3000/
+
 # Healthcheck to verify dev server responds
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget -qO- --timeout=2 http://localhost:3000/ || exit 1
+  CMD wget -qO- --timeout=2 $HEALTHCHECK_URL || exit 1
 
-# Start Vite dev server for the `web` package and bind to 0.0.0.0 on port 3000
-CMD ["pnpm", "--filter", "web", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]
+# Build & start image in production mode
+FROM dev AS prod
+ENV NODE_ENV=production
+RUN pnpm install --prod --reporter=silent
+RUN pnpm build --filter apps/web...
+CMD ["pnpm", "start", "--filter", "apps/web..."]
