@@ -313,7 +313,7 @@ input:focus {
 
 /* Mobile Phone Style */
 
-@media (max-width: 768px) {
+@media (max-width: 2000px) {
   .container {
     width: 90vw;
     padding: 20px;
