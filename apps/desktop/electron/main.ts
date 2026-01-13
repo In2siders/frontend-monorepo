@@ -28,7 +28,7 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 
 
 let win: BrowserWindow | null
 let deeplinkingUrl: string | null = null
-const PROTOCOL = 'myapp'
+const PROTOCOL = 'in2siders'
 
 function createWindow() {
   win = new BrowserWindow({
@@ -119,7 +119,8 @@ app.whenReady().then(() => {
       }
     }
   } catch (e) {
-    // ignore
+    // TODO: Handle error, just prompt the user if want to set as default
+    // It's such a weird case if cannot set protocol, but should be handled
   }
 
   // If the app was launched with a deep link, capture it
