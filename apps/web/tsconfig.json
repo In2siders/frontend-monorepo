@@ -1,17 +1,18 @@
 {
-  "compilerOptions": {
+  "compilerOptions":  {
     "target": "ES2019",
-    "module": "ESNext",
+    "module":  "ESNext",
     "lib": ["ESNext", "DOM"],
     "allowJs": true,
     "jsx": "react-jsx",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "isolatedModules": true,
-    "resolveJsonModule": true,
+    "resolveJsonModule":  true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
+    "types": ["vite/client"],
     "paths": {
       "@/*": ["./*"],
       "@repo/*": ["../../packages/*/src"]
