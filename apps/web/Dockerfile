@@ -1,5 +1,5 @@
 # Development Dockerfile for the `web` app (no nginx)
-# - Installs workspace deps and runs Vite dev server inside the container
+# Build context should be the repository root
 
 FROM node:20-alpine AS dev
 
@@ -11,24 +11,24 @@ RUN corepack enable \
 WORKDIR /app
 
 # Copy workspace-level manifests first to leverage Docker cache
-COPY package.json pnpm-workspace.yaml pnpm-lock. yaml ./
+COPY package.json pnpm-workspace. yaml pnpm-lock.yaml ./
 
 # Copy local workspace packages so pnpm can resolve them
 COPY packages ./packages
 
 # Copy web package manifest
-COPY apps/web/package.json apps/web/package.json
+COPY apps/web/package.json ./apps/web/package.json
 
-# Install dependencies for dev
+# Install dependencies (allow lockfile changes in dev image)
 RUN pnpm install --reporter=silent
 
 # Copy source files
-COPY . . 
+COPY apps/web ./apps/web
 
 # Expose the port used in docker-compose (3000)
 EXPOSE 3000
 
-# Heathcheck URL
+# Heathcheck
 ENV HEALTHCHECK_URL=http://localhost:3000/
 
 # Healthcheck to verify dev server responds
@@ -47,15 +47,15 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Copy workspace files
-COPY package.json pnpm-workspace. yaml pnpm-lock.yaml ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY packages ./packages
-COPY apps/web/package. json apps/web/package.json
+COPY apps/web/package.json ./apps/web/package.json
 
 # Install production dependencies only
 RUN pnpm install --prod --frozen-lockfile --reporter=silent
 
-# Copy source code
-COPY . .
+# Copy app source code
+COPY apps/web ./apps/web
 
 # Build the app
 RUN pnpm build --filter apps/web...
