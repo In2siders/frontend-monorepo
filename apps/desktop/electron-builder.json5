@@ -11,6 +11,14 @@
     "dist",
     "dist-electron"
   ],
+  "protocols": [
+    {
+      "name": "YourAppName Protocol",
+      "schemes": [
+        "myapp"
+      ]
+    }
+  ],
   "mac": {
     "target": [
       "dmg"
