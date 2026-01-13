@@ -1,4 +1,4 @@
-# Development Dockerfile for the `web` app (no nginx)
+# Development Dockerfile for the `web` app
 # Build context should be the repository root
 
 FROM node:20-alpine AS dev
@@ -11,7 +11,7 @@ RUN corepack enable \
 WORKDIR /app
 
 # Copy workspace-level manifests first to leverage Docker cache
-COPY package.json pnpm-workspace. yaml pnpm-lock.yaml ./
+COPY package.json pnpm-workspace.yaml pnpm-lock. yaml ./
 
 # Copy local workspace packages so pnpm can resolve them
 COPY packages ./packages
@@ -51,17 +51,18 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY packages ./packages
 COPY apps/web/package.json ./apps/web/package.json
 
-# Install production dependencies only
-RUN pnpm install --prod --frozen-lockfile --reporter=silent
+# Install ALL dependencies (we need turbo and vite which are devDependencies)
+RUN pnpm install --frozen-lockfile --reporter=silent
 
 # Copy app source code
 COPY apps/web ./apps/web
 
-# Build the app
-RUN pnpm build --filter apps/web...
+# Build the app directly (not through turbo at root level)
+RUN cd apps/web && pnpm build
 
-# Expose port from environment variable (default 3000)
-EXPOSE ${PORT:-3000}
+# Expose port from environment variable (default 4173, Vite preview default)
+ENV PORT=4173
+EXPOSE ${PORT}
 
-# Start the production server
-CMD ["pnpm", "start", "--filter", "apps/web... "]
+# Start Vite preview server on the PORT env variable
+CMD ["sh", "-c", "cd apps/web && pnpm preview --host 0.0.0.0 --port ${PORT}"]
