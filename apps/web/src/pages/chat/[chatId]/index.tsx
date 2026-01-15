@@ -12,6 +12,13 @@ type MessageListObject = {
   processed_data?: Message; // Processed message data (e.g., decrypted)
 }
 
+type GenericResponse<T> = {
+  success: boolean;
+  error?: string;
+  _push_id?: string;
+  data?: T;
+}
+
 export const ChatRoom = () => {
   const ws = useWebsocket();
   const params = useParams();
@@ -20,10 +27,17 @@ export const ChatRoom = () => {
   const [messageList, setMessageList] = useState<MessageListObject[]>([]);
 
   useEffect(() => {
-    ws.emit("room:join", { roomId: params.chatId });
+    ws.emit("room:join", { room: params.chatId }, (response: GenericResponse<object>) => {
+      if (!response || !response.success) {
+        console.error("Failed to join room:", response?.error);
+        return;
+      }
+
+      console.log("Joined room successfully:", response);
+    });
 
     return () => {
-      ws.emit("room:leave", { roomId: params.chatId });
+      ws.emit("room:leave", { room: params.chatId });
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cId]);
