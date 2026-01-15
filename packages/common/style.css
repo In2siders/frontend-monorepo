@@ -313,7 +313,7 @@ input:focus {
 
 /* Mobile Phone Style */
 
-@media (max-width: 2000px) {
+@media (pointer: none), (pointer: coarse) {
   .container {
     width: 90vw;
     padding: 20px;
@@ -324,7 +324,6 @@ input:focus {
     height: auto;
     border-right: none;
     border-bottom: 1px solid var(--terciary-color);
-    display: none;
   }
 
   .chatUI {
