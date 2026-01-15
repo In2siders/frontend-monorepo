@@ -90,6 +90,14 @@ export const ChatRoom = () => {
   }, [messageList]);
 
   return (
-    <div>Chat Room {params.chatId}</div>
+    <div>
+      {messageList.map((msg) => (
+        <div key={msg._id} style={{ margin: "10px", padding: "10px", border: "1px solid #ccc" }}>
+          <p><strong>From:</strong> {msg.processed_data ? msg.processed_data.senderId : msg.raw_data.senderId}</p>
+          <p><strong>Message:</strong> {msg.processed_data ? msg.processed_data.body : msg.raw_data.body}</p>
+          <p><em>Status: {msg._processed ? "Processed" : "Pending Processing"}</em></p>
+        </div>
+      ))}
+    </div>
   )
 }
