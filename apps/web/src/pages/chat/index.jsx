@@ -60,7 +60,7 @@ const ChatFooter = ({ cId, disabled }) => {
     ws.emit("message:send", curated_object, (response) => {
       console.log("Acknowledgment received from server:", response);
       if (response?.success) {
-        setText(""); // Clear the state
+          e.target.elements.message.value = "";
       } else {
         alert("Failed to send: " + response?.error);
       }
@@ -132,7 +132,7 @@ export const ChatOverlay = () => {
         <div className="chatUI">
           <ChatHeader cId={chatId} markReady={() => setReadyStates({ ...readyStates, header: true })} />
           <div className="messages">
-            <Outlet />
+            <ChatRoom userId={currentUser.id} />
           </div>
           <ChatFooter cId={chatId} disabled={!allReady} />
         </div>

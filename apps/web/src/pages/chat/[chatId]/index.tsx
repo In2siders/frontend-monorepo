@@ -1,5 +1,6 @@
 import { Message } from "@/index";
 import { useWebsocket } from "@repo/connection/context/Websocket";
+import { color } from "motion";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 
@@ -18,7 +19,6 @@ type GenericResponse<T> = {
   _push_id?: string;
   data?: T;
 }
-
 
 /*
   Buenas cracks, Dios mismo bendijo este script y ahora funciona
@@ -40,7 +40,6 @@ export const ChatRoom = () => {
   // Track seen messages per room to avoid duplicates from reconnects/replays
   const seenIdsRef = useRef<Set<string>>(new Set());
   const seenHashesRef = useRef<Set<string>>(new Set());
-
 
   // Mira, ni yo, ni tu sabemos lo que esta pasando aqui
   // Hash ftwwww
@@ -135,6 +134,8 @@ export const ChatRoom = () => {
       });
     };
 
+
+
     ws.on("message:proxy", handler);
       console.log(messageList);
     return () => {
@@ -162,10 +163,8 @@ export const ChatRoom = () => {
   return (
     <div>
       {messageList.map((msg) => (
-        <div key={msg._id} style={{ margin: "10px", padding: "10px", border: "1px solid #ccc" }}>
-          <p><strong>From:</strong> {msg.processed_data ? msg.processed_data.senderId : msg.raw_data.senderId}</p>
-          <p><strong>Message:</strong> {msg.processed_data ? msg.processed_data.body : msg.raw_data.body}</p>
-          <p><em>Status: {msg._processed ? "Processed" : "Pending Processing"}</em></p>
+        <div key={msg._id} style={{ margin: "10px", padding: "5px", border: "1px solid #ccc" }}>
+          <p><strong style={{color: "yellow",}}>{msg.raw_data.username}: </strong>{msg.processed_data ? msg.processed_data.body : msg.raw_data.body}</p>
         </div>
       ))}
     </div>

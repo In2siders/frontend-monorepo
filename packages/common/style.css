@@ -296,6 +296,7 @@ input:focus {
 
 .messages {
   height: 81vh;
+  max-width: 80v;
   background-color: var(--primary-color);
   overflow-y: auto;
 }
