@@ -38,30 +38,34 @@ const ChatHeader = ({ cId, markReady }) => {
 
 const ChatFooter = ({ cId, disabled }) => {
   const ws = useWebsocket();
+  console.log("Attempting to emit...");
 
   const onSubmit = (e) => {
-    e.preventDefault();
-    if (disabled) return;
 
-    const messageInput = e.target.elements[0];
-    const message = messageInput.value.trim();
-    if (message.length === 0) return;
+    e.preventDefault();
+    // The fuck is this evein for, who put this here, has the ai gone insane?!?!
+    //  console.log(text);
+
+    const message = e.target.elements.message.value.trim();
+
+    if (disabled || !message) return;
 
     const curated_object = {
       chat_id: cId,
-      body: message,      // TODO: Encrypt message before sending
-      attachments: [],    // TODO: Handle attachments
-    }
+      body: message,
+      attachments: [],
+    };
+
 
     ws.emit("message:send", curated_object, (response) => {
-      if (response.success) {
-        console.log(`message send | success=${response.success}`);
-        messageInput.value = "";
+      console.log("Acknowledgment received from server:", response);
+      if (response?.success) {
+        setText(""); // Clear the state
       } else {
-        alert("Failed to send message: " + response.error);
+        alert("Failed to send: " + response?.error);
       }
     });
-  }
+  };
 
   return (
     <footer className="footer">
@@ -73,6 +77,7 @@ const ChatFooter = ({ cId, disabled }) => {
           <img src="/attach.svg" alt="Attach Icon" className="size-6" />
         </button>
         <input
+          name="message"
           type="text"
           placeholder="Type your message..."
           className=""

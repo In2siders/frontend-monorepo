@@ -13,7 +13,8 @@ export default ({ mode }) => {
   return defineConfig({
     plugins: [react()],
     server: {
-      allowedHosts: ["in2siders.app"],
+      // NO ESTAMOS EN PRODUCION ASI QUE TEN PIEDAD
+      allowedHosts: ["in2siders.app", "localhost", "127.0.0.1"],
       port: Number(port),
       host,
       open: true,
