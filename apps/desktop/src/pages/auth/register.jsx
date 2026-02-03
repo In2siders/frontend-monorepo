@@ -371,23 +371,22 @@ function RegisterPage() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      className='flex flex-col items-center w-full justify-center gap-3'
     >
-
-      <div className='flex flex-col items-center'>
-        <div className='mb-4'>
+      {stepAssignment[step].button && (
+        <div className='w-full flex justify-center'>
           {stepAssignment[step].button}
         </div>
-        <div className={'container shadow' + (stepAssignment[step].scrollNeeded ? 'scroll-needed shadow' : '')} data-container-pref='auth_register'>
-          {stepAssignment[step].element}
-        </div>
-
-        {step < stepAssignment.length - 1 ? (
-          <Button onClick={proceedToNextStep} disabled={!canContinue} variant='ghost' className="mt-4">
-            {stepAssignment[step].continueText}
-          </Button>
-        ) : null}
-
+      )}
+      <div className={'container shadow' + (stepAssignment[step].scrollNeeded ? ' scroll-needed shadow' : '')} data-container-pref='auth_register'>
+        {stepAssignment[step].element}
       </div>
+
+      {step < stepAssignment.length - 1 ? (
+        <Button onClick={proceedToNextStep} disabled={!canContinue} variant='ghost'>
+          {stepAssignment[step].continueText}
+        </Button>
+      ) : null}
     </motion.div >
   )
 }

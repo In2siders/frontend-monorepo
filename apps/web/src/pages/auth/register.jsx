@@ -33,9 +33,9 @@ const fnSaveKeyToLocalStorage = (u, key) => {
 const FirstStep = ({ signalReady }) => (
   <div className="flex flex-col items-center gap-2">
     <h1 className="title" >Create Account</h1>
-    <p className="subtitle text-red-500 " > This application uses PGP keys for authentication.</p>
+    <p className="subtitle text-red-500 text-center" > This application uses PGP keys for authentication.</p>
 
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 text-center">
       <p>Both keys, public and private are generated in your browser and the private key is stored in your browser's local storage. The public key is sent to the server with your username to create your account.</p>
     </div>
 
@@ -45,14 +45,14 @@ const FirstStep = ({ signalReady }) => (
       <p>Make sure to back up your private key if you want to access your account from another device or after clearing your browser data.</p>
     </div>
 
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 text-center">
       <p>You can download your private key after completing the registration process.</p>
 
       <p>By clicking "Select username", you acknowledge that you understand the implications of using PGP keys for authentication and the importance of safeguarding your private key.</p>
     </div>
 
-    <div className='understand mt-4'>
-      <label className='risk-checkbox-required flex flex-row items-center gap-2'>
+    <div className='understand mt-4 text-center bg-[#303030] p-4 rounded-md'>
+      <label className='risk-checkbox-required flex flex-row items-center gap-3'>
         <input type="checkbox" onChange={(e) => {
           if (e.target.checked) {
             signalReady();
@@ -371,23 +371,22 @@ function RegisterPage() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      className='flex flex-col items-center w-full justify-center gap-3'
     >
-
-      <div className='flex flex-col items-center'>
-        <div className='mb-4'>
+      {stepAssignment[step].button && (
+        <div className='w-full flex justify-center'>
           {stepAssignment[step].button}
         </div>
-        <div className={'container shadow' + (stepAssignment[step].scrollNeeded ? 'scroll-needed shadow' : '')} data-container-pref='auth_register'>
-          {stepAssignment[step].element}
-        </div>
-
-        {step < stepAssignment.length - 1 ? (
-          <Button onClick={proceedToNextStep} disabled={!canContinue} variant='ghost' className="mt-4">
-            {stepAssignment[step].continueText}
-          </Button>
-        ) : null}
-
+      )}
+      <div className={'container shadow' + (stepAssignment[step].scrollNeeded ? ' scroll-needed shadow' : '')} data-container-pref='auth_register'>
+        {stepAssignment[step].element}
       </div>
+
+      {step < stepAssignment.length - 1 ? (
+        <Button onClick={proceedToNextStep} disabled={!canContinue} variant='ghost'>
+          {stepAssignment[step].continueText}
+        </Button>
+      ) : null}
     </motion.div >
   )
 }

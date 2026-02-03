@@ -40,11 +40,12 @@ body {
   transition: all 0.2s ease;
   width: 30vw;
   height: fit-content;
+  max-height: 80vh;
   padding: 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   border-radius: 20px;
   background-color: var(--primary-color);
   gap: 20px;
@@ -99,12 +100,14 @@ input[type="password"] {
   color: var(--text-color);
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
+  text-align: center;
 }
 
 .input::placeholder,
 input::placeholder {
   color: rgba(255, 255, 255, 0.7);
   font-weight: 400;
+  text-align: center;
 }
 
 .input:focus,
