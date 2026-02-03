@@ -132,7 +132,7 @@ export const ChatOverlay = () => {
         <div className="chatUI">
           <ChatHeader cId={chatId} markReady={() => setReadyStates({ ...readyStates, header: true })} />
           <div className="messages">
-            <ChatRoom userId={currentUser.id} />
+            <Outlet />
           </div>
           <ChatFooter cId={chatId} disabled={!allReady} />
         </div>
