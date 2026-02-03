@@ -295,8 +295,9 @@ input:focus {
 }
 
 .messages {
-  height: 85vh;
+  height: 81vh;
   background-color: var(--primary-color);
+  overflow-y: auto;
 }
 
 .footer {
