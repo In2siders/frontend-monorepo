@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setLoading(true)
       try {
         const jsonResponse = await apiFetch("/session/me", { method: "GET" })
-        if (jsonResponse && typeof jsonResponse === "object" && "user" in jsonResponse) {
+        if (jsonResponse && typeof jsonResponse === "object" && "user" in jsonResponse && typeof jsonResponse.user === "object" && jsonResponse.user !== null) { // damn, this is a lot of checks huh
           if (!mounted) return
           const token = jsonResponse.data?.session || jsonResponse.session || jsonResponse.token || null
           if (token) setAuthToken(token)
