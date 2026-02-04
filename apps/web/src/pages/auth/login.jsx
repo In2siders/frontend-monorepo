@@ -115,6 +115,7 @@ function LoginPage() {
         });
 
         if (solutionResponse.message && solutionResponse.data.session) {
+          localStorage.setItem('active_user', credentials.username);
           toast.success('Login successful!');
           cookieStore.set('i2session', solutionResponse.data.session, { path: '/' });
 
