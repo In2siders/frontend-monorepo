@@ -58,9 +58,9 @@ export const WebsocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             setConnected(false);
             console.log("Websocket disconnected");
         };
-        const onConnectError = () => {
+        const onConnectError = (error: Error) => {
             setConnected(false);
-            console.log("Websocket connection error");
+            console.log("Websocket connection error", error);
         };
 
         socket.on("connect", onConnect);
