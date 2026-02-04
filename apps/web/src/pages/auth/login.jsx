@@ -2,7 +2,7 @@ import '@repo/common/style.css'
 import toast from 'react-hot-toast';
 import { useState } from 'react'
 import { Button } from '@repo/components/button'
-import { useAuth } from '../../providers/AuthProvider'
+import { useAuth } from '../../hooks/useAuth'
 import { motion } from 'motion/react';
 
 const LoginWithName = ({ credentials, setCredentials }) => {
