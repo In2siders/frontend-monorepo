@@ -108,7 +108,7 @@ export const ChatOverlay = () => {
   ];
 
   const allReady = Object.values(readyStates).every(v => v === true);
-
+  const username = localStorage.getItem('active_user');
   return (
     <WebsocketProvider>
       <div className="flex flex-row h-screen w-screen">
@@ -127,7 +127,7 @@ export const ChatOverlay = () => {
           </div>
           <div className="user-panel">
             <img src="/2.png" alt="userLogo" />
-            <h1>Placeholder</h1> {/* Here goes the current username */}
+            <h1>{username}</h1> {/* Here goes the current username */}
           </div>
         </div>
 
