@@ -41,6 +41,7 @@ export const ChatRoom = () => {
   const seenIdsRef = useRef<Set<string>>(new Set());
   const seenHashesRef = useRef<Set<string>>(new Set());
 
+
   // Mira, ni yo, ni tu sabemos lo que esta pasando aqui
   // Hash ftwwww
   const computeClientHash = (msg: Message) => {
@@ -69,19 +70,19 @@ export const ChatRoom = () => {
   //}
 
   useEffect(() => {
+    let isCurrent = true;
+
+    // 1. Reset state
     setMessageList([]);
     seenIdsRef.current.clear();
-    seenHashesRef.current.clear();
 
-    ws.emit("room:join", { room: params.chatId }, (response: GenericResponse<any[]>) => {
-      if (!response || !response.success) {
-        console.error("Failed to join room:", response?.error);
-        return;
-      }
+    ws.emit("room:join", { room: params.chatId }, (response) => {
+      if (!isCurrent) return; // Don't update if user switched rooms already
 
-      if (Array.isArray(response.data)) {
+      if (response?.success && Array.isArray(response.data)) {
+        console.log("Data received from server:", response.data);
 
-        const newMessages = response.data.map((msg) => ({
+        const formatted = response.data.map(msg => ({
           _id: msg.id,
           _hash: msg._hash || "Peak",
           _processed: true,
@@ -90,22 +91,20 @@ export const ChatRoom = () => {
           processed_data: msg,
         }));
 
-        // Setmessage con codigo para evitar duplicaciones, si el react se cree chisto, solo puedo hacer esto
-        setMessageList((prevList) => {
-          const uniqueNewMessages = newMessages.filter(
-            (newMsg) => !prevList.some((existing) => existing._id === newMsg._id)
-          );
-          return [...prevList, ...uniqueNewMessages];
+        setMessageList(prevList => {
+          // Use a Map or Set for O(1) lookups during dedup
+          const existingIds = new Set(prevList.map(m => m._id));
+          const unique = formatted.filter(m => !existingIds.has(m._id));
+          return [...prevList, ...unique];
         });
       }
-
-      console.log("Joined room successfully:", response);
     });
+
     return () => {
+      isCurrent = false; // Clean up
       ws.emit("room:leave", { room: params.chatId });
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cId]);
+  }, [params.chatId]); // Use the actual ID variable here
 
   useEffect(() => {
     const handler = (body: { _push_id: string; _hash?: string; message: Message }) => {
