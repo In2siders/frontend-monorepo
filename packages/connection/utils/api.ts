@@ -12,6 +12,10 @@ interface FetchOptions extends RequestInit {
     body?: any;
 }
 
+// Runtime auth token managed by `setAuthToken` from the app's auth layer.
+let AUTH_TOKEN: string | null = null;
+export const setAuthToken = (token: string | null) => { AUTH_TOKEN = token }
+
 /**
  * API fetch utility function
  * @param endpoint Endpoint (without version)
@@ -29,8 +33,11 @@ const apiFetch = async (endpoint: string, options: FetchOptions = {}) => {
     const url = `${API_BASE_URL}/${API_VERSION}/${endpoint}`;
     const response = await fetch(url, {
         ...options,
+        // Include credentials by default so server-set HttpOnly cookies are sent.
+        credentials: options.credentials ?? 'include',
         headers: {
             'Content-Type': 'application/json',
+            ...(AUTH_TOKEN && !(options.headers && 'Authorization' in options.headers) ? { Authorization: AUTH_TOKEN } : {}),
             ...options.headers
         }
     });

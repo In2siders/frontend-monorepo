@@ -2,8 +2,7 @@ import '@repo/common/style.css'
 import toast from 'react-hot-toast';
 import { useState } from 'react'
 import { Button } from '@repo/components/button'
-import { apiFetch } from '@repo/connection/utils/api';
-import { decompress, solveChallenge, getFromStorage } from '@repo/connection/utils/userAuthentication';
+import { useAuth } from '../../providers/AuthProvider'
 import { motion } from 'motion/react';
 
 const LoginWithName = ({ credentials, setCredentials }) => {
@@ -72,6 +71,7 @@ function LoginPage() {
   const [credentials, setCredentials] = useState({ username: '', pk: '' }); // Username | Private Key
   const [loading, setLoading] = useState(false);
   const [method, setMethod] = useState('none'); // 'username' | 'file'
+  const { login } = useAuth()
 
   const methods = {
     none: {
@@ -91,38 +91,17 @@ function LoginPage() {
           toast.error('Username must be at least 3 characters long.');
           return;
         }
-
         setLoading(true);
-
-        const plainPrivate = getFromStorage(credentials.username);
-
-        const challengeResponse = await apiFetch('/auth/challenge', {
-          method: 'POST',
-          body: JSON.stringify({ username: credentials.username }),
-        });
-
-        if (!challengeResponse.challengeId || !challengeResponse.challenge) {
-          toast.error('Failed to get challenge from server.');
-          setLoading(false);
-          return;
-        }
-
-        const solvedChallenge = await solveChallenge(challengeResponse.challenge, plainPrivate);
-
-        const solutionResponse = await apiFetch('/auth/challenge/verify', {
-          method: 'POST',
-          body: JSON.stringify({ challengeId: challengeResponse.challengeId, solution: solvedChallenge, })
-        });
-
-        if (solutionResponse.message && solutionResponse.data.session) {
-          localStorage.setItem('active_user', credentials.username);
-          toast.success('Login successful!');
-          cookieStore.set('i2session', solutionResponse.data.session, { path: '/' });
-
-          setLoading(false);
-          window.location.href = '/chat/0-general';
-        } else {
-          toast.error('Login failed. Please check your credentials.');
+        try {
+          const success = await login(credentials.username)
+          if (success) {
+            toast.success('Login successful!')
+            window.location.href = '/chat/0-general'
+          } else {
+            toast.error('Login failed. Please check your credentials.')
+          }
+        } finally {
+          setLoading(false)
         }
       },
       finishButton: (

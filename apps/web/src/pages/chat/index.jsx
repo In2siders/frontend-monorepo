@@ -1,6 +1,7 @@
 import { Link, Outlet, useParams } from "react-router"
 import { useWebsocket, WebsocketProvider } from "@repo/connection/context/Websocket"
 import { useEffect, useState } from "react"
+import { useAuth } from "@/src/hooks/useAuth";
 
 const ChatHeader = ({ cId, markReady }) => {
   const ws = useWebsocket();
@@ -96,6 +97,7 @@ const ChatFooter = ({ cId, disabled }) => {
 
 export const ChatOverlay = () => {
   const params = useParams();
+  const auth = useAuth();
   const chatId = params.chatId; // TODO: What closely to see if it changes and reload messages
   const [readyStates, setReadyStates] = useState({ header: false }); // TODO: More ready states for different components
 
