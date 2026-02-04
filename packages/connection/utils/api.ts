@@ -42,7 +42,7 @@ const apiFetch = async (endpoint: string, options: FetchOptions = {}) => {
         }
     });
     if (!response.ok) {
-        throw new Error(`API request failed: ${response.statusText}`);
+        return { error: `API request failed with status ${response.status}` }; // Return error object (this is used to check auth and others, error handling is done in other parts and is not THAT required here)
     }
     return response.json();
 };
