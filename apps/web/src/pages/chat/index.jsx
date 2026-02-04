@@ -1,7 +1,7 @@
 import { Link, Outlet, useParams } from "react-router"
 import { useWebsocket, WebsocketProvider } from "@repo/connection/context/Websocket"
 import { useEffect, useState } from "react"
-import { useAuth } from "@/src/hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 
 const ChatHeader = ({ cId, markReady }) => {
   const ws = useWebsocket();
