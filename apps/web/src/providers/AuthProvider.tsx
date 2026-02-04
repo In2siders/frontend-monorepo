@@ -52,9 +52,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         } else {
           setAuth({ isAuthenticated: false })
         }
-      } catch (e) {
-        console.error("Auth init error", e)
-        setError("Failed to validate session")
+      } catch {
+        console.log("Error fetching session info. No session or invalid one...")
         setAuthToken(null)
         if (mounted) setAuth({ isAuthenticated: false })
       } finally {
@@ -105,9 +104,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       setError('Login failed. Please check your credentials.')
       return false
-    } catch (e) {
-      console.error("Login error", e)
-      setError(e?.message || "Login failed")
+    } catch {
+      console.log("Login error")
+      setError("Login failed")
       return false
     } finally {
       setLoading(false)
@@ -119,8 +118,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setError(null)
     try {
       await apiFetch("/auth/logout", { method: "POST" })
-    } catch (e) {
-      console.error("Logout error", e)
+    } catch {
+      console.log("Logout error")
       // proceed to clear client side state even on error
     } finally {
       setAuthToken(null)
