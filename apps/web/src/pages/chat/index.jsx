@@ -3,19 +3,12 @@ import { useWebsocket, WebsocketProvider } from "@repo/connection/context/Websoc
 import { useEffect, useState } from "react"
 import { useAuth } from "../../hooks/useAuth";
 
-const ChatHeader = ({ cId, markReady }) => {
-  const ws = useWebsocket();
-
-  const [metadata, setMetadata] = useState({ "chat_id": cId, "name": "", "people": [], "online": [], "chatType": "group" });
-
-  useEffect(() => {
-    ws.emit("chat:metadata", { chat_id: cId }, (val) => {
-      setMetadata(val);
-      console.log("Chat metadata loaded:", val);
-      markReady();
-    });
-  }, [cId]);
-
+/**
+ *
+ * @param {{ name: string; online: string[]; people: string[]; }} param0
+ * @returns
+ */
+const ChatHeader = ({ metadata, markReady }) => {
   return (
     <header className="h-[10vh] pr-8 pl-8 border-b border-white/10 flex items-center">
       <div className="flex items-center space-x-4">
@@ -27,7 +20,7 @@ const ChatHeader = ({ cId, markReady }) => {
         </div>
         <span>
           <h1 className="text-xl">{metadata.name}</h1>
-          {(metadata.chatType === "group") ? <p className="text-sm text-white/50">{metadata.online.length} of {metadata.people.length} members online</p> : null}
+          {(metadata.people.length > 2) ? <p className="text-sm text-white/50">{metadata.online.length} of {metadata.people.length} members online</p> : null}
         </span>
       </div>
       <div className="ml-auto flex items-center space-x-4">
@@ -44,8 +37,6 @@ const ChatFooter = ({ cId, disabled }) => {
   const onSubmit = (e) => {
 
     e.preventDefault();
-    // The fuck is this evein for, who put this here, has the ai gone insane?!?!
-    //  console.log(text);
 
     const message = e.target.elements.message.value.trim();
 
@@ -61,7 +52,7 @@ const ChatFooter = ({ cId, disabled }) => {
     ws.emit("message:send", curated_object, (response) => {
       console.log("Acknowledgment received from server:", response);
       if (response?.success) {
-          e.target.elements.message.value = "";
+        e.target.elements.message.value = "";
       } else {
         alert("Failed to send: " + response?.error);
       }
@@ -100,6 +91,7 @@ export const ChatOverlay = () => {
   const { auth, loading, error } = useAuth();
   const chatId = params.chatId; // TODO: What closely to see if it changes and reload messages
   const [readyStates, setReadyStates] = useState({ header: false }); // TODO: More ready states for different components
+  const allReady = Object.values(readyStates).every(v => v === true);
 
   // TODO: Fetch API for chat list and metadata. (Messages are carried through websockets)
 
@@ -109,16 +101,10 @@ export const ChatOverlay = () => {
     { id: 3, name: "(IN2)siders Dev Chat" },
   ];
 
-  const allReady = Object.values(readyStates).every(v => v === true);
-  const username = localStorage.getItem('active_user');
   if(loading) return <div>Loading...</div>;
   if(error) return <div>Error: {error.message}</div>;
 
   if(auth && !auth.isAuthenticated) {
-    useEffect(() => {
-      window.location.href = "/login";
-    }, []);
-
     return <div>Redirecting to login...</div>;
   }
 
@@ -145,7 +131,7 @@ export const ChatOverlay = () => {
         </div>
 
         <div className="chatUI">
-          <ChatHeader cId={chatId} markReady={() => setReadyStates({ ...readyStates, header: true })} />
+          <ChatHeader metadata={{ name: `Offline metadata ${chatId}`, online: [], people: [auth.user.id] }} markReady={() => setReadyStates({ ...readyStates, header: true })} />
           <div className="messages">
             <Outlet />
           </div>
