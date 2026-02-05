@@ -1,5 +1,5 @@
 import { Button } from "@repo/components/button";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import '@repo/common/style.css';
 

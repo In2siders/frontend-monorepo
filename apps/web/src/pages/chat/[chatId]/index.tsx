@@ -1,8 +1,7 @@
 import { Message } from "@/index";
 import { useWebsocket } from "@repo/connection/context/Websocket";
-import { color } from "motion";
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 
 type MessageListObject = {
   _id: string;              // Server Push Id
@@ -11,13 +10,6 @@ type MessageListObject = {
   _client_sent: boolean;    // If the message was sent by this client
   raw_data: Message;        // Raw message data
   processed_data?: Message; // Processed message data (e.g., decrypted)
-}
-
-type GenericResponse<T> = {
-  success: boolean;
-  error?: string;
-  _push_id?: string;
-  data?: T;
 }
 
 /*
@@ -46,9 +38,9 @@ export const ChatRoom = () => {
   // Hash ftwwww
   const computeClientHash = (msg: Message) => {
     const str = JSON.stringify({
-      senderId: (msg as any).senderId,
-      body: (msg as any).body,
-      at: (msg as any).createdAt || (msg as any).timestamp || (msg as any).time || null,
+      senderId: msg.senderId,
+      body: msg.body,
+      at: msg.timestamp,
       roomId: cId,
     });
     let hash = 5381;
