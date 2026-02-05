@@ -97,9 +97,11 @@ const ChatFooter = ({ cId, disabled }) => {
 
 export const ChatOverlay = () => {
   const params = useParams();
-  const auth = useAuth();
+  const { auth, loading, error } = useAuth();
   const chatId = params.chatId; // TODO: What closely to see if it changes and reload messages
   const [readyStates, setReadyStates] = useState({ header: false }); // TODO: More ready states for different components
+
+  // TODO: Fetch API for chat list and metadata. (Messages are carried through websockets)
 
   const chat = [
     { id: 1, name: "ReinadoRojo" },
@@ -109,6 +111,17 @@ export const ChatOverlay = () => {
 
   const allReady = Object.values(readyStates).every(v => v === true);
   const username = localStorage.getItem('active_user');
+  if(loading) return <div>Loading...</div>;
+  if(error) return <div>Error: {error.message}</div>;
+
+  if(auth && !auth.isAuthenticated) {
+    useEffect(() => {
+      window.location.href = "/login";
+    }, []);
+
+    return <div>Redirecting to login...</div>;
+  }
+
   return (
     <WebsocketProvider>
       <div className="flex flex-row h-screen w-screen">
@@ -127,7 +140,7 @@ export const ChatOverlay = () => {
           </div>
           <div className="user-panel">
             <img src="/2.png" alt="userLogo" />
-            <h1>{username}</h1> {/* Here goes the current username */}
+            <h1>{auth.user.username}</h1>
           </div>
         </div>
 
