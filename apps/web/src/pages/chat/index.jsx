@@ -1,4 +1,4 @@
-import { Link, Outlet, useParams } from "react-router-dom"
+import { Link, Outlet, useParams } from "react-router"
 import { useWebsocket, WebsocketProvider } from "@repo/connection/context/Websocket"
 import { useEffect, useState } from "react"
 import { useAuth } from "../../hooks/useAuth";

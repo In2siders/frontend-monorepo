@@ -1,5 +1,5 @@
 import { Toaster } from 'react-hot-toast'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router'
 
 import '@repo/common/style.css'
 
