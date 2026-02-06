@@ -2,6 +2,7 @@ import { Link, Outlet, useParams } from "react-router"
 import { useWebsocket, WebsocketProvider } from "@repo/connection/context/Websocket"
 import { useEffect, useState } from "react"
 import { useAuth } from "../../hooks/useAuth";
+import { apiFetch } from "@repo/connection/utils/api";
 
 /**
  *
@@ -93,7 +94,11 @@ export const ChatOverlay = () => {
   const [readyStates, setReadyStates] = useState({ header: false }); // TODO: More ready states for different components
   const allReady = Object.values(readyStates).every(v => v === true);
 
-  // TODO: Fetch API for chat list and metadata. (Messages are carried through websockets)
+  // TODO: Fetch API for chat list. (Messages are carried through websockets)
+
+  apiFetch("/chat/groups").then(data => {
+    console.log("Fetched chat groups:", data);
+  })
 
   const chat = [
     { id: 1, name: "ReinadoRojo" },
