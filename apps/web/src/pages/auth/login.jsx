@@ -30,8 +30,45 @@ const LoginWithFile = ({ credentials, setCredentials }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // TODO: Implement login logic
-    console.log('Login attempt with file:', file);
+    // 1. Read the file content
+    if(!file || typeof file === 'undefined') {
+      toast.error("Please select a file to login.");
+      return;
+    }
+
+    const loginFlow = async () => {
+      let privateKey = '';
+      let publicKey = '';
+      let username = '';
+
+      let expeditedOnDomain = '';
+      const currentDomain = window.location.hostname;
+
+      file.text().then(content => {
+        try {
+          const lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+          for (const l of lines) {
+          }
+        } catch (err) {
+          toast.error("Failed to read the file. Please ensure it's a valid private key file...");
+          return;
+        }
+      })
+
+      // 3. Start login
+      const { login } = useAuth();
+      const success = await login(username, privateKey);
+
+      if (!success) {
+        toast.error('Login failed. Please check your credentials and try again.');
+        return;
+      }
+
+      toast.success('Welcome back!');
+      window.location.href = '/chat/TODO';
+    }
+
+    loginFlow();
   };
 
   return (
