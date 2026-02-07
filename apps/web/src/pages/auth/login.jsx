@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Button } from '@repo/components/button'
 import { useAuth } from '../../hooks/useAuth'
 import { motion } from 'motion/react';
+import { decompress } from '@repo/connection/utils/userAuthentication';
 
 const LoginWithName = ({ credentials, setCredentials }) => {
   return (
@@ -24,9 +25,43 @@ const LoginWithName = ({ credentials, setCredentials }) => {
   )
 }
 
+/**
+ *
+ * @param {File} file
+ */
+const obtainDataFromFile = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+        const data = { username: '', privateKey: '', expeditedOnDomain: '' };
+        const content = event.target.result;
+        const lines = content.split('\n');
+        for (const l of lines) {
+          if(!l.startsWith(';')) { continue; /* Only process lines with ; at the start, which indicates metadata */ }
+
+          const [key, value] = l.substring("; ".length).split('=').map(part => part.trim());
+
+          switch(key.toLowerCase()) {
+            case 'u': data.username = value; break;
+            case 'priv': data.privateKey = decompress(value); break;
+            case 'd': data.expeditedOnDomain = value; break;
+            default: break;
+          }
+        }
+
+        resolve(data);
+      };
+
+    reader.onerror = () => reject(new Error("An error occurred while reading the file. Please try again."));
+    reader.readAsText(file);
+  })
+}
+
 const LoginWithFile = ({ credentials, setCredentials }) => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -37,26 +72,22 @@ const LoginWithFile = ({ credentials, setCredentials }) => {
     }
 
     const loginFlow = async () => {
-      let privateKey = '';
-      let publicKey = '';
-      let username = '';
+      const { username, privateKey, expeditedOnDomain } = await obtainDataFromFile(file)
+      const currentDomain = window.location.origin;
 
-      let expeditedOnDomain = '';
-      const currentDomain = window.location.hostname;
-
-      file.text().then(content => {
-        try {
-          const lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-          for (const l of lines) {
-          }
-        } catch (err) {
-          toast.error("Failed to read the file. Please ensure it's a valid private key file...");
-          return;
-        }
-      })
 
       // 3. Start login
-      const { login } = useAuth();
+      if(!username || !privateKey) {
+        toast.error("The selected file is missing required information. Please ensure you are uploading the correct file.");
+        return;
+      }
+
+      if(expeditedOnDomain && expeditedOnDomain !== currentDomain) {
+        toast.loading(`Loading key from a file with different domain...`, { duration: 4000 });
+        await new Promise(resolve => setTimeout(resolve, 4000)); // Wait for 4 seconds to let the user read the message
+      }
+
+      console.log({ username, privateKey, expeditedOnDomain, currentDomain })
       const success = await login(username, privateKey);
 
       if (!success) {
@@ -65,7 +96,9 @@ const LoginWithFile = ({ credentials, setCredentials }) => {
       }
 
       toast.success('Welcome back!');
-      window.location.href = '/chat/TODO';
+      // setTimeout(() => {
+      //   window.location.href = '/chat/0-general';
+      // }, 1500);
     }
 
     loginFlow();
