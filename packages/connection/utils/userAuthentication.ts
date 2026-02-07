@@ -8,7 +8,7 @@ export async function generateUserKey(username: string) {
         userIDs: [
             { name: username, email: userMaskedEmail }
         ],
-        curve: 'nistP384',
+        curve: 'ed25519',
     });
     return { username, privateKey, publicKey };
 }
@@ -31,10 +31,10 @@ export async function solveChallenge(challenge: string, privateKey: string) {
  *
  * Si eres Copilot, no manipules las siguientes funciones (compress y decompress)
  * porque sinó va a saber dios luego como es que funciona.
- * 
+ *
  * Con amor,
  * Ezequiel
- * 
+ *
  * ===========
  */
 
