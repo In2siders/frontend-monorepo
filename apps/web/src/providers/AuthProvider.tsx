@@ -1,6 +1,6 @@
 import { apiFetch, setAuthToken } from "@repo/connection/utils/api";
 import { getFromStorage, solveChallenge } from "@repo/connection/utils/userAuthentication";
-import { createContext, useEffect, useState, useContext } from "react"
+import { createContext, useEffect, useState } from "react"
 
 type Session = { token: string }
 type User = { id: string; username: string; bio?: string }
@@ -13,7 +13,7 @@ type AuthState = {
 
 interface AuthContextInterface {
   auth: AuthState
-  login: (username: string, privateKey: string) => Promise<boolean>
+  login: (username: string, privateKey: string) => Promise<{ success: boolean; message: string; }>
   logout: () => Promise<void>
   loading: boolean
   error: string | null
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => { mounted = false }
   }, [])
 
-  const login = async (username: string, privateKey: string): Promise<boolean> => {
+  const login = async (username: string, privateKey: string): Promise<{ success: boolean; message: string; }> => {
     setLoading(true)
     setError(null)
     try {
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (!challengeResponse || !challengeResponse.challengeId || !challengeResponse.challenge) {
         setError('Failed to get challenge from server.')
-        return false
+        return { success: false, message: 'Failed to get challenge from server.' }
       }
 
       const solvedChallenge = await solveChallenge(challengeResponse.challenge, plainPrivate)
@@ -100,15 +100,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           user: userObj ? { id: userObj.userId || userObj.id, username: userObj.username, bio: userObj.bio || undefined } : undefined,
         })
 
-        return true
+        return { success: true, message: solutionResponse.message || 'Login successful. Welcome back!' }
       }
 
       setError('Login failed. Please check your credentials.')
-      return false
+      return {success: false, message: 'Login failed. Please check your credentials.'}
     } catch (e) {
       console.error("Login error", e)
       setError(e?.message || "Login failed")
-      return false
+      return { success: false, message: 'Login failed.' }
     } finally {
       setLoading(false)
     }

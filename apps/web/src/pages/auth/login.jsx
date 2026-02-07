@@ -88,17 +88,17 @@ const LoginWithFile = ({ credentials, setCredentials }) => {
       }
 
       console.log({ username, privateKey, expeditedOnDomain, currentDomain })
-      const success = await login(username, privateKey);
+      const { success, message } = await login(username, privateKey);
 
       if (!success) {
-        toast.error('Login failed. Please check your credentials and try again.');
+        toast.error(message);
         return;
       }
 
-      toast.success('Welcome back!');
-      // setTimeout(() => {
-      //   window.location.href = '/chat/0-general';
-      // }, 1500);
+      toast.success(message);
+      setTimeout(() => {
+        window.location.href = '/chat/TODO';
+      }, 1500);
     }
 
     loginFlow();
