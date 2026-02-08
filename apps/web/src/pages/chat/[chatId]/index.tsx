@@ -22,6 +22,19 @@ type MessageListObject = {
   - Amr
 */
 
+const computeClientHash = (msg: Message, chatId: string) => {
+  const str = JSON.stringify({
+    senderId: msg.senderId,
+    body: msg.body,
+    at: msg.timestamp,
+    roomId: chatId,
+  });
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 33) ^ str.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(36);
+};
 
 export const ChatRoom = () => {
   const ws = useWebsocket();
@@ -33,23 +46,6 @@ export const ChatRoom = () => {
   const seenIdsRef = useRef<Set<string>>(new Set());
   const seenHashesRef = useRef<Set<string>>(new Set());
 
-
-  // Mira, ni yo, ni tu sabemos lo que esta pasando aqui
-  // Hash ftwwww
-  const computeClientHash = (msg: Message) => {
-    const str = JSON.stringify({
-      senderId: msg.senderId,
-      body: msg.body,
-      at: msg.timestamp,
-      roomId: cId,
-    });
-    let hash = 5381;
-    for (let i = 0; i < str.length; i++) {
-      hash = (hash * 33) ^ str.charCodeAt(i);
-    }
-    return (hash >>> 0).toString(36);
-  };
-
   //const checkuniquehash = (message) => {
   //    messageList.map((msg) => {
   //      if (msg._hash == message._hash) {
@@ -60,6 +56,33 @@ export const ChatRoom = () => {
   //      }
   //    })
   //}
+
+  const message_proxy = (body: { _push_id: string; _hash?: string; message: Message }) => {
+    const clientHash = body._hash && body._hash.length > 0 ? body._hash : computeClientHash(body.message);
+
+    // No se que es esto, pero funciona, no lo toquen
+    if (body._push_id && seenIdsRef.current.has(body._push_id)) return;
+    if (clientHash && seenHashesRef.current.has(clientHash)) return;
+    if (body._push_id) seenIdsRef.current.add(body._push_id);
+    if (clientHash) seenHashesRef.current.add(clientHash);
+
+    const curated_list: MessageListObject = {
+      _id: body._push_id,
+      _hash: clientHash,
+      _processed: true,
+      _client_sent: true,
+      raw_data: body.message,
+      processed_data: body.message, // TODO: Process message
+    };
+
+    setMessageList((prevList) => {
+      const exists = prevList.some(
+        (m) => m._id === curated_list._id || (curated_list._hash && m._hash === curated_list._hash)
+      );
+      if (exists) return prevList;
+      return [...prevList, curated_list];
+    });
+  };
 
   useEffect(() => {
     let isCurrent = true;
@@ -99,38 +122,9 @@ export const ChatRoom = () => {
   }, [params.chatId]); // Use the actual ID variable here
 
   useEffect(() => {
-    const handler = (body: { _push_id: string; _hash?: string; message: Message }) => {
-      const clientHash = body._hash && body._hash.length > 0 ? body._hash : computeClientHash(body.message);
-
-      // No se que es esto, pero funciona, no lo toquen
-      if (body._push_id && seenIdsRef.current.has(body._push_id)) return;
-      if (clientHash && seenHashesRef.current.has(clientHash)) return;
-      if (body._push_id) seenIdsRef.current.add(body._push_id);
-      if (clientHash) seenHashesRef.current.add(clientHash);
-
-      const curated_list: MessageListObject = {
-        _id: body._push_id,
-        _hash: clientHash,
-        _processed: true,
-        _client_sent: true,
-        raw_data: body.message,
-        processed_data: body.message, // TODO: Process message
-      };
-      setMessageList((prevList) => {
-        const exists = prevList.some(
-          (m) => m._id === curated_list._id || (curated_list._hash && m._hash === curated_list._hash)
-        );
-        if (exists) return prevList;
-        return [...prevList, curated_list];
-      });
-    };
-
-
-
-    ws.on("message:proxy", handler);
-      console.log(messageList);
+    ws.on("message:proxy", message_proxy);
     return () => {
-      ws.off("message:proxy", handler);
+      ws.off("message:proxy", message_proxy);
     };
   }, [ws, cId]);
 
@@ -144,7 +138,7 @@ export const ChatRoom = () => {
   //      _processed: true,
   //      processed_data: msg.raw_data,
   //    };
-//
+  //
   //    setMessageList((prevList) =>
   //      prevList.map((m) => (m._id === msg._id ? processedMessage : m))
   //    );
@@ -155,9 +149,10 @@ export const ChatRoom = () => {
     <div>
       {messageList.map((msg) => (
         <div key={msg._id} style={{ margin: "10px", padding: "5px", border: "1px solid #ccc" }}>
-          <p><strong style={{color: "yellow",}}>{msg.raw_data.username}: </strong>{msg.processed_data ? msg.processed_data.body : msg.raw_data.body}</p>
+          <p><strong style={{ color: "yellow", }}>{msg.raw_data.username}: </strong>{msg.processed_data ? msg.processed_data.body : msg.raw_data.body}</p>
         </div>
       ))}
+      <div id="bottom_scroll_tracker" />
     </div>
   )
 }
