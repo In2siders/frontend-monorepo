@@ -3,6 +3,7 @@ import { useWebsocket, WebsocketProvider } from "@repo/connection/context/Websoc
 import { useEffect, useState } from "react"
 import { useAuth } from "../../hooks/useAuth";
 import { apiFetch } from "@repo/connection/utils/api";
+import toast from "react-hot-toast";
 
 /**
  *
@@ -88,23 +89,31 @@ const ChatFooter = ({ cId, disabled }) => {
 }
 
 export const ChatOverlay = () => {
-  const params = useParams();
+  const { chatId } = useParams();
   const { auth, loading, error } = useAuth();
-  const chatId = params.chatId; // TODO: What closely to see if it changes and reload messages
-  const [readyStates, setReadyStates] = useState({ header: false }); // TODO: More ready states for different components
+
+  const [chats, setChats] = useState([]);
+  const [readyStates, setReadyStates] = useState({ header: false, chats: false }); // TODO: More ready states for different components
   const allReady = Object.values(readyStates).every(v => v === true);
 
-  // TODO: Fetch API for chat list. (Messages are carried through websockets)
+  const fetchChats = async () => {
+    try {
+      const jsonData = await apiFetch("/chat/groups")
+      if (!jsonData.success) throw new Error(jsonData.error || "Failed to fetch chats");
 
-  apiFetch("/chat/groups").then(data => {
-    console.log("Fetched chat groups:", data);
-  })
+      setChats(jsonData.data);
+      setReadyStates(prev => ({ ...prev, chats: true }));
+    } catch (err) {
+      console.error("Error fetching chats:", err);
+      toast.error("We couldn't load your chats. See the console for more details.");
+    }
+  }
 
-  const chat = [
-    { id: 1, name: "ReinadoRojo" },
-    { id: 2, name: "Pequeño grupo de amigos" },
-    { id: 3, name: "(IN2)siders Dev Chat" },
-  ];
+  useEffect(() => {
+    if(!auth || !auth.isAuthenticated) return;
+
+    fetchChats();
+  }, [auth]);
 
   if(loading) return <div>Loading...</div>;
   if(error) return <div>Error: {error.message}</div>;
@@ -122,7 +131,7 @@ export const ChatOverlay = () => {
           </div>
           <h1 className="center">Users</h1>
           <div className="user-list">
-            {chat.map(chat => (
+            {readyStates.chats && chats.map(chat => (
               <Link to={`/chat/${chat.id}`} key={chat.id} className="user-card">
                 <img src="/2.png" alt="userLogo" />
                 <h1>{chat.name}</h1>
