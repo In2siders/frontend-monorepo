@@ -6,6 +6,10 @@
   --text-color: #ffffff;
   --input-background: rgba(0, 0, 0, 0.3);
   --input-border: rgba(255, 255, 255, 0.4);
+
+  /* Skeleton Colors */
+  --skeleton-base: #2e2e2e;
+  --skeleton-highlight: #3a3a3a;
 }
 
 .shadow {
@@ -196,83 +200,77 @@ input:focus {
 /* Chat/index.jsx focused */
 
 .user-list {
-  padding: 10px;
   margin: 0;
-  height: 75dvh;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  flex-grow: 1;
+  overflow-y: auto;
+  min-height: 0;
+  scrollbar-width: thin;
 }
 
-.user-list img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-}
-
-.user-list .user-card {
+.user-list .user-card,
+.user-panel {
   display: flex;
   align-items: center;
   padding: 10px;
   gap: 30px;
+  margin: 10px;
   color: var(--text-color);
   background-color: var(--secondary-color);
   transition: all 0.2s ease;
   border-radius: 10px;
   font-weight: bold;
-}
-
-.user-list .user-card:hover {
-  background-color: var(--terciary-color);
-}
-
-.user-list .user-card img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
 }
 
 .user-panel {
-  display: flex;
-  margin: 10px;
-  align-items: center;
-  padding: 10px;
-  gap: 30px;
-  color: var(--text-color);
-  background-color: var(--secondary-color);
-  transition: all 0.2s ease;
-  border-radius: 10px;
-  font-weight: bold;
+  flex-shrink: 0;
+  height: 70px;
+  margin-top: auto;
 }
 
+.user-list .user-card {
+  flex-shrink: 0;
+  min-height: 70px;
+}
+
+.user-card:hover,
 .user-panel:hover {
   background-color: var(--terciary-color);
 }
 
+.user-card img,
 .user-panel img {
   width: 50px;
   height: 50px;
   border-radius: 50%;
+  object-fit: cover;
 }
 
 .sidebar {
   width: 25%;
+  height: 100dvh;
   background-color: var(--primary-color);
   border-right: 1px solid var(--terciary-color);
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .global-chat {
   display: flex;
   align-items: center;
-  padding: 40px 20px;
+  justify-content: center;
   margin: 10px;
   border-radius: 10px;
   font-weight: bold;
-  justify-content: center;
-  gap: 30px;
   color: var(--text-color);
   background-color: var(--secondary-color);
   transition: all 0.2s ease;
+  flex-shrink: 0;
+  height: 100px;
 }
 
 .global-chat:hover {
@@ -327,6 +325,11 @@ input:focus {
     border-right: none;
     border-bottom: 1px solid var(--terciary-color);
     display: none;
+    z-index: 100;
+  }
+
+  .sidebar.active {
+    display: block;
   }
 
   .chatUI {
@@ -338,4 +341,44 @@ input:focus {
   .footer {
     width: 100%;
   }
+}
+
+/* Skeleton componenet */
+.skeleton {
+  background-color: var(--skeleton-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    var(--skeleton-base) 0%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton-base) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* User modal */
+.user-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--primary-color);
+  border: 1px solid var(--terciary-color);
+  border-radius: 10px;
+  padding: 20px;
+  z-index: 200;
 }
