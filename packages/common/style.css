@@ -279,34 +279,34 @@ input:focus {
 
 .chatUI {
   width: 75%;
-  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column; /* Stack header, messages, and footer */
+  height: 100vh;          /* Fill the screen */
   background-color: var(--primary-color);
   border-left: 1px solid var(--terciary-color);
 }
 
 .header {
-  position: fixed;
-  width: 75%;
-  top: 0;
   height: 7vh;
+  flex-shrink: 0;
   background-color: var(--primary-color);
 }
 
 .messages {
-  height: 81vh;
-  max-width: 80v;
+  flex: 1;                /* MAGIC: This tells messages to take up all remaining space */
+  width: 100%;
   background-color: var(--primary-color);
-  overflow-y: auto;
+  overflow-y: auto;       /* Scroll internally */
 }
 
 .footer {
-  padding: 10px;
-  position: fixed;
-  bottom: 15px;
-  width: 75%;
-  height: 7vh;
+  width: 100%;            /* No more position: fixed */
+  height: auto;           /* Let it grow with attachments */
+  min-height: 7vh;
+  padding: 15px;
   background-color: var(--primary-color);
   border-top: 1px solid var(--terciary-color);
+  box-sizing: border-box;
 }
 
 /* index.tsx focused */

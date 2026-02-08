@@ -1,6 +1,6 @@
 import { Link, Outlet, useParams } from "react-router"
 import { useWebsocket, WebsocketProvider } from "@repo/connection/context/Websocket"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useAuth } from "../../hooks/useAuth";
 import { apiFetch } from "@repo/connection/utils/api";
 import toast from "react-hot-toast";
@@ -70,27 +70,50 @@ const ChatHeader = ({ chatId, markReady }) => {
 
 const ChatFooter = ({ cId, disabled }) => {
   const ws = useWebsocket();
-  console.log("Attempting to emit...");
+  const fileInputRef = useRef(null);
+
+  const [messageText, setMessageText] = useState("");
+  const [attachments, setAttachments] = useState([]);
+
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files);
+
+    const processedFiles = await Promise.all(files.map(file => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64Data = reader.result.split(',')[1];
+          resolve({
+            filename: file.name,
+            mime_type: file.type,
+            data: base64Data,
+            previewUrl: reader.result
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+    }));
+
+    setAttachments(prev => [...prev, ...processedFiles]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const onSubmit = (e) => {
-
     e.preventDefault();
+    if (disabled || (!messageText.trim() && attachments.length === 0)) return;
 
-    const message = e.target.elements.message.value.trim();
-
-    if (disabled || !message) return;
+    const cleanAttachments = attachments.map(({ previewUrl, ...rest }) => rest);
 
     const curated_object = {
       chat_id: cId,
-      body: message,
-      attachments: [],
+      body: messageText,
+      attachments: cleanAttachments,
     };
 
-
     ws.emit("message:send", curated_object, (response) => {
-      console.log("Acknowledgment received from server:", response);
       if (response?.success) {
-        e.target.elements.message.value = "";
+        setMessageText("");
+        setAttachments([]);
       } else {
         alert("Failed to send: " + response?.error);
       }
@@ -98,31 +121,68 @@ const ChatFooter = ({ cId, disabled }) => {
   };
 
   return (
-    <footer className="footer">
-      <form className="flex items-center space-x-4" onSubmit={onSubmit}>
+<footer className="w-full mt-auto flex flex-col pointer-events-auto">
+
+  {/*  -- PREVIEW BOX -- */}
+  {attachments.length > 0 && (
+    <div className="flex gap-4 p-3 bg-[#1a1a1a] border-t border-x border-white/10 rounded-t-xl overflow-x-auto shadow-2xl">
+      {attachments.map((file, i) => (
+        <div key={i} className="relative flex-shrink-0 mb-1">
+          <img
+            src={file.previewUrl}
+            className="h-14 w-14 object-cover rounded-md border border-white/20"
+          />
+          <button
+            type="button"
+            className="absolute -top-2 -right-2 bg-red-500 size-5 rounded-full text-white text-[10px] flex items-center justify-center border border-black"
+            onClick={() => setAttachments(attachments.filter((_, idx) => idx !== i))}
+          >
+            ✕
+          </button>
+        </div>
+      ))}
+    </div>
+  )}
+
+      {/* --- INPUT SECTION --- */}
+      <form className="flex items-center space-x-4 bg-white/5 p-3 rounded-b-lg border border-white/10" onSubmit={onSubmit}>
+        <input
+          type="file"
+          multiple
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          className="hidden"
+        />
+
         <button
           type="button"
           className="btn btn-secondary btn-icon"
+          onClick={() => fileInputRef.current.click()}
         >
-          <img src="/attach.svg" alt="Attach Icon" className="size-6" />
+          <img src="/attach.svg" alt="Attach" className="size-6" />
         </button>
+
         <input
           name="message"
           type="text"
           placeholder="Type your message..."
-          className=""
+          className="bg-transparent flex-1 outline-none text-white"
           disabled={disabled}
+          value={messageText}
+          onChange={(e) => setMessageText(e.target.value)}
         />
+
         <button
           type="submit"
           className="btn btn-secondary"
+          disabled={disabled || (!messageText.trim() && attachments.length === 0)}
         >
           Send
         </button>
       </form>
     </footer>
-  )
-}
+  );
+};
 
 export const ChatOverlay = () => {
   const { chatId } = useParams();
@@ -146,15 +206,15 @@ export const ChatOverlay = () => {
   }
 
   useEffect(() => {
-    if(!auth || !auth.isAuthenticated) return;
+    if (!auth || !auth.isAuthenticated) return;
 
     fetchChats();
   }, [auth]);
 
-  if(loading) return <div>Loading...</div>;
-  if(error) return <div>Error: {error.message}</div>;
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
-  if(auth && !auth.isAuthenticated) {
+  if (auth && !auth.isAuthenticated) {
     return <div>Redirecting to login...</div>;
   }
 

@@ -59,7 +59,7 @@ export const ChatRoom = () => {
 
   const message_proxy = (body: { _push_id: string; _hash?: string; message: Message }) => {
     const clientHash = body._hash && body._hash.length > 0 ? body._hash : computeClientHash(body.message);
-
+    console.log("RECEIVED PROXY:", body);
     // No se que es esto, pero funciona, no lo toquen
     if (body._push_id && seenIdsRef.current.has(body._push_id)) return;
     if (clientHash && seenHashesRef.current.has(clientHash)) return;
@@ -121,6 +121,7 @@ export const ChatRoom = () => {
     };
   }, [params.chatId]); // Use the actual ID variable here
 
+
   useEffect(() => {
     ws.on("message:proxy", message_proxy);
     return () => {
@@ -146,13 +147,76 @@ export const ChatRoom = () => {
   //}, [messageList]);
 
   return (
-    <div>
+    <div className="flex flex-col p-4 min-h-full">
       {messageList.map((msg) => (
-        <div key={msg._id} style={{ margin: "10px", padding: "5px", border: "1px solid #ccc" }}>
-          <p><strong style={{ color: "yellow", }}>{msg.raw_data.username}: </strong>{msg.processed_data ? msg.processed_data.body : msg.raw_data.body}</p>
+        <div
+          key={msg._id}
+          className="mb-4 p-3 rounded-xl bg-white/5 border border-white/10 shadow-sm animate-in fade-in slide-in-from-bottom-2"
+        >
+          {/* Header: Username and Timestamp */}
+          <div className="flex justify-between items-center mb-1">
+            <strong className="text-yellow-400 text-sm">
+              {msg.raw_data.username}
+            </strong>
+            <span className="text-[10px] text-white/30">
+              {new Date(msg.raw_data.timestamp).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </span>
+          </div>
+
+          {/* Body Text */}
+          <p className="text-white break-words leading-relaxed">
+            {msg.processed_data ? msg.processed_data.body : msg.raw_data.body}
+          </p>
+
+          {/* Attachments Section */}
+          {msg.raw_data.attachments && msg.raw_data.attachments.length > 0 && (
+            <div className="flex flex-wrap gap-3 mt-3">
+              {msg.raw_data.attachments.map((url, index) => {
+
+                const isImage = /\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(url);
+
+                return (
+                  <div key={index} className="max-w-[280px] group relative">
+                    {isImage ? (
+                      <div className="relative group overflow-hidden rounded-lg border border-white/10 shadow-lg">
+                        <img
+                          src={url}
+                          alt="Attachment"
+                          className="w-full h-auto max-h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                          loading="lazy"
+                          onClick={() => window.open(url, '_blank')}
+                        />
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none flex items-center justify-center">
+                          <span className="text-[10px] bg-black/60 text-white px-2 py-1 rounded">View Full Image</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-3 p-3 bg-white/10 rounded-lg border border-white/10 hover:bg-white/20 transition-all text-blue-400 no-underline shadow-md group/file"
+                      >
+                        <span className="text-xl group-hover/file:scale-110 transition-transform">📄</span>
+                        <div className="flex flex-col overflow-hidden">
+                          <span className="text-xs font-semibold truncate">File Attachment</span>
+                          <span className="text-[10px] text-white/40 truncate">
+                            Click to download / view
+                          </span>
+                        </div>
+                      </a>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       ))}
-      <div id="bottom_scroll_tracker" />
+      <div id="bottom_scroll_tracker" className="h-4" />
     </div>
-  )
+  );
 }
