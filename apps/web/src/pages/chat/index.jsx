@@ -10,19 +10,55 @@ import toast from "react-hot-toast";
  * @param {{ name: string; online: string[]; people: string[]; }} param0
  * @returns
  */
-const ChatHeader = ({ metadata, markReady }) => {
+const ChatHeader = ({ chatId, markReady }) => {
+  const [chatMetadata, setChatMetadata] = useState(null);
+
+  const fetchMetadata = async () => {
+    try {
+      const jsonData = await apiFetch(`/chat/metadata/${chatId}`)
+      if (!jsonData.success) throw new Error(jsonData.error || "Failed to fetch metadata");
+
+      setChatMetadata(jsonData.data);
+      markReady();
+    } catch (err) {
+      console.error("Error fetching metadata:", err);
+      toast.error("We couldn't load chat metadata. See the console for more details.");
+    }
+  }
+
+  useEffect(() => {
+    fetchMetadata();
+  }, [chatId]);
+
+  if (!chatMetadata) {
+    <header className="h-[10vh] pr-8 pl-8 border-b border-white/10 flex items-center">
+      <div className="flex items-center space-x-4">
+        <div className="relative">
+          <img src="/2.png" className="h-15 w-15 rounded-[100%]" />
+        </div>
+        <span>
+          <h1 className="text-xl">Error loading metadata!</h1>
+          <p className="text-sm text-white/50">0 of 0 members online</p>
+        </span>
+      </div>
+      <div className="ml-auto flex items-center space-x-4">
+        <button className="text-sm text-white/50 hover:text-white">...</button>
+      </div>
+    </header>
+  }
+
   return (
     <header className="h-[10vh] pr-8 pl-8 border-b border-white/10 flex items-center">
       <div className="flex items-center space-x-4">
         <div className="relative">
           <img src="/2.png" className="h-15 w-15 rounded-[100%]"></img>
-          {metadata.online.length > 0 ? (
+          {chatMetadata && chatMetadata.online.length > 0 ? (
             <div className="absolute bottom-0 right-0 size-3 bg-green-500 border-2 border-black rounded-[100%]"></div>
           ) : null}
         </div>
         <span>
-          <h1 className="text-xl">{metadata.name}</h1>
-          {(metadata.people.length > 2) ? <p className="text-sm text-white/50">{metadata.online.length} of {metadata.people.length} members online</p> : null}
+          <h1 className="text-xl">{chatMetadata ? chatMetadata.name : "Loading..."}</h1>
+          {(chatMetadata && chatMetadata.people.length > 2) ? <p className="text-sm text-white/50">{chatMetadata.online.length} of {chatMetadata.people.length} members online</p> : null}
         </span>
       </div>
       <div className="ml-auto flex items-center space-x-4">
@@ -131,12 +167,16 @@ export const ChatOverlay = () => {
           </div>
           <h1 className="center">Users</h1>
           <div className="user-list">
-            {readyStates.chats && chats.map(chat => (
+            {readyStates.chats ? chats.map(chat => (
               <Link to={`/chat/${chat.id}`} key={chat.id} className="user-card">
-                <img src="/2.png" alt="userLogo" />
+                <img src="/2.png" alt={`${chat.name} avatar`} />
                 <h1>{chat.name}</h1>
               </Link>
-            ))}
+            )) : (
+              <div className="p-4">
+                <p className="text-sm text-white/50">Loading chats...</p>
+              </div>
+            )}
           </div>
           <div className="user-panel">
             <img src="/2.png" alt="userLogo" />
@@ -145,7 +185,7 @@ export const ChatOverlay = () => {
         </div>
 
         <div className="chatUI">
-          <ChatHeader metadata={{ name: `Offline metadata ${chatId}`, online: [], people: [auth.user.id] }} markReady={() => setReadyStates({ ...readyStates, header: true })} />
+          <ChatHeader chatId={chatId} markReady={() => setReadyStates({ ...readyStates, header: true })} />
           <div className="messages">
             <Outlet />
           </div>
