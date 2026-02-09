@@ -58,7 +58,7 @@ export const ChatRoom = () => {
   //}
 
   const message_proxy = (body: { _push_id: string; _hash?: string; message: Message }) => {
-    const clientHash = body._hash && body._hash.length > 0 ? body._hash : computeClientHash(body.message);
+    const clientHash = body._hash && body._hash.length > 0 ? body._hash : computeClientHash(body.message, cId);
     console.log("RECEIVED PROXY:", body);
     // No se que es esto, pero funciona, no lo toquen
     if (body._push_id && seenIdsRef.current.has(body._push_id)) return;
