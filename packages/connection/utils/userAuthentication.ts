@@ -8,7 +8,7 @@ export async function generateUserKey(username: string) {
         userIDs: [
             { name: username, email: userMaskedEmail }
         ],
-        curve: 'ed25519',
+        curve: 'nistP256',
     });
     return { username, privateKey, publicKey };
 }
