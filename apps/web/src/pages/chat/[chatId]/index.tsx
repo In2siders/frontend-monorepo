@@ -159,7 +159,7 @@ export const ChatRoom = () => {
               {msg.raw_data.username}
             </strong>
             <span className="text-[10px] text-white/30">
-              {new Date(msg.raw_data.timestamp * 1000).toLocaleTimeString([], {
+              {new Date(Number(msg.raw_data.timestamp) * 1000).toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit'
               })}
