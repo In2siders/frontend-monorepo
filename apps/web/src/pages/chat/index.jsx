@@ -207,6 +207,10 @@ const ChatFooter = ({ cId, disabled }) => {
           disabled={disabled}
           value={messageText}
           onChange={(e) => setMessageText(e.target.value)}
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck="true"
+          data-lpignore="true"
         />
 
         <button
