@@ -159,7 +159,7 @@ export const ChatRoom = () => {
               {msg.raw_data.username}
             </strong>
             <span className="text-[10px] text-white/30">
-              {new Date(msg.raw_data.timestamp).toLocaleTimeString([], {
+              {new Date(msg.raw_data.timestamp * 1000).toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit'
               })}
@@ -175,12 +175,42 @@ export const ChatRoom = () => {
           {msg.raw_data.attachments && msg.raw_data.attachments.length > 0 && (
             <div className="flex flex-wrap gap-3 mt-3">
               {msg.raw_data.attachments.map((url, index) => {
-
+                // Regex helpers for S3 URLs
                 const isImage = /\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(url);
+                const isVideo = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
+
+                // Helper to get a better icon for non-media files
+                const getFileIcon = (uri) => {
+                  // Documents & Text
+                  if (/\.(pdf)(\?.*)?$/i.test(uri)) return "📕";
+                  if (/\.(doc|docx|rtf|odt)(\?.*)?$/i.test(uri)) return "📘";
+                  if (/\.(xls|xlsx|csv)(\?.*)?$/i.test(uri)) return "📗";
+                  if (/\.(ppt|pptx)(\?.*)?$/i.test(uri)) return "📙";
+                  if (/\.(txt|md|log)(\?.*)?$/i.test(uri)) return "📄";
+
+                  // Archives & Compressed
+                  if (/\.(zip|rar|7z|tar|gz|iso)(\?.*)?$/i.test(uri)) return "📦";
+
+                  // Programming & Web
+                  if (/\.(js|jsx|ts|tsx|py|html|css|cpp|java|json|php|sh|rb|go|sql)(\?.*)?$/i.test(uri)) return "💻";
+
+                  // Audio
+                  if (/\.(mp3|wav|ogg|flac|m4a|aac)(\?.*)?$/i.test(uri)) return "🎵";
+
+                  // Design & 3D
+                  if (/\.(psd|ai|fig|sketch)(\?.*)?$/i.test(uri)) return "🎨";
+                  if (/\.(obj|stl|fbx|blend)(\?.*)?$/i.test(uri)) return "🧊";
+
+                  // Executables
+                  if (/\.(exe|msi|dmg|apk|bin)(\?.*)?$/i.test(uri)) return "⚙️";
+
+                  return "📁"; // Default fallback
+                };
 
                 return (
-                  <div key={index} className="max-w-[280px] group relative">
-                    {isImage ? (
+                  <div key={index} className="max-w-[320px] group relative">
+                    {/* 1. IMAGE PREVIEW */}
+                    {isImage && (
                       <div className="relative group overflow-hidden rounded-lg border border-white/10 shadow-lg">
                         <img
                           src={url}
@@ -189,22 +219,41 @@ export const ChatRoom = () => {
                           loading="lazy"
                           onClick={() => window.open(url, '_blank')}
                         />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none flex items-center justify-center">
-                          <span className="text-[10px] bg-black/60 text-white px-2 py-1 rounded">View Full Image</span>
-                        </div>
                       </div>
-                    ) : (
+                    )}
+
+                    {/* 2. VIDEO PLAYER */}
+                    {isVideo && (
+                      <div className="rounded-lg border border-white/10 shadow-lg overflow-hidden bg-black/40">
+                        <video
+                          src={url}
+                          controls
+                          className="w-full max-h-64"
+                          preload="metadata"
+                        >
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
+                    )}
+
+                    {/* 3. GENERAL FILE (FALLBACK) */}
+                    {!isImage && !isVideo && (
                       <a
                         href={url}
                         target="_blank"
                         rel="noreferrer"
                         className="flex items-center gap-3 p-3 bg-white/10 rounded-lg border border-white/10 hover:bg-white/20 transition-all text-blue-400 no-underline shadow-md group/file"
                       >
-                        <span className="text-xl group-hover/file:scale-110 transition-transform">📄</span>
+                        <span className="text-2xl group-hover/file:scale-110 transition-transform">
+                          {getFileIcon(url)}
+                        </span>
                         <div className="flex flex-col overflow-hidden">
-                          <span className="text-xs font-semibold truncate">File Attachment</span>
+                          <span className="text-xs font-semibold truncate">
+                            {/* We try to extract a filename if possible, or just call it Attachment */}
+                            File Attachment
+                          </span>
                           <span className="text-[10px] text-white/40 truncate">
-                            Click to download / view
+                            Click to open/download
                           </span>
                         </div>
                       </a>

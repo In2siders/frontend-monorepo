@@ -121,28 +121,65 @@ const ChatFooter = ({ cId, disabled }) => {
   };
 
   return (
-<footer className="w-full mt-auto flex flex-col pointer-events-auto">
+    <footer className="w-full mt-auto flex flex-col pointer-events-auto">
 
-  {/*  -- PREVIEW BOX -- */}
-  {attachments.length > 0 && (
-    <div className="flex gap-4 p-3 bg-[#1a1a1a] border-t border-x border-white/10 rounded-t-xl overflow-x-auto shadow-2xl">
-      {attachments.map((file, i) => (
-        <div key={i} className="relative flex-shrink-0 mb-1">
-          <img
-            src={file.previewUrl}
-            className="h-14 w-14 object-cover rounded-md border border-white/20"
-          />
-          <button
-            type="button"
-            className="absolute -top-2 -right-2 bg-red-500 size-5 rounded-full text-white text-[10px] flex items-center justify-center border border-black"
-            onClick={() => setAttachments(attachments.filter((_, idx) => idx !== i))}
-          >
-            ✕
-          </button>
+      {/* -- PREVIEW BOX -- */}
+      {attachments.length > 0 && (
+        <div className="flex gap-4 p-3 bg-[#1a1a1a] border-t border-x border-white/10 rounded-t-xl overflow-x-auto shadow-2xl custom-scrollbar">
+          {attachments.map((file, i) => {
+            const isImage = file.mime_type.startsWith('image/');
+            const isVideo = file.mime_type.startsWith('video/');
+            const isAudio = file.mime_type.startsWith('audio/');
+
+            // Comprehensive Icon Helper for the Footer
+            const getPreviewIcon = (name) => {
+              if (/\.(pdf)$/i.test(name)) return "📕";
+              if (/\.(zip|rar|7z|tar|gz)$/i.test(name)) return "📦";
+              if (/\.(doc|docx|txt|rtf)$/i.test(name)) return "📄";
+              if (/\.(xls|xlsx|csv)$/i.test(name)) return "📗";
+              if (/\.(ppt|pptx)$/i.test(name)) return "📙";
+              if (/\.(js|jsx|ts|tsx|py|html|css|json)$/i.test(name)) return "💻";
+              if (/\.(exe|msi|dmg)$/i.test(name)) return "⚙️";
+              return "📁";
+            };
+
+            return (
+              <div key={i} className="relative flex-shrink-0 mb-1">
+                <div className="h-14 w-14 rounded-md border border-white/20 bg-white/5 flex items-center justify-center overflow-hidden">
+                  {isImage ? (
+                    <img
+                      src={file.previewUrl}
+                      className="h-full w-full object-cover"
+                      alt="preview"
+                    />
+                  ) : isVideo ? (
+                    <video src={file.previewUrl} className="h-full w-full object-cover" />
+                  ) : isAudio ? (
+                    <span className="text-2xl animate-pulse">🎵</span>
+                  ) : (
+                    <span className="text-2xl">{getPreviewIcon(file.filename)}</span>
+                  )}
+
+                  {/* Hover Filename Overlay */}
+                  <div className="absolute inset-0 bg-black/70 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center p-1 pointer-events-none">
+                    <span className="text-[7px] text-white text-center break-all line-clamp-2">
+                      {file.filename}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 size-5 rounded-full text-white text-[10px] flex items-center justify-center border border-black shadow-lg z-10"
+                  onClick={() => setAttachments(attachments.filter((_, idx) => idx !== i))}
+                >
+                  ✕
+                </button>
+              </div>
+            );
+          })}
         </div>
-      ))}
-    </div>
-  )}
+      )}
 
       {/* --- INPUT SECTION --- */}
       <form className="flex items-center space-x-4 bg-white/5 p-3 rounded-b-lg border border-white/10" onSubmit={onSubmit}>
