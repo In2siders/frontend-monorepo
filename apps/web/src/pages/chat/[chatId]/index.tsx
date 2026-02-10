@@ -45,6 +45,7 @@ export const ChatRoom = () => {
   // Track seen messages per room to avoid duplicates from reconnects/replays
   const seenIdsRef = useRef<Set<string>>(new Set());
   const seenHashesRef = useRef<Set<string>>(new Set());
+  const messagesEndRef = useRef(null);
 
   //const checkuniquehash = (message) => {
   //    messageList.map((msg) => {
@@ -56,6 +57,16 @@ export const ChatRoom = () => {
   //      }
   //    })
   //}
+
+  // 2. Create the scroll function
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // 3. Trigger scroll whenever messageList updates
+  useEffect(() => {
+    scrollToBottom();
+  }, [messageList]);
 
   const message_proxy = (body: { _push_id: string; _hash?: string; message: Message }) => {
     const clientHash = body._hash && body._hash.length > 0 ? body._hash : computeClientHash(body.message, cId);
@@ -214,6 +225,7 @@ export const ChatRoom = () => {
                       <div className="relative group overflow-hidden rounded-lg border border-white/10 shadow-lg">
                         <img
                           src={url}
+                          onLoad={scrollToBottom}
                           alt="Attachment"
                           className="w-full h-auto max-h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
                           loading="lazy"
@@ -265,7 +277,7 @@ export const ChatRoom = () => {
           )}
         </div>
       ))}
-      <div id="bottom_scroll_tracker" className="h-4" />
+      <div ref={messagesEndRef} className="h-1" />
     </div>
   );
 }
