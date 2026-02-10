@@ -157,6 +157,21 @@ export const ChatRoom = () => {
   //  });
   //}, [messageList]);
 
+  const getDisplayName = (uri) => {
+    try {
+      // 1. Get the part after the last slash
+      const filenameWithParams = uri.split('/').pop() || "File";
+      // 2. Remove the S3 query parameters (everything after '?')
+      const rawFilename = filenameWithParams.split('?')[0];
+      // 3. Remove the UUID prefix we added in Python (everything before the first '_')
+      const cleanName = rawFilename.includes('_') ? rawFilename.split('_').slice(1).join('_') : rawFilename;
+
+      return decodeURIComponent(cleanName);
+    } catch (e) {
+      return "Attachment";
+    }
+  };
+
   return (
     <div className="flex flex-col p-4 min-h-full">
       {messageList.map((msg, i) => {
@@ -219,11 +234,18 @@ export const ChatRoom = () => {
 
                     const getFileIcon = (uri) => {
                       if (/\.(pdf)(\?.*)?$/i.test(uri)) return "📕";
+                      if (/\.(doc|docx|rtf|odt)(\?.*)?$/i.test(uri)) return "📘";
+                      if (/\.(xls|xlsx|csv)(\?.*)?$/i.test(uri)) return "📗";
+                      if (/\.(ppt|pptx)(\?.*)?$/i.test(uri)) return "📙";
+                      if (/\.(txt|md|log)(\?.*)?$/i.test(uri)) return "📄";
                       if (/\.(zip|rar|7z|tar|gz|iso)(\?.*)?$/i.test(uri)) return "📦";
-                      if (/\.(js|jsx|ts|tsx|py|html|css|json)(\?.*)?$/i.test(uri)) return "💻";
+                      if (/\.(js|jsx|ts|tsx|py|html|css|cpp|java|json|php|sh|rb|go|sql)(\?.*)?$/i.test(uri)) return "💻";
+                      if (/\.(mp3|wav|ogg|flac|m4a|aac)(\?.*)?$/i.test(uri)) return "🎵";
+                      if (/\.(psd|ai|fig|sketch)(\?.*)?$/i.test(uri)) return "🎨";
+                      if (/\.(obj|stl|fbx|blend)(\?.*)?$/i.test(uri)) return "🧊";
+                      if (/\.(exe|msi|dmg|apk|bin)(\?.*)?$/i.test(uri)) return "⚙️";
                       return "📁";
                     };
-
                     return (
                       <div key={index} className="max-w-[320px] group/file relative">
                         {isImage && (
@@ -250,12 +272,18 @@ export const ChatRoom = () => {
                             href={url}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex items-center gap-3 p-3 bg-white/10 rounded-lg border border-white/10 hover:bg-white/20 transition-all text-blue-400 no-underline shadow-md"
+                            className="flex items-center gap-3 p-3 bg-white/10 rounded-lg border border-white/10 hover:bg-white/20 transition-all text-blue-400 no-underline shadow-md max-w-full overflow-hidden"
                           >
-                            <span className="text-2xl">{getFileIcon(url)}</span>
-                            <div className="flex flex-col overflow-hidden">
-                              <span className="text-xs font-semibold truncate">File</span>
-                              <span className="text-[10px] text-white/40 truncate">Open</span>
+                            <span className="text-2xl flex-shrink-0">
+                              {getFileIcon(url)}
+                            </span>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-xs font-semibold truncate text-blue-300">
+                                {getDisplayName(url)}
+                              </span>
+                              <span className="text-[10px] text-white/40 truncate">
+                                Click to open/download
+                              </span>
                             </div>
                           </a>
                         )}
