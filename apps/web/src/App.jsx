@@ -1,17 +1,21 @@
 import { Toaster } from 'react-hot-toast'
-import { BrowserRouter, Routes, Route, Link, Navigate, Outlet } from 'react-router'
+import { BrowserRouter, Link, Navigate, Outlet, Route, Routes } from 'react-router'
 
 import '@repo/common/style.css'
 
-import Home from './pages/home'
-import Register from './pages/auth/register'
-import Login from './pages/auth/login'
-import { ChatOverlay } from './pages/chat/index'
-import { ChatRoom } from './pages/chat/[chatId]'
-import { NewChatRoom } from './pages/chat/new'
-import { useAuth } from './hooks/useAuth'
 import { Fragment } from 'react'
-import { AuthProvider } from './providers/AuthProvider'
+import { useAuth } from './hooks/useAuth'
+import Login from './pages/auth/login'
+import Register from './pages/auth/register'
+import { ChatRoom } from './pages/chat/[chatId]'
+import { ChatOverlay } from './pages/chat/index'
+import { NewChatRoom } from './pages/chat/new'
+import Home from './pages/home'
+import MdxPage from './pages/mdx'
+
+import HelpMdx from './posts/help.mdx'
+import TosMdx from './posts/tos.mdx'
+
 
 const General404 = ({ toChats } = { toChats: false }) => (
   <Fragment>
@@ -61,6 +65,9 @@ function App() {
           <Route path=":chatId" element={<ChatRoom />} />
           <Route path="*" element={<General404 toChats={true} />} />
         </Route>
+
+        <Route path="/tos" element={<MdxPage content={TosMdx} />} />
+        <Route path="/help" element={<MdxPage content={HelpMdx} />} />
 
         <Route path="*" element={<General404 toChats={isAuthenticated} />} />
       </Routes>
