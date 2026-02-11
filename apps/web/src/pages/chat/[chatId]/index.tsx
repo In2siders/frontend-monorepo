@@ -118,10 +118,16 @@ export const ChatRoom = () => {
         }));
 
         setMessageList(prevList => {
-          // Use a Map or Set for O(1) lookups during dedup
           const existingIds = new Set(prevList.map(m => m._id));
           const unique = formatted.filter(m => !existingIds.has(m._id));
-          return [...prevList, ...unique];
+
+          const combined = [...prevList, ...unique];
+
+          return combined.sort((a, b) => {
+            const timeA = Number(a.raw_data.timestamp);
+            const timeB = Number(b.raw_data.timestamp);
+            return timeA - timeB;
+          });
         });
       }
     });
