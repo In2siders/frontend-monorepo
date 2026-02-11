@@ -74,6 +74,7 @@ const ChatFooter = ({ cId, disabled }) => {
 
   const [messageText, setMessageText] = useState("");
   const [attachments, setAttachments] = useState([]);
+  const [isSending, setIsSending] = useState(false);
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
@@ -100,7 +101,9 @@ const ChatFooter = ({ cId, disabled }) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (disabled || (!messageText.trim() && attachments.length === 0)) return;
+    if (isSending || (!messageText.trim() && attachments.length === 0)) return;
+
+    setIsSending(true);
 
     const cleanAttachments = attachments.map(({ previewUrl, ...rest }) => rest);
 
@@ -114,8 +117,10 @@ const ChatFooter = ({ cId, disabled }) => {
       if (response?.success) {
         setMessageText("");
         setAttachments([]);
+        setIsSending(false);
       } else {
         alert("Failed to send: " + response?.error);
+        setIsSending(false);
       }
     });
   };
@@ -182,29 +187,37 @@ const ChatFooter = ({ cId, disabled }) => {
       )}
 
       {/* --- INPUT SECTION --- */}
-      <form className="flex items-center space-x-4 bg-white/5 p-3 rounded-b-lg border border-white/10" onSubmit={onSubmit}>
+      <form
+        className={`flex items-center space-x-4 bg-white/5 p-3 rounded-b-lg border border-white/10 transition-opacity ${isSending ? 'opacity-60' : 'opacity-100'}`}
+        onSubmit={onSubmit}
+      >
+        {/* 1. The Hidden File Input */}
         <input
           type="file"
           multiple
           ref={fileInputRef}
           onChange={handleFileChange}
+          disabled={isSending} // Block selecting new files during upload
           className="hidden"
         />
 
+        {/* 2. The Attach Button */}
         <button
           type="button"
           className="btn btn-secondary btn-icon"
-          onClick={() => fileInputRef.current.click()}
+          onClick={() => !isSending && fileInputRef.current.click()}
+          disabled={isSending} // Visually and logically disable
         >
           <img src="/attach.svg" alt="Attach" className="size-6" />
         </button>
 
+        {/* 3. The Text Input */}
         <input
           name="message"
           type="text"
-          placeholder="Type your message..."
+          placeholder={isSending ? "Uploading file..." : "Type your message..."}
           className="bg-transparent flex-1 outline-none text-white"
-          disabled={disabled}
+          disabled={isSending || disabled} // Use your existing disabled prop + sending state
           value={messageText}
           onChange={(e) => setMessageText(e.target.value)}
           autoComplete="off"
@@ -213,12 +226,17 @@ const ChatFooter = ({ cId, disabled }) => {
           data-lpignore="true"
         />
 
+        {/* 4. The Send Button */}
         <button
           type="submit"
-          className="btn btn-secondary"
-          disabled={disabled || (!messageText.trim() && attachments.length === 0)}
+          className="btn btn-secondary flex items-center justify-center min-w-[70px]"
+          disabled={isSending || disabled || (!messageText.trim() && attachments.length === 0)}
         >
-          Send
+          {isSending ? (
+            <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            "Send"
+          )}
         </button>
       </form>
     </footer>

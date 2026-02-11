@@ -183,7 +183,7 @@ export const ChatRoom = () => {
           : 0;
         const isConsecutiveTop = isSameUserPrev && timeDiffPrev < 300;
 
-        // Logic for the message AFTER (to see if we should round the bottom)
+        // Logic for the message AFTER
         const nextMsg = messageList[i + 1];
         const isSameUserNext = nextMsg && nextMsg.raw_data.senderId === msg.raw_data.senderId;
         const timeDiffNext = nextMsg
