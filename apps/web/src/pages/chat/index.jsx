@@ -77,9 +77,10 @@ const ChatHeader = ({ chatId, markReady }) => {
 const Sidebar = ({ chats, readyStates, auth }) => {
   return (
     <aside className="sidebar flex flex-col h-full bg-gradient-to-b from-white/5 to-white/[0.02] border-r border-white/10">
-      {/* Global Chat Section */}
+      {/* Header Section */}
       <div className="global-chat p-4 border-b border-white/10">
-        <h1 className="text-lg font-semibold text-white">Global Chat</h1>
+        <h1 className="text-lg font-semibold text-white">(In2)Siders</h1>
+        <button className="w-9 p-2"><img src="/config.svg"></img></button>
       </div>
 
       {/* Users Section Header */}
