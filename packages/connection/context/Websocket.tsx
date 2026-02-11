@@ -29,23 +29,14 @@ export const WebsocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     React.useEffect(() => {
         const url = getEnv("VITE_WS_URI", true);
 
-        // Get session token from cookies ('i2session')
-        const session = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("i2session="))
-            ?.split("=")[1];
-
         const opts: Partial<ManagerOptions & SocketOptions> = {
           transports: ["websocket"],
           reconnection: true,
           reconnectionDelay: 1000,
           reconnectionDelayMax: 5000,
           reconnectionAttempts: 3,
-          auth: session ? { token: session } : {},
           rememberUpgrade: true,
         };
-
-        if (!session) console.warn("No session token found in cookies; connecting without authentication.");
 
         const socket = io(url, opts);
         socketRef.current = socket;
