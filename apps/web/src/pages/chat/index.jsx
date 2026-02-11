@@ -76,10 +76,24 @@ const ChatFooter = ({ cId, disabled }) => {
   const [attachments, setAttachments] = useState([]);
   const [isSending, setIsSending] = useState(false);
 
-  const handleFileChange = async (e) => {
+const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
+    const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB en bytes
 
-    const processedFiles = await Promise.all(files.map(file => {
+    const validFiles = files.filter(file => {
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`${file.name} Es demasiado grande, El limite es de 1MB`);
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length === 0) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    const processedFiles = await Promise.all(validFiles.map(file => {
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = () => {
