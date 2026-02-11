@@ -152,7 +152,9 @@ const ChatFooter = ({ cId, disabled }) => {
   const [attachments, setAttachments] = useState([]);
   const [isSending, setIsSending] = useState(false);
 
-const handleFileChange = async (e) => {
+  const messageInputRef = useRef(null);
+
+  const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
     const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB en bytes
 
@@ -208,9 +210,15 @@ const handleFileChange = async (e) => {
         setMessageText("");
         setAttachments([]);
         setIsSending(false);
+
+        setTimeout(() => {
+          messageInputRef.current?.focus();
+        }, 0);
+
       } else {
         alert("Failed to send: " + response?.error);
         setIsSending(false);
+        messageInputRef.current?.focus();
       }
     });
   };
@@ -304,6 +312,7 @@ const handleFileChange = async (e) => {
 
         {/* 3. The Text Input */}
         <input
+          ref={messageInputRef}
           name="message"
           type="text"
           placeholder={isSending ? "Uploading file..." : "Type a message..."}
