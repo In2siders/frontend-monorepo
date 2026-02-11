@@ -5,11 +5,6 @@ import { useAuth } from "../../hooks/useAuth";
 import { apiFetch } from "@repo/connection/utils/api";
 import toast from "react-hot-toast";
 
-/**
- *
- * @param {{ name: string; online: string[]; people: string[]; }} param0
- * @returns
- */
 const ChatHeader = ({ chatId, markReady }) => {
   const [chatMetadata, setChatMetadata] = useState(null);
 
@@ -74,13 +69,34 @@ const ChatHeader = ({ chatId, markReady }) => {
   )
 }
 
-const Sidebar = ({ chats, readyStates, auth }) => {
+const Sidebar = ({ auth, markReady }) => {
+  const [chats, setChats] = useState([]);
+
+  const fetchChats = async () => {
+    try {
+      const jsonData = await apiFetch("/chat/groups")
+      if (!jsonData.success) throw new Error(jsonData.error || "Failed to fetch chats");
+
+      setChats(jsonData.data);
+      markReady();
+    } catch (err) {
+      console.error("Error fetching chats:", err);
+      toast.error("We couldn't load your chats. See the console for more details.");
+    }
+  }
+
+  useEffect(() => {
+    if (!auth || !auth.isAuthenticated) return;
+
+    fetchChats();
+  }, [auth]);
+
   return (
     <aside className="sidebar flex flex-col h-full bg-gradient-to-b from-white/5 to-white/[0.02] border-r border-white/10">
       {/* Header Section */}
       <div className="global-chat p-4 border-b border-white/10">
         <h1 className="text-lg font-semibold text-white">(In2)Siders</h1>
-        <button className="w-9 p-2"><img src="/config.svg"></img></button>
+        <button className="w-9 p-2"><img src="/config.svg" /></button> {/* TODO: Change this to a plus */}
       </div>
 
       {/* Users Section Header */}
@@ -90,20 +106,14 @@ const Sidebar = ({ chats, readyStates, auth }) => {
 
       {/* User List */}
       <div className="user-list flex-1 overflow-y-auto">
-        {readyStates.chats ? (
-          chats.length > 0 ? (
-            chats.map(chat => (
-              <Link
-                to={`/chat/${chat.id}`}
-                key={chat.id}
-                className="user-card group flex items-center gap-3 px-3 py-2 mx-2 rounded-lg hover:bg-white/10 transition-colors duration-200"
-              >
+        {chats.length === 0 ? (
+          <div className="px-4 py-2 text-sm text-white/50">No active chats. Start a new conversation!</div>
+        ) : (
+          chats.map(chat => (
+              <Link to={`/chat/${chat.id}`} key={chat.id}
+                className="user-card group flex items-center gap-3 px-3 py-2 mx-2 rounded-lg hover:bg-white/10 transition-colors duration-200">
                 <div className="relative flex-shrink-0">
-                  <img
-                    src="/2.png"
-                    alt={`${chat.name} avatar`}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
+                  <img src="/2.png" alt={`${chat.name} avatar`} className="w-10 h-10 rounded-full object-cover" />
                   <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border border-white/20"></div>
                 </div>
                 <div className="flex-1 min-w-0">
@@ -112,33 +122,19 @@ const Sidebar = ({ chats, readyStates, auth }) => {
                 </div>
               </Link>
             ))
-          ) : (
-            <div className="flex items-center justify-center h-32 text-center px-4">
-              <p className="text-sm text-white/40">No chats yet</p>
-            </div>
-          )
-        ) : (
-          <div className="flex items-center justify-center h-32">
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-              <p className="text-xs text-white/50">Loading chats...</p>
-            </div>
-          </div>
         )}
       </div>
 
       {/* User Panel */}
       <div className="user-panel border-t border-white/10 p-3 bg-white/5">
-        <div className="flex items-center gap-3">
-          <img
-            src="/2.png"
-            alt="User avatar"
-            className="w-10 h-10 rounded-full object-cover"
-          />
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-white/50">Logged in as</p>
-            <h4 className="text-sm font-medium text-white truncate">{auth?.user?.username || 'User'}</h4>
+        <div className="flex items-center gap-3 w-full">
+          <img src="/2.png" alt="User avatar" className="w-10 h-10 rounded-full object-center" />
+          <div className="flex-1 flex-row min-w-0">
+            <h4 className="text-sm font-medium text-white truncate">{auth.user.username}</h4>
           </div>
+          <div className="flex flex-1 space-x-2 justify-end">
+              <button className="btn btn-secondary btn-icon">⚙️</button>
+            </div>
         </div>
       </div>
     </aside>
@@ -348,28 +344,8 @@ export const ChatOverlay = () => {
   const { chatId } = useParams();
   const { auth, loading, error } = useAuth();
 
-  const [chats, setChats] = useState([]);
   const [readyStates, setReadyStates] = useState({ header: false, chats: false }); // TODO: More ready states for different components
   const allReady = Object.values(readyStates).every(v => v === true);
-
-  const fetchChats = async () => {
-    try {
-      const jsonData = await apiFetch("/chat/groups")
-      if (!jsonData.success) throw new Error(jsonData.error || "Failed to fetch chats");
-
-      setChats(jsonData.data);
-      setReadyStates(prev => ({ ...prev, chats: true }));
-    } catch (err) {
-      console.error("Error fetching chats:", err);
-      toast.error("We couldn't load your chats. See the console for more details.");
-    }
-  }
-
-  useEffect(() => {
-    if (!auth || !auth.isAuthenticated) return;
-
-    fetchChats();
-  }, [auth]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -381,7 +357,7 @@ export const ChatOverlay = () => {
   return (
     <WebsocketProvider>
       <div className="flex flex-row h-screen w-screen">
-        <Sidebar chats={chats} readyStates={readyStates} auth={auth} />
+        <Sidebar auth={auth} markReady={() => setReadyStates({ ...readyStates, chats: true })} />
 
         <div className="chatUI">
           <ChatHeader chatId={chatId} markReady={() => setReadyStates({ ...readyStates, header: true })} />
