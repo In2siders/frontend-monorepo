@@ -262,19 +262,27 @@ input:focus {
 .global-chat {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin: 10px;
-  border-radius: 10px;
+  justify-content: space-between;
   font-weight: bold;
   color: var(--text-color);
   background-color: var(--secondary-color);
   transition: all 0.2s ease;
   flex-shrink: 0;
-  height: 100px;
+  height: 8vh;
 }
 
-.global-chat:hover {
-  background-color: var(--terciary-color);
+.global-chat button {
+  background: var(--terciary-color);
+  border: var(--skeleton-highlight) 1px solid;
+  border-radius: 8px;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.global-chat button:hover {
+  background: var(--skeleton-highlight);
+  border-color: var(--skeleton-base);
 }
 
 .chatUI {
