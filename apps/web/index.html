@@ -5,6 +5,22 @@
     <link rel="icon" type="image/x-icon" href="/2.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>(In²)sider</title>
+    <!-- Analytics -->
+    <script
+      src="https://a.in2siders.app/api/script.js"
+      data-site-id="1"
+      data-track-errors="true"
+      data-mask-patterns='["/chat/*"]'
+      defer
+    ></script>
+    <script>
+      if(window.origin.includes("localhost") || window.origin.includes("127.0.0.1")) {
+        localStorage.setItem("disable-rybbit", "true");
+        window.rybbit = null; // Set to null
+        delete window.rybbit; // And delete the property to prevent any access to it
+        window.__analytics_cloak = true; // Set a cloak variable to indicate analytics are or should be disabled.
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
