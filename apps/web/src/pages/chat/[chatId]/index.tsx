@@ -178,6 +178,34 @@ export const ChatRoom = () => {
     }
   };
 
+  const formatMessageDate = (timestamp) => {
+    const date = new Date(Number(timestamp) * 1000);
+    const now = new Date();
+
+    // Reset hours to compare purely by calendar day
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfYesterday = new Date(startOfToday);
+    startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    if (date >= startOfToday) {
+      return `Today at ${timeStr}`;
+    } else if (date >= startOfYesterday) {
+      return `Yesterday at ${timeStr}`;
+    } else {
+      // Calculate days ago
+      const diffTime = Math.abs(Number(startOfToday) - Number(date));
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays < 7) {
+        return `${diffDays} days ago at ${timeStr}`;
+      } else {
+        // Return actual date for anything older than a week
+        return `${date.toLocaleDateString()} at ${timeStr}`;
+      }
+    }
+  };
   return (
     <div className="flex flex-col p-4 min-h-full">
       {messageList.map((msg, i) => {
@@ -210,10 +238,7 @@ export const ChatRoom = () => {
                   {msg.raw_data.username}
                 </strong>
                 <span className="text-[10px] text-white/20 font-medium">
-                  {new Date(Number(msg.raw_data.timestamp) * 1000).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
+                  {formatMessageDate(msg.raw_data.timestamp)}
                 </span>
               </div>
             )}
