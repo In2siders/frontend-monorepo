@@ -132,9 +132,11 @@ const Sidebar = ({ auth, markReady }) => {
           <div className="flex-1 flex-row min-w-0">
             <h4 className="text-sm font-medium text-white truncate">{auth.user.username}</h4>
           </div>
-          <div className="flex flex-1 space-x-2 justify-end">
-              <button className="btn btn-secondary btn-icon">⚙️</button>
-            </div>
+          {/* Fucking piece of shit, someone on the frontend mess-up the frontend (and im sure they will blame the AI) and now we have fucking 50 styles of buttons, i'm gonan kill someone */}
+          {/* In the mean time, this code stays as a TODO because this may be used, or may not and I don't wanna be going around and start searching for the fucking correct style */}
+          {/* <div className="justify-end">
+            <button className="btn btn-secondary btn-icon"><img src="/config.svg" /></button>
+          </div> */}
         </div>
       </div>
     </aside>
