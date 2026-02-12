@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { useAuth } from "../../hooks/useAuth";
 import { apiFetch } from "@repo/connection/utils/api";
 import toast from "react-hot-toast";
+import { NewGroupModal } from "../../components/NewGroupModal";
 
 const ChatHeader = ({ chatId, markReady }) => {
   const [chatMetadata, setChatMetadata] = useState(null);
@@ -74,7 +75,7 @@ const Sidebar = ({ auth, markReady }) => {
 
   const fetchChats = async () => {
     try {
-      const jsonData = await apiFetch("/chat/groups")
+      const jsonData = await apiFetch("/groups")
       if (!jsonData.success) throw new Error(jsonData.error || "Failed to fetch chats");
 
       setChats(jsonData.data);
@@ -96,7 +97,9 @@ const Sidebar = ({ auth, markReady }) => {
       {/* Header Section */}
       <div className="global-chat p-4 border-b border-white/10">
         <h1 className="text-lg font-semibold text-white">(In2)Siders</h1>
-        <button className="w-9 p-2"><img src="/config.svg" /></button> {/* TODO: Change this to a plus */}
+        <NewGroupModal triggerClassName="w-9 p-2">
+          <img src="/config.svg" /> {/* TODO: Change this to a plus */}
+        </NewGroupModal>
       </div>
 
       {/* Users Section Header */}

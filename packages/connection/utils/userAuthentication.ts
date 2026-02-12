@@ -1,4 +1,4 @@
-import { generateKey, decrypt, readMessage, readPrivateKey, decryptKey } from 'openpgp/lightweight';
+import { generateKey, decrypt, readMessage, readPrivateKey, decryptKey, encrypt, createMessage } from 'openpgp/lightweight';
 import { deflate, inflate } from 'pako'
 
 
@@ -62,4 +62,16 @@ export const getFromStorage = (u: string): string | null => {
 
     const decompressedJson = JSON.parse(decompress(compressedKey));
     return decompressedJson[u] || null;
+}
+
+/**
+ * Encrypt a plaintext string with the user's PGP key (extracted from the stored private key).
+ * The private key is used to derive the public component for encryption.
+ */
+export async function encryptSymmetricKey(plaintext: string, armoredPrivateKey: string): Promise<string> {
+    const privKey = await readPrivateKey({ armoredKey: armoredPrivateKey });
+    const pubKey = privKey.toPublic();
+    const message = await createMessage({ text: plaintext });
+    const encrypted = await encrypt({ message, encryptionKeys: pubKey });
+    return encrypted as string;
 }
