@@ -1,0 +1,256 @@
+.page {
+  min-height: 100vh;
+  width: 100vw;
+  background: linear-gradient(180deg, #121217 0%, #0f1015 100%);
+  color: #e8e9ee;
+}
+
+.container {
+  width: min(1200px, calc(100vw - 2rem));
+  margin: 0 auto;
+  padding: 1rem 0 2.5rem;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.productLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #a2a5b0;
+}
+
+.backLink {
+  border: 1px solid #3a3d49;
+  border-radius: 0.65rem;
+  color: #d8dae2;
+  text-decoration: none;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.backLink:hover {
+  border-color: #7f6eff;
+  color: #f4f2ff;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.sidebar {
+  position: relative;
+}
+
+.sidebarIsland {
+  position: fixed;
+  top: 5.5rem;
+  left: max(1rem, calc((100vw - 1200px) / 2 + 1rem));
+  width: 240px;
+  z-index: 10;
+  background: rgba(24, 25, 34, 0.88);
+  border: 1px solid #303244;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+  max-height: calc(100vh - 7rem);
+  overflow: auto;
+}
+
+.sidebarTitle {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a2a5b0;
+  font-weight: 700;
+}
+
+.emptyToc {
+  margin: 0;
+  color: #8c909b;
+  font-size: 0.9rem;
+}
+
+.tocList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.tocItemLevel2,
+.tocItemLevel3 {
+  margin: 0;
+}
+
+.tocItemLevel3 {
+  padding-left: 0.85rem;
+}
+
+.tocLink {
+  color: #cbd0da;
+  text-decoration: none;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.tocLink:hover {
+  color: #f2f3f7;
+  text-decoration: underline;
+  text-underline-offset: 0.22rem;
+}
+
+.main {
+  min-width: 0;
+}
+
+.article {
+  background: rgba(25, 26, 36, 0.86);
+  border: 1px solid #303244;
+  border-radius: 1rem;
+  padding: clamp(1rem, 2.5vw, 2rem);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+  max-width: 100%;
+}
+
+.headingTarget {
+  scroll-margin-top: 1.2rem;
+}
+
+.h1 {
+  margin: 0.2rem 0 1.1rem;
+  font-size: clamp(2.2rem, 4.2vw, 3.3rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  font-weight: 900;
+  color: #ffffff;
+  text-wrap: balance;
+}
+
+.h2 {
+  margin: 2.35rem 0 0.9rem;
+  padding: 0.25rem 0 0.55rem;
+  border-bottom: 1px solid #3d415a;
+  font-size: clamp(1.72rem, 2.15vw, 2.2rem);
+  line-height: 1.15;
+  letter-spacing: -0.026em;
+  font-weight: 860;
+  color: #fbfcff;
+}
+
+.h3 {
+  margin: 1.75rem 0 0.55rem;
+  font-size: clamp(1.28rem, 1.8vw, 1.56rem);
+  line-height: 1.18;
+  font-weight: 800;
+  color: #f5f7ff;
+}
+
+.p {
+  margin: 0.62rem 0;
+  color: #bcc4d5;
+  font-size: 0.99rem;
+  line-height: 1.72;
+}
+
+.ul,
+.ol {
+  margin: 0.8rem 0 1rem;
+  padding-left: 1.35rem;
+  color: #c9cfdb;
+}
+
+.li {
+  margin: 0.4rem 0;
+  line-height: 1.65;
+}
+
+.a {
+  color: #a99eff;
+  text-decoration: underline;
+  text-underline-offset: 0.22rem;
+}
+
+.a:hover {
+  color: #d0caff;
+}
+
+.blockquote {
+  margin: 1.15rem 0;
+  border-left: 4px solid #7f6eff;
+  background: #202233;
+  border-radius: 0 0.75rem 0.75rem 0;
+  padding: 0.7rem 1rem;
+  color: #d9deeb;
+}
+
+.hr {
+  border: none;
+  border-top: 1px solid #36394a;
+  margin: 1.25rem 0;
+}
+
+.code {
+  background: #25283b;
+  color: #d7d1ff;
+  border-radius: 0.4rem;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.92em;
+}
+
+.pre {
+  margin: 1rem 0;
+  border: 1px solid #34374a;
+  border-radius: 0.75rem;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  background: #171a2b;
+  color: #ebefff;
+}
+
+.pre .code {
+  padding: 0;
+  background: transparent;
+}
+
+.strong {
+  color: #f4f6fd;
+  font-weight: 700;
+}
+
+@media (max-width: 980px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    order: 2;
+  }
+
+  .main {
+    order: 1;
+  }
+
+  .sidebarIsland {
+    position: static;
+    width: auto;
+    left: auto;
+    top: auto;
+    max-height: none;
+  }
+}

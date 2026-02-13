@@ -5,6 +5,8 @@ import path from 'path'
 // https://vite.dev/config/
 export default async ({ mode }) => {
   const mdx = await import('@mdx-js/rollup');
+  const remarkFrontmatter = (await import('remark-frontmatter')).default;
+  const remarkMdxFrontmatter = (await import('remark-mdx-frontmatter')).default;
 
   // load env variables (VITE_ prefixed) for the current mode
   const env = loadEnv(mode, path.resolve(__dirname, '../../'), '')
@@ -13,7 +15,15 @@ export default async ({ mode }) => {
   const host = env.VITE_HOST || process.env.VITE_HOST || '0.0.0.0'
 
   return defineConfig({
-    plugins: [react(), mdx.default()],
+    plugins: [
+      react(),
+      mdx.default({
+        remarkPlugins: [
+          remarkFrontmatter,
+          [remarkMdxFrontmatter, { name: 'frontmatter' }],
+        ],
+      }),
+    ],
     server: {
       // NO ESTAMOS EN PRODUCION ASI QUE TEN PIEDAD
       allowedHosts: ["in2siders.app", "localhost", "127.0.0.1"],

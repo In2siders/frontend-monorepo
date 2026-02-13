@@ -13,8 +13,10 @@ import { NewChatRoom } from './pages/chat/new'
 import Home from './pages/home'
 import MdxPage from './pages/mdx'
 
-import HelpMdx from './posts/help.mdx'
-import TosMdx from './posts/tos.mdx'
+import * as HelpMdx from './posts/help-center.mdx'
+import * as TosMdx from './posts/tos.mdx'
+import * as PrivacyMdx from './posts/privacy.mdx'
+import * as CookiesMdx from './posts/cookies.mdx'
 
 
 const General404 = ({ toChats } = { toChats: false }) => (
@@ -60,13 +62,15 @@ function App() {
 
         {/* Chat Routes */}
         <Route path="/chat" element={<ConditionalRoute condition={isAuthenticated} expectedValue={true} redirectTo="/auth/login" element={<ChatOverlay />} />} >
-          <Route index element={<General404 toChats={true} />} />
+          <Route index element={<div className="flex items-center justify-center h-screen w-screen"><h1 className="text-2xl font-bold">Please select a chat to start messaging.</h1></div>} />
           <Route path="new" element={<NewChatRoom />} />
           <Route path=":chatId" element={<ChatRoom />} />
           <Route path="*" element={<General404 toChats={true} />} />
         </Route>
 
-        <Route path="/tos" element={<MdxPage content={TosMdx} />} />
+        <Route path="/legal/tos" element={<MdxPage content={TosMdx} />} />
+        <Route path="/legal/privacy" element={<MdxPage content={PrivacyMdx} />} />
+        <Route path="/legal/cookies" element={<MdxPage content={CookiesMdx} />} />
         <Route path="/help" element={<MdxPage content={HelpMdx} />} />
 
         <Route path="*" element={<General404 toChats={isAuthenticated} />} />

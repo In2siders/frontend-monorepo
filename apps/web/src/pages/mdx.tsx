@@ -1,22 +1,239 @@
 import { MDXProvider } from "@mdx-js/react"
+import { Link } from "react-router"
+import { useEffect, useRef, useState, type ComponentType } from "react"
+import styles from "./mdx.module.css"
+
+type Frontmatter = {
+  title?: string
+  description?: string
+  favicon?: string
+  themeColor?: string
+}
+
+type MdxModule = {
+  default: ComponentType<any>
+  frontmatter?: Frontmatter
+}
+
+type TocItem = {
+  id: string
+  text: string
+  level: 2 | 3
+}
+
+function joinClassNames(...classNames: Array<string | undefined>) {
+  return classNames.filter(Boolean).join(" ")
+}
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+}
 
 export default function MdxPage({ content }) {
-  const Content = content
+  const hasModuleShape = Boolean(content && typeof content === "object" && "default" in content)
+  const Content = hasModuleShape ? (content as MdxModule).default : content
+  const frontmatter = (hasModuleShape ? (content as MdxModule).frontmatter : undefined) || {}
+  const articleRef = useRef<HTMLElement | null>(null)
+  const [tocItems, setTocItems] = useState<TocItem[]>([])
+
+  useEffect(() => {
+    const previousJustify = document.body.style.justifyContent
+    const previousAlign = document.body.style.alignItems
+
+    document.body.style.justifyContent = "flex-start"
+    document.body.style.alignItems = "stretch"
+
+    return () => {
+      document.body.style.justifyContent = previousJustify
+      document.body.style.alignItems = previousAlign
+    }
+  }, [])
+
+  useEffect(() => {
+    const previousTitle = document.title
+    const previousFavicon = document.querySelector('link[rel="icon"]')?.getAttribute("href") || null
+    const previousDescription = document.querySelector('meta[name="description"]')?.getAttribute("content") || null
+    const previousTheme = document.querySelector('meta[name="theme-color"]')?.getAttribute("content") || null
+
+    const nextTitle = frontmatter.title?.trim()
+    if(nextTitle) {
+      document.title = nextTitle
+    }
+
+    const nextFavicon = frontmatter.favicon?.trim()
+    if(nextFavicon) {
+      let faviconEl = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null
+      if(!faviconEl) {
+        faviconEl = document.createElement("link")
+        faviconEl.rel = "icon"
+        document.head.appendChild(faviconEl)
+      }
+      faviconEl.href = nextFavicon
+    }
+
+    const nextDescription = frontmatter.description?.trim()
+    if(nextDescription) {
+      let descriptionEl = document.querySelector('meta[name="description"]') as HTMLMetaElement | null
+      if(!descriptionEl) {
+        descriptionEl = document.createElement("meta")
+        descriptionEl.name = "description"
+        document.head.appendChild(descriptionEl)
+      }
+      descriptionEl.content = nextDescription
+    }
+
+    const nextThemeColor = frontmatter.themeColor?.trim()
+    if(nextThemeColor) {
+      let themeColorEl = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null
+      if(!themeColorEl) {
+        themeColorEl = document.createElement("meta")
+        themeColorEl.name = "theme-color"
+        document.head.appendChild(themeColorEl)
+      }
+      themeColorEl.content = nextThemeColor
+    }
+
+    return () => {
+      document.title = previousTitle
+
+      const faviconEl = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null
+      if(faviconEl) {
+        if(previousFavicon) {
+          faviconEl.href = previousFavicon
+        } else {
+          faviconEl.removeAttribute("href")
+        }
+      }
+
+      const descriptionEl = document.querySelector('meta[name="description"]') as HTMLMetaElement | null
+      if(descriptionEl) {
+        if(previousDescription !== null) {
+          descriptionEl.content = previousDescription
+        } else {
+          descriptionEl.remove()
+        }
+      }
+
+      const themeColorEl = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null
+      if(themeColorEl) {
+        if(previousTheme !== null) {
+          themeColorEl.content = previousTheme
+        } else {
+          themeColorEl.remove()
+        }
+      }
+    }
+  }, [frontmatter.description, frontmatter.favicon, frontmatter.themeColor, frontmatter.title])
+
+  useEffect(() => {
+    const article = articleRef.current
+    if(!article) {
+      setTocItems([])
+      return
+    }
+
+    const usedIds = new Set<string>()
+    const headings = Array.from(article.querySelectorAll("h2, h3")) as HTMLHeadingElement[]
+
+    const nextTocItems = headings
+      .map((heading) => {
+        const text = heading.textContent?.trim() || ""
+        if(!text) {
+          return null
+        }
+
+        const level = heading.tagName === "H2" ? 2 : 3
+        const baseId = heading.id || slugify(text) || "section"
+
+        let uniqueId = baseId
+        let i = 2
+        while(usedIds.has(uniqueId)) {
+          uniqueId = `${baseId}-${i}`
+          i += 1
+        }
+
+        usedIds.add(uniqueId)
+        heading.id = uniqueId
+
+        return {
+          id: uniqueId,
+          text,
+          level,
+        } as TocItem
+      })
+      .filter(Boolean) as TocItem[]
+
+    setTocItems(nextTocItems)
+  }, [Content])
 
   const components = {
-    h1: (props) => <h1 className="block text-4xl font-bold my-6" {...props} />,
-    h2: (props) => <h2 className="block text-3xl font-semibold mt-8 mb-4 border-b border-gray-700" {...props} />,
-    h3: (props) => <h3 className="block text-2xl font-medium my-4" {...props} />,
-    p: (props) => <p className="text-lg my-4 leading-relaxed text-gray-300" {...props} />,
-    li: (props) => <li className="ml-6 list-disc mb-2" {...props} />,
-    hr: (props) => <hr className="my-8 border-gray-700" {...props} />,
+    h1: (props) => (
+      <h1
+        className={joinClassNames(styles.h1, props.className)}
+        {...props}
+      />
+    ),
+    h2: (props) => (
+      <h2
+        className={joinClassNames(styles.h2, styles.headingTarget, props.className)}
+        {...props}
+      />
+    ),
+    h3: (props) => <h3 className={joinClassNames(styles.h3, styles.headingTarget, props.className)} {...props} />,
+    p: (props) => <p className={joinClassNames(styles.p, props.className)} {...props} />,
+    ul: (props) => <ul className={joinClassNames(styles.ul, props.className)} {...props} />,
+    ol: (props) => <ol className={joinClassNames(styles.ol, props.className)} {...props} />,
+    li: (props) => <li className={joinClassNames(styles.li, props.className)} {...props} />,
+    a: (props) => <a className={joinClassNames(styles.a, props.className)} {...props} />,
+    blockquote: (props) => <blockquote className={joinClassNames(styles.blockquote, props.className)} {...props} />,
+    hr: (props) => <hr className={joinClassNames(styles.hr, props.className)} {...props} />,
+    code: (props) => <code className={joinClassNames(styles.code, props.className)} {...props} />,
+    pre: (props) => <pre className={joinClassNames(styles.pre, props.className)} {...props} />,
+    strong: (props) => <strong className={joinClassNames(styles.strong, props.className)} {...props} />,
   }
 
   return (
-    <div className="w-screen h-screen px-28 py-16 overflow-y-auto">
-      <MDXProvider components={components}>
-        <Content />
-      </MDXProvider>
+    <div className={styles.page}>
+      <div className={styles.container}>
+        <div className={styles.headerRow}>
+          <span className={styles.productLabel}>In2siders docs</span>
+          <Link to="/" className={styles.backLink}>Back home</Link>
+        </div>
+
+        <div className={styles.layout}>
+          <aside className={styles.sidebar}>
+            <div className={styles.sidebarIsland}>
+              <p className={styles.sidebarTitle}>On this page</p>
+              {tocItems.length === 0 ? (
+                <p className={styles.emptyToc}>No sections yet.</p>
+              ) : (
+                <nav aria-label="Table of contents">
+                  <ul className={styles.tocList}>
+                    {tocItems.map((item) => (
+                      <li key={item.id} className={item.level === 3 ? styles.tocItemLevel3 : styles.tocItemLevel2}>
+                        <a href={`#${item.id}`} className={styles.tocLink}>{item.text}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              )}
+            </div>
+          </aside>
+
+          <main className={styles.main}>
+            <article className={styles.article} ref={articleRef}>
+              <MDXProvider components={components}>
+                <Content />
+              </MDXProvider>
+            </article>
+          </main>
+        </div>
+      </div>
     </div>
   )
 }
