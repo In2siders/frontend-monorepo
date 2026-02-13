@@ -34,7 +34,32 @@ function slugify(value: string) {
     .replace(/-+/g, "-")
 }
 
-export default function MdxPage({ content }) {
+const LEGAL_LINKS = [
+  { path: "/legal/tos", label: "Terms of Service" },
+  { path: "/legal/privacy", label: "Privacy Policy" },
+  { path: "/legal/cookies", label: "Cookie Policy" },
+]
+
+function LegalNav({ current }: { current: string }) {
+  return (
+    <nav className={styles.legalNav}>
+      {LEGAL_LINKS.map((link) => (
+        <Link
+          key={link.path}
+          to={link.path}
+          className={joinClassNames(
+            styles.legalNavLink,
+            current === link.path ? styles.legalNavLinkActive : undefined,
+          )}
+        >
+          {link.label}
+        </Link>
+      ))}
+    </nav>
+  )
+}
+
+export default function MdxPage({ content, legalNav }: { content: any; legalNav?: string }) {
   const hasModuleShape = Boolean(content && typeof content === "object" && "default" in content)
   const Content = hasModuleShape ? (content as MdxModule).default : content
   const frontmatter = (hasModuleShape ? (content as MdxModule).frontmatter : undefined) || {}
@@ -195,6 +220,16 @@ export default function MdxPage({ content }) {
     code: (props) => <code className={joinClassNames(styles.code, props.className)} {...props} />,
     pre: (props) => <pre className={joinClassNames(styles.pre, props.className)} {...props} />,
     strong: (props) => <strong className={joinClassNames(styles.strong, props.className)} {...props} />,
+    table: (props) => (
+      <div className={styles.tableWrapper}>
+        <table className={joinClassNames(styles.table, props.className)} {...props} />
+      </div>
+    ),
+    thead: (props) => <thead className={joinClassNames(styles.thead, props.className)} {...props} />,
+    tbody: (props) => <tbody className={joinClassNames(styles.tbody, props.className)} {...props} />,
+    tr: (props) => <tr className={joinClassNames(styles.tr, props.className)} {...props} />,
+    th: (props) => <th className={joinClassNames(styles.th, props.className)} {...props} />,
+    td: (props) => <td className={joinClassNames(styles.td, props.className)} {...props} />,
   }
 
   return (
@@ -226,6 +261,7 @@ export default function MdxPage({ content }) {
           </aside>
 
           <main className={styles.main}>
+            {legalNav && <LegalNav current={legalNav} />}
             <article className={styles.article} ref={articleRef}>
               <MDXProvider components={components}>
                 <Content />

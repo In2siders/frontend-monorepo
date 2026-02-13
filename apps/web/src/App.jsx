@@ -68,9 +68,9 @@ function App() {
           <Route path="*" element={<General404 toChats={true} />} />
         </Route>
 
-        <Route path="/legal/tos" element={<MdxPage content={TosMdx} />} />
-        <Route path="/legal/privacy" element={<MdxPage content={PrivacyMdx} />} />
-        <Route path="/legal/cookies" element={<MdxPage content={CookiesMdx} />} />
+        <Route path="/legal/tos" element={<MdxPage content={TosMdx} legalNav="/legal/tos" />} />
+        <Route path="/legal/privacy" element={<MdxPage content={PrivacyMdx} legalNav="/legal/privacy" />} />
+        <Route path="/legal/cookies" element={<MdxPage content={CookiesMdx} legalNav="/legal/cookies" />} />
         <Route path="/help" element={<MdxPage content={HelpMdx} />} />
 
         <Route path="*" element={<General404 toChats={isAuthenticated} />} />
