@@ -116,7 +116,7 @@ const Sidebar = ({ auth, markReady }) => {
               <Link to={`/chat/${chat.id}`} key={chat.id}
                 className="user-card group flex items-center gap-3 px-3 py-2 mx-2 rounded-lg hover:bg-white/10 transition-colors duration-200">
                 <div className="relative flex-shrink-0">
-                  <img src="/2.png" alt={`${chat.name} avatar`} className="w-10 h-10 rounded-full object-cover" />
+                  <img src={chat.image ? chat.image : "/2.png"} alt={`${chat.name} avatar`} className="w-10 h-10 rounded-full object-cover" />
                   <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border border-white/20"></div>
                 </div>
                 <div className="flex-1 min-w-0">
