@@ -75,3 +75,60 @@ export async function encryptSymmetricKey(plaintext: string, armoredPrivateKey: 
     const encrypted = await encrypt({ message, encryptionKeys: pubKey });
     return encrypted as string;
 }
+
+/*
+=======================================================
+IndexedDB
+=======================================================
+*/
+
+const PersonalDBName = "personal-db";
+const ChatsDBName = "chats-db";
+
+export function openPersonalDB(): Promise<IDBDatabase> {
+  return new Promise((resolve) => {
+    const request = indexedDB.open(PersonalDBName, 1);
+
+    request.onupgradeneeded = () => {
+      const db = request.result;
+
+      if(!db.objectStoreNames.contains("keys")) {
+        const keysStore = db.createObjectStore("keys", { keyPath: "username" });
+        keysStore.createIndex("username", "username", { unique: true });
+        keysStore.createIndex("privateKey", "privateKey", { unique: false });
+      }
+    }
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    }
+
+    request.onerror = () => {
+      console.error("Error opening personal database:", request.error);
+    }
+  });
+}
+
+export function openChatsDB(): Promise<IDBDatabase> {
+  return new Promise((resolve) => {
+    const request = indexedDB.open(ChatsDBName, 1);
+
+    request.onupgradeneeded = () => {
+      const db = request.result;
+
+      if(!db.objectStoreNames.contains("chats")) {
+        const chatsStore = db.createObjectStore("chats", { keyPath: "chatId" });
+        chatsStore.createIndex("chatId", "chatId", { unique: true });
+        chatsStore.createIndex("hybridKey", "hybridKey", { unique: false });
+      }
+    }
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    }
+
+    request.onerror = () => {
+      console.error("Error opening chats database:", request.error);
+    }
+  });
+}

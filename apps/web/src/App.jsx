@@ -63,8 +63,8 @@ function App() {
         {/* Chat Routes */}
         <Route path="/chat" element={<ConditionalRoute condition={isAuthenticated} expectedValue={true} redirectTo="/auth/login" element={<ChatOverlay />} />} >
           <Route index element={<div className="flex items-center justify-center h-screen w-screen"><h1 className="text-2xl font-bold">Please select a chat to start messaging.</h1></div>} />
-          <Route path="new" element={<NewChatRoom />} />
           <Route path=":chatId" element={<ChatRoom />} />
+          <Route path="join/:inviteCode" element={<ChatRoom />} />
           <Route path="*" element={<General404 toChats={true} />} />
         </Route>
 
