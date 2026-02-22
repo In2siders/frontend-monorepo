@@ -134,8 +134,7 @@
   scroll-margin-top: 1.2rem;
 }
 
-.mx-h1,
-h1 {
+.h1, h1[data-mdx] {
   margin: 0.25rem 0 0.5rem;
   padding-bottom: 0.75rem;
   border-bottom: 3px solid rgba(255, 255, 255, 0.15);
@@ -147,8 +146,7 @@ h1 {
   text-wrap: balance;
 }
 
-.mx-h2,
-h2 {
+.h2, h2[data-mdx] {
   margin: 2.5rem 0 0.75rem;
   padding: 0 0 0.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
@@ -159,8 +157,7 @@ h2 {
   color: #ffffff;
 }
 
-.mx-h3,
-h3 {
+.h3, h3[data-mdx] {
   margin: 1.8rem 0 0.45rem;
   font-size: clamp(1rem, 1.4vw, 1.2rem);
   line-height: 1.22;
@@ -168,18 +165,15 @@ h3 {
   color: rgba(255, 255, 255, 0.9);
 }
 
-.mx-p,
-p {
+.p, p[data-mdx] {
   margin: 0.55rem 0;
   color: rgba(255, 255, 255, 0.62);
   font-size: 0.95rem;
   line-height: 1.75;
 }
 
-.mx-ul,
-ul,
-.mx-ol,
-ol {
+.ul, ul[data-mdx],
+.ol, ol[data-mdx] {
   margin: 0.7rem 0 0.9rem;
   padding-left: 1.35rem;
   color: rgba(255, 255, 255, 0.62);
@@ -187,27 +181,23 @@ ol {
   line-height: 1.7;
 }
 
-.mx-li,
-li {
+.li, li[data-mdx] {
   margin: 0.35rem 0;
   line-height: 1.65;
 }
 
-.mx-a,
-a {
+.a, a[data-mdx] {
   color: rgba(255, 255, 255, 0.85);
   text-decoration: underline;
   text-underline-offset: 0.22rem;
   transition: color 0.15s ease;
 }
 
-.mx-a:hover,
-a:hover {
+.a:hover, a[data-mdx]:hover {
   color: #ffffff;
 }
 
-.mx-blockquote,
-blockquote {
+.blockquote, blockquote[data-mdx] {
   margin: 1rem 0;
   border-left: 3px solid rgba(255, 255, 255, 0.25);
   background: var(--secondary-color);
@@ -216,15 +206,13 @@ blockquote {
   color: rgba(255, 255, 255, 0.7);
 }
 
-.mx-hr,
-hr {
+.hr, hr[data-mdx] {
   border: none;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   margin: 1.25rem 0;
 }
 
-.mx-code,
-code {
+.code, code[data-mdx] {
   background: var(--secondary-color);
   color: rgba(255, 255, 255, 0.85);
   border-radius: 0.35rem;
@@ -232,8 +220,7 @@ code {
   font-size: 0.88em;
 }
 
-.mx-pre,
-pre {
+.pre, pre[data-mdx] {
   margin: 1rem 0;
   border: 1px solid var(--secondary-color);
   border-radius: 0.65rem;
@@ -243,14 +230,12 @@ pre {
   color: rgba(255, 255, 255, 0.8);
 }
 
-.mx-pre .code,
-pre code {
+.pre .code, pre[data-mdx] code[data-mdx] {
   padding: 0;
   background: transparent;
 }
 
-.mx-strong,
-strong {
+.strong, strong[data-mdx] {
   color: var(--text-color);
   font-weight: 700;
 }
@@ -264,21 +249,18 @@ strong {
   border-radius: 0.65rem;
 }
 
-.mx-table,
-table {
+.table, table[data-mdx] {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
   line-height: 1.55;
 }
 
-.mx-thead,
-thead {
+.thead, thead[data-mdx] {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.mx-th,
-th {
+.th, th[data-mdx] {
   padding: 0.65rem 1rem;
   text-align: left;
   font-weight: 600;
@@ -287,26 +269,24 @@ th {
   white-space: nowrap;
 }
 
-.mx-td,
-td {
+.td, td[data-mdx] {
   padding: 0.6rem 1rem;
   color: rgba(255, 255, 255, 0.6);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   vertical-align: top;
 }
 
-.mx-tbody .mx-tr:last-child .mx-td,
-tbody tr:last-child td {
+.tbody .tr:last-child .td,
+tbody[data-mdx] tr[data-mdx]:last-child td[data-mdx] {
   border-bottom: none;
 }
 
-.mx-tr,
-tr {
+.tr, tr[data-mdx] {
   transition: background 0.12s ease;
 }
 
-.mx-tbody .mx-tr:hover,
-tbody tr:hover {
+.tbody .tr:hover,
+tbody[data-mdx] tr[data-mdx]:hover {
   background: rgba(255, 255, 255, 0.03);
 }
 

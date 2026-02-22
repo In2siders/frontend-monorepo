@@ -233,100 +233,41 @@ export default function MdxPage({
 
   const components = {
     h1: (props) => (
-      <h1 className={joinClassNames(styles.mxh1, props.className)} {...props} />
+      <h1
+        className={joinClassNames(styles.h1, props.className)}
+        data-mdx
+        {...props}
+      />
     ),
     h2: (props) => (
       <h2
-        className={joinClassNames(
-          styles.mxh2,
-          styles.mxheadingTarget,
-          props.className,
-        )}
+        className={joinClassNames(styles.h2, styles.headingTarget, props.className)}
+        data-mdx
         {...props}
       />
     ),
-    h3: (props) => (
-      <h3
-        className={joinClassNames(
-          styles.mxh3,
-          styles.mxheadingTarget,
-          props.className,
-        )}
-        {...props}
-      />
-    ),
-    p: (props) => (
-      <p className={joinClassNames(styles.mxp, props.className)} {...props} />
-    ),
-    ul: (props) => (
-      <ul className={joinClassNames(styles.mxul, props.className)} {...props} />
-    ),
-    ol: (props) => (
-      <ol className={joinClassNames(styles.mxol, props.className)} {...props} />
-    ),
-    li: (props) => (
-      <li className={joinClassNames(styles.mxli, props.className)} {...props} />
-    ),
-    a: (props) => (
-      <a className={joinClassNames(styles.mxa, props.className)} {...props} />
-    ),
-    blockquote: (props) => (
-      <blockquote
-        className={joinClassNames(styles.mxblockquote, props.className)}
-        {...props}
-      />
-    ),
-    hr: (props) => (
-      <hr className={joinClassNames(styles.mxhr, props.className)} {...props} />
-    ),
-    code: (props) => (
-      <code
-        className={joinClassNames(styles.mxcode, props.className)}
-        {...props}
-      />
-    ),
-    pre: (props) => (
-      <pre
-        className={joinClassNames(styles.mxpre, props.className)}
-        {...props}
-      />
-    ),
-    strong: (props) => (
-      <strong
-        className={joinClassNames(styles.mxstrong, props.className)}
-        {...props}
-      />
-    ),
+    h3: (props) => <h3 className={joinClassNames(styles.h3, styles.headingTarget, props.className)} data-mdx {...props} />,
+    p: (props) => <p className={joinClassNames(styles.p, props.className)} data-mdx {...props} />,
+    ul: (props) => <ul className={joinClassNames(styles.ul, props.className)} data-mdx {...props} />,
+    ol: (props) => <ol className={joinClassNames(styles.ol, props.className)} data-mdx {...props} />,
+    li: (props) => <li className={joinClassNames(styles.li, props.className)} data-mdx {...props} />,
+    a: (props) => <a className={joinClassNames(styles.a, props.className)} data-mdx {...props} />,
+    blockquote: (props) => <blockquote className={joinClassNames(styles.blockquote, props.className)} data-mdx {...props} />,
+    hr: (props) => <hr className={joinClassNames(styles.hr, props.className)} data-mdx {...props} />,
+    code: (props) => <code className={joinClassNames(styles.code, props.className)} data-mdx {...props} />,
+    pre: (props) => <pre className={joinClassNames(styles.pre, props.className)} data-mdx {...props} />,
+    strong: (props) => <strong className={joinClassNames(styles.strong, props.className)} data-mdx {...props} />,
     table: (props) => (
-      <div className={styles.mxtableWrapper}>
-        <table
-          className={joinClassNames(styles.mxtable, props.className)}
-          {...props}
-        />
+      <div className={styles.tableWrapper}>
+        <table className={joinClassNames(styles.table, props.className)} data-mdx {...props} />
       </div>
     ),
-    thead: (props) => (
-      <thead
-        className={joinClassNames(styles.mxthead, props.className)}
-        {...props}
-      />
-    ),
-    tbody: (props) => (
-      <tbody
-        className={joinClassNames(styles.mxtbody, props.className)}
-        {...props}
-      />
-    ),
-    tr: (props) => (
-      <tr className={joinClassNames(styles.mxtr, props.className)} {...props} />
-    ),
-    th: (props) => (
-      <th className={joinClassNames(styles.mxth, props.className)} {...props} />
-    ),
-    td: (props) => (
-      <td className={joinClassNames(styles.mxtd, props.className)} {...props} />
-    ),
-  };
+    thead: (props) => <thead className={joinClassNames(styles.thead, props.className)} data-mdx {...props} />,
+    tbody: (props) => <tbody className={joinClassNames(styles.tbody, props.className)} data-mdx {...props} />,
+    tr: (props) => <tr className={joinClassNames(styles.tr, props.className)} data-mdx {...props} />,
+    th: (props) => <th className={joinClassNames(styles.th, props.className)} data-mdx {...props} />,
+    td: (props) => <td className={joinClassNames(styles.td, props.className)} data-mdx {...props} />,
+  }
 
   return (
     <div className={styles.mxpage}>

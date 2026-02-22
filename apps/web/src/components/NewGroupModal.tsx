@@ -2,7 +2,7 @@ import { Description, Dialog, DialogPanel, DialogTitle } from '@headlessui/react
 import { useState, useRef, useEffect, useCallback } from "react"
 import { Button } from '@repo/components/button'
 import { apiFetch } from '@repo/connection/utils/api'
-import { getFromStorage, encryptSymmetricKey } from '@repo/connection/utils/userAuthentication'
+import { getPrivateKey, encryptSymmetricKey, saveEncryptedChatHybridKey } from '@repo/connection/utils/userAuthentication'
 import { useAuth } from '../hooks/useAuth'
 import toast from 'react-hot-toast'
 
@@ -125,12 +125,11 @@ function CreateView({ onBack, onClose }: { onBack: () => void; onClose: () => vo
 
     setSubmitting(true)
     try {
-      // Retrieve the user's public key from localStorage
       const username = auth?.user?.username
       if (!username) throw new Error('Session lost. Please log in again.')
 
-      const storedKey = getFromStorage(username)
-      if (!storedKey) throw new Error('Key not found in storage. Please log in again.')
+      const storedKey = await getPrivateKey(username)
+      if (!storedKey) throw new Error('Key not found in secure storage. Please log in again.')
 
       const encryptedKey = await encryptSymmetricKey(generatedKey, storedKey)
 
@@ -144,6 +143,12 @@ function CreateView({ onBack, onClose }: { onBack: () => void; onClose: () => vo
       })
 
       if (response?.success) {
+        const groupsResponse = await apiFetch('/groups', { method: 'GET' })
+        const createdGroup = groupsResponse?.data?.find((g: any) => g.name === name.trim())
+        if (createdGroup?.id) {
+          await saveEncryptedChatHybridKey(createdGroup.id, encryptedKey)
+        }
+        window.dispatchEvent(new Event('groups:refresh'))
         toast.success('Group created successfully!')
         onClose()
       } else {
