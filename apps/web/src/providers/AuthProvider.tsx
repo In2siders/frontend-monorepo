@@ -1,5 +1,5 @@
 import { apiFetch, setAuthToken } from "@repo/connection/utils/api";
-import { getFromStorage, solveChallenge } from "@repo/connection/utils/userAuthentication";
+import { getPrivateKey, savePrivateKeyToIndexedDB, solveChallenge } from "@repo/connection/utils/userAuthentication";
 import { createContext, useEffect, useState } from "react"
 
 type Session = { token: string }
@@ -70,7 +70,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setLoading(true)
     setError(null)
     try {
-      const plainPrivate = privateKey || getFromStorage(username)
+      const plainPrivate = privateKey || await getPrivateKey(username)
+      if (!plainPrivate) {
+        setError('Private key not found in secure storage.')
+        return { success: false, message: 'Private key not found in secure storage.' }
+      }
+      await savePrivateKeyToIndexedDB(username, plainPrivate)
 
       const challengeResponse = await apiFetch('/auth/challenge', {
         method: 'POST',

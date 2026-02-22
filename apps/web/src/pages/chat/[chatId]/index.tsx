@@ -1,7 +1,17 @@
 import { Message } from "@/index";
 import { useWebsocket } from "@repo/connection/context/Websocket";
+import { apiFetch } from "@repo/connection/utils/api";
+import {
+  decryptMessageWithHybridKey,
+  decryptSymmetricKey,
+  getPrivateKey,
+  rememberChatHybridKey,
+  resolveChatHybridKey,
+  saveEncryptedChatHybridKey,
+} from "@repo/connection/utils/userAuthentication";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
+import { useAuth } from "../../../hooks/useAuth";
 
 type MessageListObject = {
   _id: string;              // Server Push Id
@@ -38,14 +48,20 @@ const computeClientHash = (msg: Message, chatId: string) => {
 
 export const ChatRoom = () => {
   const ws = useWebsocket();
+  const { auth } = useAuth();
   const params = useParams();
   const cId = params.chatId || "";
 
   const [messageList, setMessageList] = useState<MessageListObject[]>([]);
+  const [paginationOffset, setPaginationOffset] = useState(0);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const [hybridKey, setHybridKey] = useState<string | null>(null);
   // Track seen messages per room to avoid duplicates from reconnects/replays
   const seenIdsRef = useRef<Set<string>>(new Set());
   const seenHashesRef = useRef<Set<string>>(new Set());
   const messagesEndRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   //const checkuniquehash = (message) => {
   //    messageList.map((msg) => {
@@ -68,7 +84,28 @@ export const ChatRoom = () => {
     scrollToBottom();
   }, [messageList]);
 
-  const message_proxy = (body: { _push_id: string; _hash?: string; message: Message }) => {
+  const hydrateMessage = async (msg: Message, clientSent: boolean): Promise<MessageListObject> => {
+    let processedMessage = msg;
+    if (hybridKey && msg?.body) {
+      try {
+        const decryptedBody = await decryptMessageWithHybridKey(msg.body, hybridKey);
+        processedMessage = { ...msg, body: decryptedBody };
+      } catch (err) {
+        console.error("Message decryption failed:", err);
+      }
+    }
+
+    return {
+      _id: msg.id,
+      _hash: msg._hash || computeClientHash(msg, cId),
+      _processed: true,
+      _client_sent: clientSent,
+      raw_data: msg,
+      processed_data: processedMessage,
+    };
+  };
+
+  const message_proxy = async (body: { _push_id: string; _hash?: string; message: Message }) => {
     const clientHash = body._hash && body._hash.length > 0 ? body._hash : computeClientHash(body.message, cId);
     console.log("RECEIVED PROXY:", body);
     // No se que es esto, pero funciona, no lo toquen
@@ -77,13 +114,11 @@ export const ChatRoom = () => {
     if (body._push_id) seenIdsRef.current.add(body._push_id);
     if (clientHash) seenHashesRef.current.add(clientHash);
 
+    const hydrated = await hydrateMessage(body.message, true);
     const curated_list: MessageListObject = {
+      ...hydrated,
       _id: body._push_id,
       _hash: clientHash,
-      _processed: true,
-      _client_sent: true,
-      raw_data: body.message,
-      processed_data: body.message, // TODO: Process message
     };
 
     setMessageList((prevList) => {
@@ -96,26 +131,56 @@ export const ChatRoom = () => {
   };
 
   useEffect(() => {
+    if (!cId) return;
+
+    let mounted = true;
+
+    (async () => {
+      const localHybridKey = await resolveChatHybridKey(cId, auth?.user?.username || "");
+      if (mounted && localHybridKey) {
+        setHybridKey(localHybridKey);
+      }
+
+      if (!localHybridKey) {
+        ws.emit("chat:encryption", { chat_id: cId }, async (response) => {
+          if (!mounted || !response?.success || !response?.data?.key) return;
+          const username = auth?.user?.username || "";
+          const privateKey = await getPrivateKey(username);
+          if (!privateKey) return;
+
+          const plainHybridKey = await decryptSymmetricKey(response.data.key, privateKey);
+          await saveEncryptedChatHybridKey(cId, response.data.key);
+          rememberChatHybridKey(cId, plainHybridKey);
+          setHybridKey(plainHybridKey);
+        });
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [auth?.user?.username, cId, ws]);
+
+  useEffect(() => {
     let isCurrent = true;
 
     // 1. Reset state
     setMessageList([]);
+    setPaginationOffset(0);
+    setHasMoreMessages(true);
     seenIdsRef.current.clear();
+    seenHashesRef.current.clear();
 
-    ws.emit("room:join", { room: params.chatId }, (response) => {
+    ws.emit("room:join", { room: params.chatId }, async (response) => {
       if (!isCurrent) return; // Don't update if user switched rooms already
 
       if (response?.success && Array.isArray(response.data)) {
         console.log("Data received from server:", response.data);
 
-        const formatted = response.data.map(msg => ({
-          _id: msg.id,
-          _hash: msg._hash || "Peak",
-          _processed: true,
-          _client_sent: false,
-          raw_data: msg,
-          processed_data: msg,
-        }));
+        const formatted = await Promise.all(response.data.map((msg) => hydrateMessage(msg, false)));
+        if (!isCurrent) return;
+        setPaginationOffset(formatted.length);
+        setHasMoreMessages(formatted.length >= 50);
 
         setMessageList(prevList => {
           const existingIds = new Set(prevList.map(m => m._id));
@@ -136,7 +201,43 @@ export const ChatRoom = () => {
       isCurrent = false; // Clean up
       ws.emit("room:leave", { room: params.chatId });
     };
-  }, [params.chatId]); // Use the actual ID variable here
+  }, [params.chatId, hybridKey]); // Use the actual ID variable here
+
+  const loadOlderMessages = async () => {
+    if (!cId || loadingOlder || !hasMoreMessages) return;
+    setLoadingOlder(true);
+
+    try {
+      const response = await apiFetch(`/chat/messages/${cId}?offset=${paginationOffset}&limit=50`, { method: "GET" });
+      if (!response?.success || !Array.isArray(response.data)) {
+        setHasMoreMessages(false);
+        return;
+      }
+
+      const hydrated = await Promise.all(response.data.map((msg) => hydrateMessage(msg, false)));
+
+      setPaginationOffset((prev) => prev + hydrated.length);
+      setHasMoreMessages(Boolean(response.more) && hydrated.length > 0);
+      setMessageList((prev) => {
+        const existingIds = new Set(prev.map((m) => m._id));
+        const unique = hydrated.filter((m) => !existingIds.has(m._id));
+        const combined = [...unique, ...prev];
+        return combined.sort((a, b) => Number(a.raw_data.timestamp) - Number(b.raw_data.timestamp));
+      });
+    } catch (err) {
+      console.error("Error loading older messages:", err);
+    } finally {
+      setLoadingOlder(false);
+    }
+  };
+
+  const onScroll = () => {
+    const node = scrollRef.current;
+    if (!node) return;
+    if (node.scrollTop <= 80) {
+      loadOlderMessages();
+    }
+  };
 
 
   useEffect(() => {
@@ -207,7 +308,8 @@ export const ChatRoom = () => {
     }
   };
   return (
-    <div className="flex flex-col p-4 min-h-full">
+    <div ref={scrollRef} onScroll={onScroll} className="flex flex-col p-4 min-h-full overflow-y-auto">
+      {loadingOlder && <p className="text-center text-xs text-white/50 mb-2">Loading older messages...</p>}
       {messageList.map((msg, i) => {
         // Logic for the message BEFORE
         const prevMsg = messageList[i - 1];

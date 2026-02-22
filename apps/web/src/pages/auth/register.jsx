@@ -1,7 +1,7 @@
 import '@repo/common/style.css'
 import { useEffect, useState } from 'react'
 import { apiFetch, healthCheck } from '@repo/connection/utils/api'
-import { generateUserKey, compress, decompress } from '@repo/connection/utils/userAuthentication'
+import { generateUserKey, compress, decompress, savePrivateKeyToIndexedDB } from '@repo/connection/utils/userAuthentication'
 import { Button } from '@repo/components/button'
 import { motion } from 'motion/react'
 import toast from 'react-hot-toast'
@@ -28,6 +28,33 @@ const fnSaveKeyToLocalStorage = (u, key) => {
   // Guarda como string comprimido
   const compressed = compress(JSON.stringify(upkJson));
   localStorage.setItem('upk', compressed);
+}
+
+const InvitationStep = ({ data, setData, signalReady }) => {
+  const [inviteCode, setInviteCode] = useState(data.inviteCode || '');
+
+  const onChange = (e) => {
+    const value = e.target.value.trim();
+    setInviteCode(value);
+    setData({ ...data, inviteCode: value });
+    signalReady(value.length >= 6);
+  }
+
+  return (
+    <>
+      <h1 className="title">Invitation Code</h1>
+      <p className="subtitle">Enter your invitation code to start registration</p>
+      <input
+        type="text"
+        value={inviteCode}
+        onChange={onChange}
+        placeholder="Paste invitation code"
+        className="input text-center p-5"
+        autoComplete="off"
+      />
+      <p className="text-sm text-white/60">Invitation verification will be enforced in a later backend step.</p>
+    </>
+  )
 }
 
 const FirstStep = ({ signalReady }) => (
@@ -157,6 +184,7 @@ function ThirdStep({ onBack, data, setData, signalReady }) {
       const { publicKey, privateKey } = await generateUserKey(data.username);
       setData({ ...data, publicKey, privateKey });
       fnSaveKeyToLocalStorage(data.username, privateKey);
+      await savePrivateKeyToIndexedDB(data.username, privateKey);
       await apiFetch('/auth/register', {
         method: 'POST',
         body: JSON.stringify({ username: data.username, pk: publicKey })
@@ -282,7 +310,7 @@ function FinalStep({ data, setData, signalReady }) {
 
 function RegisterPage() {
   const [step, setStep] = useState(0);
-  const [registerData, setRegisterData] = useState({ username: '', publicKey: '', privateKey: '' });
+  const [registerData, setRegisterData] = useState({ inviteCode: '', username: '', publicKey: '', privateKey: '' });
   const [canContinue, setCanContinue] = useState(false);
   const [serverReady, setServerReady] = useState(false);
 
@@ -324,16 +352,22 @@ function RegisterPage() {
 
   const stepAssignment = [
     {
-      element: <FirstStep signalReady={(v = true) => setCanContinue(v)} />,
+      element: <InvitationStep data={registerData} setData={setRegisterData} signalReady={(v = true) => setCanContinue(v)} />,
       outside: null,
       button: <Button variant="ghost" size="small" asChild><a href="/">Back</a></Button>,
+      continueText: 'Continue',
+    },
+    {
+      element: <FirstStep signalReady={(v = true) => setCanContinue(v)} />,
+      outside: null,
+      button: <Button variant="ghost" size="small" onClick={() => setStep(0)}>Previous</Button>,
       continueText: 'Select username',
       scrollNeeded: true,
     },
     {
       element: <SecondStep data={registerData} setData={setRegisterData} signalReady={(v = true) => setCanContinue(v)} />,
       outside: null,
-      button: <Button variant="ghost" size="small" onClick={() => setStep(0)}>Previous</Button>,
+      button: <Button variant="ghost" size="small" onClick={() => setStep(1)}>Previous</Button>,
       continueText: 'Select username and generate keys',
       checkFn: async () => {
         if (registerData.username.length < 3) {
@@ -355,7 +389,7 @@ function RegisterPage() {
     {
       element: <ThirdStep data={registerData} setData={setRegisterData} signalReady={(v = true) => setCanContinue(v)} />,
       outside: null,
-      button: <Button variant="ghost" size="small" onClick={() => setStep(1)}>Previous</Button>,
+      button: <Button variant="ghost" size="small" onClick={() => setStep(2)}>Previous</Button>,
       continueText: 'Continue to Final Step',
     },
     {

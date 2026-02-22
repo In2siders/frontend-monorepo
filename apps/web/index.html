@@ -6,19 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>(In²)sider</title>
     <!-- Analytics -->
-    <script
-      src="https://a.in2siders.app/api/script.js"
-      data-site-id="1"
-      data-track-errors="true"
-      data-mask-patterns='["/chat/*"]'
-      defer
-    ></script>
     <script>
       if(window.origin.includes("localhost") || window.origin.includes("127.0.0.1")) {
         localStorage.setItem("disable-rybbit", "true");
         window.rybbit = null; // Set to null
         delete window.rybbit; // And delete the property to prevent any access to it
         window.__analytics_cloak = true; // Set a cloak variable to indicate analytics are or should be disabled.
+      } else {
+        localStorage.removeItem("disable-rybbit");
+        const s = document.createElement('script');
+        s.src = "https://a.in2siders.app/api/script.js";
+        s.setAttribute('data-site-id', '1');
+        s.setAttribute('data-track-errors', 'true');
+        s.setAttribute('data-mask-patterns', '["/chat/*"]');
+        s.defer = true;
+        document.head.appendChild(s);
       }
     </script>
   </head>

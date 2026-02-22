@@ -1,24 +1,37 @@
-import { Link, Outlet, useParams } from "react-router"
+import { Link, Outlet, useNavigate, useParams } from "react-router"
 import { useWebsocket, WebsocketProvider } from "@repo/connection/context/Websocket"
 import { useEffect, useState, useRef } from "react"
 import { useAuth } from "../../hooks/useAuth";
 import { apiFetch } from "@repo/connection/utils/api";
+import { encryptMessageWithHybridKey, encryptTextWithPassword, resolveChatHybridKey } from "@repo/connection/utils/userAuthentication";
 import toast from "react-hot-toast";
 import { NewGroupModal } from "../../components/NewGroupModal";
 
-const ChatHeader = ({ chatId, markReady }) => {
+const ChatHeader = ({ chatId, markReady, auth }) => {
+  const navigate = useNavigate();
   const [chatMetadata, setChatMetadata] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [groupSettingsOpen, setGroupSettingsOpen] = useState(false);
+  const [groupName, setGroupName] = useState("");
+  const [groupImage64, setGroupImage64] = useState(null);
+  const [savingGroupSettings, setSavingGroupSettings] = useState(false);
 
   const fetchMetadata = async () => {
+    if (!chatId) {
+      setChatMetadata(null);
+      markReady();
+      return;
+    }
+
     try {
       const jsonData = await apiFetch(`/chat/metadata/${chatId}`)
       if (!jsonData.success) throw new Error(jsonData.error || "Failed to fetch metadata");
 
       setChatMetadata(jsonData.data);
+      setGroupName(jsonData?.data?.name || "");
       markReady();
     } catch (err) {
       console.error("Error fetching metadata:", err);
-      toast.error("We couldn't load chat metadata. See the console for more details.");
     }
   }
 
@@ -26,21 +39,120 @@ const ChatHeader = ({ chatId, markReady }) => {
     fetchMetadata();
   }, [chatId]);
 
+  const copyInviteLink = async () => {
+    if (!chatId || !auth?.user?.username) return;
+
+    try {
+      const chatHybridKey = await resolveChatHybridKey(chatId, auth.user.username);
+      if (!chatHybridKey) {
+        toast.error("Chat key is missing from secure storage.");
+        return;
+      }
+
+      const inviteTransportKey = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+
+      const encryptedGroupKey = await encryptTextWithPassword(chatHybridKey, inviteTransportKey);
+      const response = await apiFetch('/groups/generate-invite-code', {
+        method: 'POST',
+        body: JSON.stringify({ groupId: chatId, encryptedGroupKey }),
+      });
+
+      if (!response?.success || !response?.data?.invite) {
+        toast.error(response?.error || "Could not generate invite code.");
+        return;
+      }
+
+      const baseUrl = `${window.location.protocol}//${window.location.host}`;
+      const inviteLink = `${baseUrl}/chat/join/${response.data.invite}/#/${encodeURIComponent(inviteTransportKey)}`;
+      await navigator.clipboard.writeText(inviteLink);
+      toast.success("Invite link copied to clipboard.");
+      setMenuOpen(false);
+    } catch (err) {
+      console.error("Invite generation failed:", err);
+      toast.error("Could not generate invite link right now.");
+    }
+  }
+
+  const onGroupImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 1 * 1024 * 1024) {
+      toast.error("Image must be under 1 MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = String(reader.result || "").split(",")[1];
+      setGroupImage64(base64 || null);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  const saveGroupSettings = async () => {
+    if (!chatId || !groupName.trim() || savingGroupSettings) return;
+    setSavingGroupSettings(true);
+    try {
+      const response = await apiFetch('/groups/update', {
+        method: 'POST',
+        body: JSON.stringify({ groupId: chatId, name: groupName.trim(), encodedImage: groupImage64 }),
+      });
+      if (!response?.success) {
+        toast.error(response?.error || "Could not update group settings.");
+        return;
+      }
+      toast.success("Group settings updated.");
+      setGroupSettingsOpen(false);
+      setMenuOpen(false);
+      fetchMetadata();
+      window.dispatchEvent(new Event("groups:refresh"));
+    } catch (err) {
+      console.error("Group settings update failed:", err);
+      toast.error("Could not update group settings right now.");
+    } finally {
+      setSavingGroupSettings(false);
+    }
+  }
+
+  const leaveGroup = async () => {
+    if (!chatId) return;
+    try {
+      const response = await apiFetch('/groups/leave', {
+        method: 'POST',
+        body: JSON.stringify({ groupId: chatId }),
+      });
+      if (!response?.success) {
+        toast.error(response?.error || "Could not leave group.");
+        return;
+      }
+      toast.success("You left the group.");
+      setMenuOpen(false);
+      window.dispatchEvent(new Event("groups:refresh"));
+      navigate('/chat');
+    } catch (err) {
+      console.error("Leave group failed:", err);
+      toast.error("Could not leave group right now.");
+    }
+  }
+
+  const myRole = chatMetadata?.people?.find((p) => p?.id === auth?.user?.id)?.role;
+
+  if (!chatId) {
+    return (
+      <header className="h-[8vh] px-4 bg-gradient-to-r from-white/5 to-white/[0.02] border-b border-white/10 flex items-center justify-center">
+        <p className="text-sm text-white/60">Select a chat to continue</p>
+      </header>
+    )
+  }
+
   if (!chatMetadata) {
     return (
       <header className="h-[8vh] px-4 bg-gradient-to-r from-white/5 to-white/[0.02] border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-white/5 animate-pulse"></div>
-          </div>
-          <div>
-            <p className="text-white text-sm font-semibold">Loading...</p>
-            <p className="text-white/40 text-xs">Fetching chat details</p>
-          </div>
+          <div className="relative"><div className="w-10 h-10 rounded-full bg-white/5 animate-pulse"></div></div>
+          <div><p className="text-white text-sm font-semibold">Loading...</p><p className="text-white/40 text-xs">Fetching chat details</p></div>
         </div>
-        <button className="w-4 p-2 hover:bg-white/10 rounded-lg transition-colors">
-          <span className="text-white/50 hover:text-white text-lg">⋮</span>
-        </button>
       </header>
     )
   }
@@ -58,20 +170,46 @@ const ChatHeader = ({ chatId, markReady }) => {
         </div>
         <div className="flex-1">
           <h1 className="text-white font-semibold text-sm">{chatMetadata.name}</h1>
-          <p className="text-xs text-white/40">
-            {chatMetadata.online.length} of {chatMetadata.people.length} online
-          </p>
+          <p className="text-xs text-white/40">{chatMetadata.online.length} of {chatMetadata.people.length} online</p>
         </div>
       </div>
-      <button className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200">
-        <span className="text-white/50 hover:text-white text-lg">⋮</span>
-      </button>
+
+      <div className="relative">
+        <button onClick={() => setMenuOpen((v) => !v)} className="px-3 py-2 rounded-lg bg-white/8 hover:bg-white/15 border border-white/10 text-white/80 text-xs">
+          Actions
+        </button>
+        {menuOpen && (
+          <div className="absolute top-12 right-0 w-44 rounded-lg border border-white/10 bg-black/90 p-1 z-30">
+            <button onClick={copyInviteLink} className="w-full text-left px-3 py-2 text-sm text-white/80 hover:bg-white/10 rounded">Invite</button>
+            <button onClick={() => setGroupSettingsOpen(true)} className="w-full text-left px-3 py-2 text-sm text-white/80 hover:bg-white/10 rounded">Settings</button>
+            <button onClick={leaveGroup} className="w-full text-left px-3 py-2 text-sm text-red-300 hover:bg-white/10 rounded" disabled={myRole === "owner" && (chatMetadata.people.length > 1)}>
+              {myRole === "owner" && (chatMetadata.people.length > 1) ? "Leave (owner blocked)" : "Leave"}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {groupSettingsOpen && (
+        <div className="fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-xl bg-neutral-900 border border-white/10 p-5 flex flex-col gap-3">
+            <h3 className="text-white font-semibold">Group Settings</h3>
+            <input className="input" value={groupName} onChange={(e) => setGroupName(e.target.value)} placeholder="Group title" />
+            <input type="file" accept="image/*" onChange={onGroupImageChange} className="text-xs text-white/70" />
+            <div className="flex gap-2 justify-end">
+              <button className="btn btn-ghost" onClick={() => setGroupSettingsOpen(false)}>Cancel</button>
+              <button className="btn btn-primary" onClick={saveGroupSettings} disabled={savingGroupSettings}>{savingGroupSettings ? "Saving..." : "Save"}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   )
 }
 
-const Sidebar = ({ auth, markReady }) => {
+const Sidebar = ({ auth, markReady, logout }) => {
   const [chats, setChats] = useState([]);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
 
   const fetchChats = async () => {
     try {
@@ -91,6 +229,26 @@ const Sidebar = ({ auth, markReady }) => {
 
     fetchChats();
   }, [auth]);
+
+  useEffect(() => {
+    const onRefreshGroups = () => {
+      if (!auth || !auth.isAuthenticated) return;
+      fetchChats();
+    };
+
+    window.addEventListener("groups:refresh", onRefreshGroups);
+    return () => window.removeEventListener("groups:refresh", onRefreshGroups);
+  }, [auth]);
+
+  const onLogout = async () => {
+    try {
+      await logout();
+      window.location.href = '/auth/login';
+    } catch (err) {
+      console.error('Logout failed:', err);
+      toast.error('Could not log out right now.');
+    }
+  }
 
   return (
     <aside className="sidebar flex flex-col h-full bg-gradient-to-b from-white/5 to-white/[0.02] border-r border-white/10">
@@ -129,18 +287,42 @@ const Sidebar = ({ auth, markReady }) => {
       </div>
 
       {/* User Panel */}
-      <div className="user-panel border-t border-white/10 p-3 bg-white/5">
+      <div className="user-panel border-t border-white/5 p-3 bg-white/[0.03]">
         <div className="flex items-center gap-3 w-full">
-          <img src="/2.png" alt="User avatar" className="w-10 h-10 rounded-full object-center" />
+          <div className="relative">
+            <button
+              onClick={() => setAccountMenuOpen((v) => !v)}
+              className="w-10 h-10 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] flex items-center justify-center"
+            >
+              <svg viewBox="0 0 24 24" className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" />
+                <path d="M4 20a8 8 0 0 1 16 0" />
+              </svg>
+            </button>
+            {accountMenuOpen && (
+              <div className="absolute bottom-12 left-0 w-44 rounded-lg border border-white/10 bg-black/90 p-1 z-40">
+                <button onClick={() => { setAccountSettingsOpen(true); setAccountMenuOpen(false); }} className="w-full text-left px-3 py-2 text-sm text-white/80 hover:bg-white/10 rounded">Settings</button>
+                <button onClick={onLogout} className="w-full text-left px-3 py-2 text-sm text-red-300 hover:bg-white/10 rounded">Logout</button>
+              </div>
+            )}
+          </div>
           <div className="flex-1 flex-row min-w-0">
             <h4 className="text-sm font-medium text-white truncate">{auth.user.username}</h4>
           </div>
-          {/* Fucking piece of shit, someone on the frontend mess-up the frontend (and im sure they will blame the AI) and now we have fucking 50 styles of buttons, i'm gonan kill someone */}
-          {/* In the mean time, this code stays as a TODO because this may be used, or may not and I don't wanna be going around and start searching for the fucking correct style */}
-          {/* <div className="justify-end">
-            <button className="btn btn-secondary btn-icon"><img src="/config.svg" /></button>
-          </div> */}
         </div>
+
+        {accountSettingsOpen && (
+          <div className="fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-4">
+            <div className="w-full max-w-md rounded-xl bg-neutral-900 border border-white/10 p-5 flex flex-col gap-3">
+              <h3 className="text-white font-semibold">Account Settings</h3>
+              <p className="text-sm text-white/60">Username</p>
+              <input className="input" value={auth.user.username} disabled />
+              <div className="flex justify-end">
+                <button className="btn btn-ghost" onClick={() => setAccountSettingsOpen(false)}>Close</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </aside>
   )
@@ -148,6 +330,7 @@ const Sidebar = ({ auth, markReady }) => {
 
 const ChatFooter = ({ cId, disabled }) => {
   const ws = useWebsocket();
+  const { auth } = useAuth();
   const fileInputRef = useRef(null);
 
   const [messageText, setMessageText] = useState("");
@@ -193,17 +376,28 @@ const ChatFooter = ({ cId, disabled }) => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     if (isSending || (!messageText.trim() && attachments.length === 0)) return;
+    if (!cId) return;
 
     setIsSending(true);
+
+    let encryptedBody = messageText;
+    try {
+      const hybridKey = await resolveChatHybridKey(cId, auth?.user?.username || "");
+      if (hybridKey && messageText.trim()) {
+        encryptedBody = await encryptMessageWithHybridKey(messageText, hybridKey);
+      }
+    } catch (err) {
+      console.error("Could not encrypt outgoing message, sending plaintext.", err);
+    }
 
     const cleanAttachments = attachments.map(({ previewUrl, ...rest }) => rest);
 
     const curated_object = {
       chat_id: cId,
-      body: messageText,
+      body: encryptedBody,
       attachments: cleanAttachments,
     };
 
@@ -347,10 +541,15 @@ const ChatFooter = ({ cId, disabled }) => {
 
 export const ChatOverlay = () => {
   const { chatId } = useParams();
-  const { auth, loading, error } = useAuth();
+  const { auth, loading, error, logout } = useAuth();
+  const hasChatSelected = Boolean(chatId);
 
-  const [readyStates, setReadyStates] = useState({ header: false, chats: false }); // TODO: More ready states for different components
+  const [readyStates, setReadyStates] = useState({ header: !hasChatSelected, chats: false }); // TODO: More ready states for different components
   const allReady = Object.values(readyStates).every(v => v === true);
+
+  useEffect(() => {
+    setReadyStates((prev) => ({ ...prev, header: !hasChatSelected }));
+  }, [hasChatSelected]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -362,14 +561,20 @@ export const ChatOverlay = () => {
   return (
     <WebsocketProvider>
       <div className="flex flex-row h-screen w-screen">
-        <Sidebar auth={auth} markReady={() => setReadyStates({ ...readyStates, chats: true })} />
+        <Sidebar auth={auth} logout={logout} markReady={() => setReadyStates((prev) => ({ ...prev, chats: true }))} />
 
         <div className="chatUI">
-          <ChatHeader chatId={chatId} markReady={() => setReadyStates({ ...readyStates, header: true })} />
+          <ChatHeader chatId={chatId} auth={auth} markReady={() => setReadyStates((prev) => ({ ...prev, header: true }))} />
           <div className="messages">
-            <Outlet />
+            {hasChatSelected ? (
+              <Outlet />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center">
+                <h1 className="text-2xl font-bold text-white">Select a chat to continue</h1>
+              </div>
+            )}
           </div>
-          <ChatFooter cId={chatId} disabled={!allReady} />
+          <ChatFooter cId={chatId} disabled={!allReady || !hasChatSelected} />
         </div>
       </div>
 
