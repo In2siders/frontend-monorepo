@@ -22,8 +22,8 @@ import * as CookiesMdx from './posts/cookies.mdx'
 const General404 = ({ toChats } = { toChats: false }) => (
   <Fragment>
     <h1>Page Not Found</h1>
-    <Link to={toChats ? "/chat/global-chat" : "/"} className="text-blue-500 hover:underline">
-      Go back to {toChats ? "Global Chat" : "Home"}
+    <Link to={toChats ? "/chat/" : "/"} className="text-blue-500 hover:underline">
+      Go back to {toChats ? "Chats" : "Home"}
     </Link>
   </Fragment>
 )
@@ -51,10 +51,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route index element={<ConditionalRoute condition={isAuthenticated} expectedValue={false} redirectTo="/chat/global-chat" element={<Home />} />} />
+        <Route index element={<ConditionalRoute condition={isAuthenticated} expectedValue={false} redirectTo="/chat/" element={<Home />} />} />
 
         {/* Auth Routes */}
-        <Route path="/auth" element={<ConditionalRoute condition={isAuthenticated} expectedValue={false} redirectTo="/chat/global-chat" />}>
+        <Route path="/auth" element={<ConditionalRoute condition={isAuthenticated} expectedValue={false} redirectTo="/chat/" />}>
           <Route path="register" element={<Register />} />
           <Route path="login" element={<Login />} />
           <Route path="*" element={<General404 />} />

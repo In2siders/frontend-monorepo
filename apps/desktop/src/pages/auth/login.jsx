@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button } from "@repo/components/button";
 import { apiFetch } from "@repo/connection/utils/api";
 import {
-  decompress,
   solveChallenge,
   getFromStorage,
 } from "@repo/connection/utils/userAuthentication";
@@ -34,9 +33,9 @@ const LoginWithName = ({ credentials, setCredentials }) => {
   );
 };
 
-const LoginWithFile = ({ credentials, setCredentials }) => {
+const LoginWithFile = () => {
   const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading,] = useState(false);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -159,12 +158,9 @@ function LoginPage() {
 
         if (solutionResponse.message && solutionResponse.data.session) {
           toast.success("Login successful!");
-          cookieStore.set("i2session", solutionResponse.data.session, {
-            path: "/",
-          });
 
           setLoading(false);
-          window.location.href = "/chat/0-general";
+          window.location.href = "/chat/";
         } else {
           toast.error("Login failed. Please check your credentials.");
         }
@@ -188,8 +184,6 @@ function LoginPage() {
       checkFn: () => true,
     },
   };
-
-  const Method = method === "username" ? LoginWithName : LoginWithFile;
 
   return (
     <motion.div

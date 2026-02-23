@@ -1,10 +1,15 @@
-import '@repo/common/style.css'
-import { useEffect, useState } from 'react'
-import { apiFetch, healthCheck } from '@repo/connection/utils/api'
-import { generateUserKey, compress, decompress, savePrivateKeyToIndexedDB } from '@repo/connection/utils/userAuthentication'
-import { Button } from '@repo/components/button'
-import { motion } from 'motion/react'
-import toast from 'react-hot-toast'
+import "@repo/common/style.css";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { apiFetch, healthCheck } from "@repo/connection/utils/api";
+import {
+  generateUserKey,
+  compress,
+  decompress,
+  savePrivateKeyToIndexedDB,
+} from "@repo/connection/utils/userAuthentication";
+import { Button } from "@repo/components/button";
+import { motion } from "motion/react";
+import toast from "react-hot-toast";
 
 /* Save user key to localStorage */
 const fnSaveKeyToLocalStorage = (u, key) => {
@@ -32,56 +37,28 @@ const fnSaveKeyToLocalStorage = (u, key) => {
   localStorage.setItem("upk", compressed);
 };
 
-const InvitationStep = ({ data, setData, signalReady }) => {
-  const [inviteCode, setInviteCode] = useState(data.inviteCode || '');
-
-  const onChange = (e) => {
-    const value = e.target.value.trim();
-    setInviteCode(value);
-    setData({ ...data, inviteCode: value });
-    signalReady(value.length >= 6);
-  }
-
-  return (
-    <>
-      <h1 className="title">Invitation Code</h1>
-      <p className="subtitle">Enter your invitation code to start registration</p>
-      <input
-        type="text"
-        value={inviteCode}
-        onChange={onChange}
-        placeholder="Paste invitation code"
-        className="input text-center p-5"
-        autoComplete="off"
-      />
-      <p className="text-sm text-white/60">Invitation verification will be enforced in a later backend step.</p>
-    </>
-  )
-}
-
 const FirstStep = ({ signalReady }) => (
-  <div className="flex flex-col items-center gap-2">
+  <div className="flex flex-col items-center space-y-2">
     <h1 className="title">Create Account</h1>
-    <p className="subtitle text-red-500 ">
-      {" "}
+    <p className="subtitle text-red-500 text-center">
       This application uses PGP keys for authentication.
     </p>
 
-    <div className="flex flex-col gap-2">
-      <p>
+    <div className="flex flex-col mt-2">
+      <p className="text-white/80">
         Both keys, public and private are generated in your browser and the
         private key is stored in your browser's local storage. The public key is
         sent to the server with your username to create your account.
       </p>
     </div>
 
-    <div className="warning">
+    <div className="warning rounded-md">
       <h2>Important</h2>
       <strong>
         If you clear your browser's local storage or use a different browser or
         device, you will lose access to your account.
       </strong>
-      <p>
+      <p className="text-sm">
         Make sure to back up your private key if you want to access your account
         from another device or after clearing your browser data.
       </p>
@@ -93,10 +70,12 @@ const FirstStep = ({ signalReady }) => (
         process.
       </p>
 
-      <p>
-        By clicking "Select username", you acknowledge that you understand the
-        implications of using PGP keys for authentication and the importance of
-        safeguarding your private key.
+      <p className="[&>a]:underline [&>a]:underline-offset-2">
+        By continuing, you acknowledge that you understand how the
+        authentication process works and the importance of keeping your private
+        key safe. You also agree to our{" "}
+        <a href="/legal/tos">Terms of Service</a> and{" "}
+        <a href="/legal/privacy">Privacy Policy</a>.
       </p>
     </div>
 
@@ -112,8 +91,8 @@ const FirstStep = ({ signalReady }) => (
             }
           }}
         />{" "}
-        I understand my private key must be kept safe and that losing it means
-        losing access to my account.
+        I understand the risks, readed the instructions and agree to the terms.
+        I want to create an account.
       </label>
     </div>
   </div>
@@ -186,104 +165,289 @@ const SecondStep = ({ data, setData, signalReady }) => {
             required
             pattern="^[a-zA-Z_-]{3,20}$"
           />
-          <span>Keys will be generated in the next step.</span>
+          <span className="text-sm text-white/75">
+            Offensive or inappropriate usernames are not allowed. We may take
+            actions against such usernames.
+          </span>
         </div>
       )}
     </>
   );
 };
 
+const KEY_GENERATION_CONFIG = {
+  minKeysRequired: 3,
+  selectionThreshold: 25,
+  progressInterval: 145,
+  progressIncrement: { min: 1, max: 4 },
+};
+
+function useKeyPoolGeneration(username, onKeySelected, onError) {
+  const keysPoolRef = useRef([]);
+  const [keysGenerated, setKeysGenerated] = useState(0);
+  const [selectedKey, setSelectedKey] = useState(null);
+  const isCancelledRef = useRef(false);
+
+  const selectRandomKey = useCallback(() => {
+    const pool = keysPoolRef.current;
+    if (pool.length === 0) return null;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }, []);
+
+  const generateKeysInBackground = useCallback(async () => {
+    isCancelledRef.current = false;
+    keysPoolRef.current = [];
+    setKeysGenerated(0);
+    setSelectedKey(null);
+
+    const generateSingleKey = async () => {
+      if (isCancelledRef.current) return null;
+      try {
+        return await generateUserKey(username);
+      } catch (err) {
+        console.error("Key generation error:", err);
+        return null;
+      }
+    };
+
+    const maxAttempts = 10;
+    let attempts = 0;
+
+    while (!isCancelledRef.current && attempts < maxAttempts) {
+      const keyPair = await generateSingleKey();
+      if (keyPair && !isCancelledRef.current) {
+        keysPoolRef.current.push(keyPair);
+        setKeysGenerated(keysPoolRef.current.length);
+      }
+      attempts++;
+    }
+  }, [username]);
+
+  const handleSelection = useCallback(
+    (progress) => {
+      if (selectedKey) return selectedKey;
+      if (progress < KEY_GENERATION_CONFIG.selectionThreshold) return null;
+      if (keysPoolRef.current.length === 0) return null;
+
+      const chosen = selectRandomKey();
+      if (chosen) {
+        setSelectedKey(chosen);
+        onKeySelected?.(chosen);
+      }
+      return chosen;
+    },
+    [selectedKey, selectRandomKey, onKeySelected],
+  );
+
+  const cancel = useCallback(() => {
+    isCancelledRef.current = true;
+  }, []);
+
+  return {
+    keysGenerated,
+    selectedKey,
+    generateKeysInBackground,
+    handleSelection,
+    cancel,
+    getPoolSize: () => keysPoolRef.current.length,
+  };
+}
+
+function KeyGenerationProgress({ progress, keysGenerated, error }) {
+  const isComplete = progress === 100 && !error;
+  const color = error ? "#f44336" : isComplete ? "#2ecc40" : "#6366f1";
+
+  return (
+    <div className="w-full flex flex-col items-center gap-4">
+      <div className="w-full flex flex-col gap-2">
+        <div
+          className="w-full h-3 rounded-full overflow-hidden"
+          style={{ backgroundColor: "rgba(255,255,255,0.1)" }}
+        >
+          <motion.div
+            className="h-full rounded-full"
+            style={{ backgroundColor: color }}
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          />
+        </div>
+        <div className="flex justify-between text-sm text-white/60">
+          <span>{progress}%</span>
+          <span>{keysGenerated} keys generated</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatusMessage({ progress, error, keysGenerated }) {
+  if (error) {
+    return (
+      <div className="text-center text-red-400">
+        <p className="font-semibold">Registration failed</p>
+        <p className="text-sm mt-1">{error}</p>
+      </div>
+    );
+  }
+
+  if (progress === 100) {
+    return (
+      <div className="text-center">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="text-4xl mb-2"
+        >
+          &#10003;
+        </motion.div>
+        <p className="text-green-400 font-semibold">Registration complete!</p>
+        <p className="text-sm text-white/60 mt-1">
+          {keysGenerated} keys were generated, one was randomly selected
+        </p>
+      </div>
+    );
+  }
+
+  const getPhase = () => {
+    if (progress < 25)
+      return { text: "Initializing secure key generation...", };
+    if (progress < 50)
+      return { text: "Generating cryptographic keys..." };
+    if (progress < 75)
+      return { text: "Selecting random key from pool..." };
+    return { text: "Finalizing registration..." };
+  };
+
+  const phase = getPhase();
+
+  return (
+    <div className="text-center">
+      <p className="text-white/80">{phase.text}</p>
+    </div>
+  );
+}
+
 function ThirdStep({ onBack, data, setData, signalReady }) {
   const [progress, setProgress] = useState(0);
-  const [error, setError] = useState([false, null]);
+  const [error, setError] = useState(null);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
+  const selectedKeyRef = useRef(null);
+
+  const handleKeySelected = useCallback((keyPair) => {
+    selectedKeyRef.current = keyPair;
+  }, []);
+
+  const { keysGenerated, generateKeysInBackground, handleSelection, cancel } =
+    useKeyPoolGeneration(data.username, handleKeySelected);
 
   useEffect(() => {
     let currentProgress = 0;
+    let progressInterval = null;
 
-    const int = setInterval(() => {
-      currentProgress += Math.floor(Math.random() * 4) + 1; // Incrementa entre 1 y 4
+    progressInterval = setInterval(() => {
       if (currentProgress >= 100) {
         currentProgress = 100;
-        clearInterval(int);
+        clearInterval(progressInterval);
+        return;
       }
+
+      const increment =
+        Math.floor(
+          Math.random() *
+            (KEY_GENERATION_CONFIG.progressIncrement.max -
+              KEY_GENERATION_CONFIG.progressIncrement.min +
+              1),
+        ) + KEY_GENERATION_CONFIG.progressIncrement.min;
+
+      currentProgress = Math.min(currentProgress + increment, 100);
       setProgress(currentProgress);
-    }, 145);
 
-    (async () => {
-      const { publicKey, privateKey } = await generateUserKey(data.username);
-      setData({ ...data, publicKey, privateKey });
-      fnSaveKeyToLocalStorage(data.username, privateKey);
-      await savePrivateKeyToIndexedDB(data.username, privateKey);
-      await apiFetch('/auth/register', {
-        method: 'POST',
-        body: JSON.stringify({ username: data.username, pk: publicKey })
-      });
-    })().catch((err) => {
-      console.error("Error during key generation:", err);
-      setError([true, err.message || "Unknown error"]);
-      clearInterval(int);
-    });
+      handleSelection(currentProgress);
+    }, KEY_GENERATION_CONFIG.progressInterval);
 
-    return () => clearInterval(int);
+    generateKeysInBackground();
+
+    const completeRegistration = async () => {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        let attempts = 0;
+        while (!selectedKeyRef.current && attempts < 50) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          handleSelection(Math.min(currentProgress + attempts * 2, 100));
+          attempts++;
+        }
+
+        if (!selectedKeyRef.current) {
+          const fallbackKey = await generateUserKey(data.username);
+          selectedKeyRef.current = fallbackKey;
+        }
+
+        const { publicKey, privateKey } = selectedKeyRef.current;
+        setData({ ...data, publicKey, privateKey });
+        fnSaveKeyToLocalStorage(data.username, privateKey);
+        await savePrivateKeyToIndexedDB(data.username, privateKey);
+
+        await apiFetch("/auth/register", {
+          method: "POST",
+          body: JSON.stringify({ username: data.username, pk: publicKey }),
+        });
+
+        setRegistrationComplete(true);
+      } catch (err) {
+        console.error("Registration error:", err);
+        setError(err.message || "Unknown error");
+        cancel();
+        if (progressInterval) clearInterval(progressInterval);
+      }
+    };
+
+    completeRegistration();
+
+    return () => {
+      if (progressInterval) clearInterval(progressInterval);
+      cancel();
+    };
   }, []);
 
   useEffect(() => {
-    if (progress !== 100) return;
-    if (error[0]) return;
+    if (progress !== 100 || error || !registrationComplete) return;
 
-    // Signal ready after short delay
     const timeout = setTimeout(() => {
       signalReady();
     }, 350);
 
     return () => clearTimeout(timeout);
-  }, [error, progress]);
+  }, [error, progress, registrationComplete]);
 
   return (
-    <>
-      <h1 className="title">Almost done!</h1>
-      <p>
-        {error[0]
-          ? "An error occurred during registration."
-          : progress === 100
-            ? "Registration complete!"
-            : "Generating your keys and registering your account..."}
-      </p>
-      {error[0] ? (
-        <div>
-          {error[0] && <p style={{ color: "red" }}>Error: {error[1]}</p>}
-        </div>
-      ) : (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "12px",
-            width: "100%",
-          }}
-        >
-          <div
-            style={{
-              width: "100%",
-              height: "12px",
-              background: "#eee",
-              borderRadius: "12px",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                width: `${progress}%`,
-                height: "100%",
-                backgroundColor: progress < 100 ? "#0e1fa1ff" : "#2ecc40",
-              }}
-            />
-          </div>
-          <span>{progress}%</span>
+    <div className="flex flex-col items-center gap-6 w-full">
+      <div className="text-center">
+        <h1 className="title text-2xl mb-2">Almost done!</h1>
+        <p className="text-white/60 text-sm">Creating your secure account</p>
+      </div>
+
+      <StatusMessage
+        progress={progress}
+        error={error}
+        keysGenerated={keysGenerated}
+      />
+
+      <KeyGenerationProgress
+        progress={progress}
+        keysGenerated={keysGenerated}
+        error={error}
+      />
+
+      {error && (
+        <div className="mt-4 p-4 rounded-lg bg-red-500/10 border border-red-500/30 w-full">
+          <p className="text-red-400 text-sm text-center">
+            An error occurred: {error}
+          </p>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
@@ -385,7 +549,11 @@ function FinalStep({ data, setData, signalReady }) {
 
 function RegisterPage() {
   const [step, setStep] = useState(0);
-  const [registerData, setRegisterData] = useState({ inviteCode: '', username: '', publicKey: '', privateKey: '' });
+  const [registerData, setRegisterData] = useState({
+    username: "",
+    publicKey: "",
+    privateKey: "",
+  });
   const [canContinue, setCanContinue] = useState(false);
   const [serverReady, setServerReady] = useState(false);
 
@@ -429,16 +597,14 @@ function RegisterPage() {
 
   const stepAssignment = [
     {
-      element: <InvitationStep data={registerData} setData={setRegisterData} signalReady={(v = true) => setCanContinue(v)} />,
-      outside: null,
-      button: <Button variant="ghost" size="small" asChild><a href="/">Back</a></Button>,
-      continueText: 'Continue',
-    },
-    {
       element: <FirstStep signalReady={(v = true) => setCanContinue(v)} />,
       outside: null,
-      button: <Button variant="ghost" size="small" onClick={() => setStep(0)}>Previous</Button>,
-      continueText: 'Select username',
+      button: (
+        <Button variant="ghost" size="small" asChild>
+          <a href="/">Back</a>
+        </Button>
+      ),
+      continueText: "Select username",
       scrollNeeded: true,
     },
     {
@@ -450,8 +616,12 @@ function RegisterPage() {
         />
       ),
       outside: null,
-      button: <Button variant="ghost" size="small" onClick={() => setStep(1)}>Previous</Button>,
-      continueText: 'Select username and generate keys',
+      button: (
+        <Button variant="ghost" size="small" onClick={() => setStep(0)}>
+          Previous
+        </Button>
+      ),
+      continueText: "Select username and generate keys",
       checkFn: async () => {
         if (registerData.username.length < 3) {
           toast.error("Username must be at least 3 characters long.");
@@ -481,8 +651,12 @@ function RegisterPage() {
         />
       ),
       outside: null,
-      button: <Button variant="ghost" size="small" onClick={() => setStep(2)}>Previous</Button>,
-      continueText: 'Continue to Final Step',
+      button: (
+        <Button variant="ghost" size="small" onClick={() => setStep(1)}>
+          Previous
+        </Button>
+      ),
+      continueText: "Continue to Final Step",
     },
     {
       element: (
@@ -495,15 +669,7 @@ function RegisterPage() {
         />
       ),
       outside: null,
-      button: (
-        <Button
-          variant="ghost"
-          size="small"
-          onClick={() => toast.info("You can't go back from here.")}
-        >
-          Previous
-        </Button>
-      ),
+      button: null,
       continueText: "No more steps",
     },
   ];
@@ -513,7 +679,7 @@ function RegisterPage() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="w-full flex flex-col items-center"
+      className="w-full flex flex-col items-center my-12"
     >
       <div className="mb-4">{stepAssignment[step].button}</div>
       <div

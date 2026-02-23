@@ -123,7 +123,7 @@ const LoginWithFile = ({ credentials, setCredentials }) => {
 
       toast.success(message);
       setTimeout(() => {
-        window.location.href = "/chat/TODO";
+        window.location.href = "/chat/";
       }, 1500);
     };
 
@@ -220,7 +220,7 @@ function LoginPage() {
           const success = await login(credentials.username);
           if (success) {
             toast.success("Login successful!");
-            window.location.href = "/chat/0-general";
+            window.location.href = "/chat/";
           } else {
             toast.error("Login failed. Please check your credentials.");
           }

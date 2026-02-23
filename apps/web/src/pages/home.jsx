@@ -28,7 +28,7 @@ export default function Home() {
           </Button>
         </div>
 
-        <a href="#" className="help-link">
+        <a href="/help" className="help-link">
           Need Help?
         </a>
       </div>
