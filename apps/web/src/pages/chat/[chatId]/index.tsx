@@ -9,7 +9,7 @@ import {
   resolveChatHybridKey,
   saveEncryptedChatHybridKey,
 } from "@repo/connection/utils/userAuthentication";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 import { useAuth } from "../../../hooks/useAuth";
 
@@ -84,7 +84,7 @@ export const ChatRoom = () => {
     scrollToBottom();
   }, [messageList]);
 
-  const hydrateMessage = async (msg: Message, clientSent: boolean): Promise<MessageListObject> => {
+  const hydrateMessage = useCallback(async (msg: Message, clientSent: boolean): Promise<MessageListObject> => {
     let processedMessage = msg;
     if (hybridKey && msg?.body) {
       try {
@@ -103,7 +103,7 @@ export const ChatRoom = () => {
       raw_data: msg,
       processed_data: processedMessage,
     };
-  };
+  }, [hybridKey, cId]);
 
   const message_proxy = async (body: { _push_id: string; _hash?: string; message: Message }) => {
     const clientHash = body._hash && body._hash.length > 0 ? body._hash : computeClientHash(body.message, cId);
