@@ -1,4 +1,10 @@
-import { Link, Outlet, useNavigate, useParams, useOutlet } from "react-router";
+import {
+  Link,
+  Outlet,
+  useNavigate,
+  useParams,
+  useLocation,
+} from "react-router";
 import {
   useWebsocket,
   WebsocketProvider,
@@ -460,7 +466,7 @@ const ChatFooter = ({ cId, disabled }) => {
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
-    const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB en bytes
+    const MAX_FILE_SIZE = 1 * 1024 * 1024;
 
     const validFiles = files.filter((file) => {
       if (file.size > MAX_FILE_SIZE) {
@@ -475,25 +481,42 @@ const ChatFooter = ({ cId, disabled }) => {
       return;
     }
 
-    const processedFiles = await Promise.all(
-      validFiles.map((file) => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const base64Data = reader.result.split(",")[1];
-            resolve({
-              filename: file.name,
-              mime_type: file.type,
-              data: base64Data,
-              previewUrl: reader.result,
+    const uploadPromises = validFiles.map((file) => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const base64Data = reader.result.split(",")[1];
+          try {
+            const res = await apiFetch("/attachments/upload", {
+              method: "POST",
+              body: JSON.stringify({
+                data: base64Data,
+                fileName: file.name,
+              }),
             });
-          };
-          reader.readAsDataURL(file);
-        });
-      }),
-    );
+            if (res.attachmentId) {
+              resolve({
+                attachmentId: res.attachmentId,
+                filename: file.name,
+                mime_type: file.type,
+                previewUrl: reader.result,
+              });
+            } else {
+              toast.error(`Failed to upload ${file.name}: ${res.error || "Unknown error"}`);
+              resolve(null);
+            }
+          } catch (err) {
+            toast.error(`Failed to upload ${file.name}`);
+            resolve(null);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    });
 
-    setAttachments((prev) => [...prev, ...processedFiles]);
+    const results = await Promise.all(uploadPromises);
+    const successful = results.filter(Boolean);
+    setAttachments((prev) => [...prev, ...successful]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -523,12 +546,12 @@ const ChatFooter = ({ cId, disabled }) => {
       );
     }
 
-    const cleanAttachments = attachments.map(({ previewUrl, ...rest }) => rest);
+    const attachmentIds = attachments.map((a) => a.attachmentId);
 
     const curated_object = {
       chat_id: cId,
       body: encryptedBody,
-      attachments: cleanAttachments,
+      attachments: attachmentIds,
     };
 
     ws.emit("message:send", curated_object, (response) => {
@@ -601,9 +624,6 @@ const ChatFooter = ({ cId, disabled }) => {
 
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-white truncate">{file.filename}</p>
-                  <p className="text-[10px] text-white/50">
-                    {(file.data.length / 1024).toFixed(1)} KB
-                  </p>
                 </div>
 
                 <button
@@ -686,10 +706,10 @@ const ChatFooter = ({ cId, disabled }) => {
 
 export const ChatOverlay = () => {
   const { chatId } = useParams();
-  const outlet = useOutlet();
+  const location = useLocation();
   const { auth, loading, error, logout } = useAuth();
   const hasChatSelected = Boolean(chatId);
-  const hasChildRoute = Boolean(outlet);
+  const isJoinRoute = location.pathname.includes("/chat/join/");
 
   const [readyStates, setReadyStates] = useState({
     header: !hasChatSelected,
@@ -718,7 +738,7 @@ export const ChatOverlay = () => {
         />
 
         <div className="chatUI">
-          {!hasChildRoute && (
+          {!isJoinRoute && (
             <ChatHeader
               chatId={chatId}
               auth={auth}
@@ -728,7 +748,7 @@ export const ChatOverlay = () => {
             />
           )}
           <div className="messages">
-            {hasChatSelected || hasChildRoute ? (
+            {hasChatSelected || isJoinRoute ? (
               <Outlet />
             ) : (
               <div className="h-full w-full flex items-center justify-center">
@@ -738,7 +758,7 @@ export const ChatOverlay = () => {
               </div>
             )}
           </div>
-          {!hasChildRoute && (
+          {!isJoinRoute && (
             <ChatFooter cId={chatId} disabled={!allReady || !hasChatSelected} />
           )}
         </div>
