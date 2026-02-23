@@ -80,13 +80,13 @@ export const WebsocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         else socketRef.current?.removeAllListeners(event);
     }, []);
 
-    const value: WSContext = {
+    const value: WSContext = React.useMemo(() => ({
         socket: socketRef.current,
         connected,
         emit,
         on,
         off,
-    };
+    }), [connected, emit, on, off]);
 
     return <WebsocketContext.Provider value={value}>{children}</WebsocketContext.Provider>;
 };
