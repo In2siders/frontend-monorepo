@@ -105,16 +105,20 @@ export const ChatRoom = () => {
     };
   }, [hybridKey, cId]);
 
+  const hydrateMessageRef = useRef(hydrateMessage);
+  useEffect(() => {
+    hydrateMessageRef.current = hydrateMessage;
+  }, [hydrateMessage]);
+
   const message_proxy = async (body: { _push_id: string; _hash?: string; message: Message }) => {
     const clientHash = body._hash && body._hash.length > 0 ? body._hash : computeClientHash(body.message, cId);
-    console.log("RECEIVED PROXY:", body);
     // No se que es esto, pero funciona, no lo toquen
     if (body._push_id && seenIdsRef.current.has(body._push_id)) return;
     if (clientHash && seenHashesRef.current.has(clientHash)) return;
     if (body._push_id) seenIdsRef.current.add(body._push_id);
     if (clientHash) seenHashesRef.current.add(clientHash);
 
-    const hydrated = await hydrateMessage(body.message, true);
+    const hydrated = await hydrateMessageRef.current(body.message, true);
     const curated_list: MessageListObject = {
       ...hydrated,
       _id: body._push_id,
@@ -175,8 +179,6 @@ export const ChatRoom = () => {
       if (!isCurrent) return; // Don't update if user switched rooms already
 
       if (response?.success && Array.isArray(response.data)) {
-        console.log("Data received from server:", response.data);
-
         const formatted = await Promise.all(response.data.map((msg) => hydrateMessage(msg, false)));
         if (!isCurrent) return;
         setPaginationOffset(formatted.length);
