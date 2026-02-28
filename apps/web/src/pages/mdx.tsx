@@ -22,7 +22,9 @@ type TocItem = {
 };
 
 function joinClassNames(...classNames: Array<string | undefined>) {
-  return classNames.filter(Boolean).join(" ");
+  const r = classNames.filter(Boolean).join(" ");
+  console.log("joinClassNames", classNames, "=>", r);
+  return r
 }
 
 function slugify(value: string) {
@@ -42,14 +44,14 @@ const LEGAL_LINKS = [
 
 function LegalNav({ current }: { current: string }) {
   return (
-    <nav className={styles.mxlegalNav}>
+    <nav className={styles.mdxlegalNav}>
       {LEGAL_LINKS.map((link) => (
         <Link
           key={link.path}
           to={link.path}
           className={joinClassNames(
-            styles.mxlegalNavLink,
-            current === link.path ? styles.mxlegalNavLinkActive : undefined,
+            styles.mdxlegalNavLink,
+            current === link.path ? styles.mdxlegalNavLinkActive : undefined,
           )}
         >
           {link.label}
@@ -232,72 +234,60 @@ export default function MdxPage({
   }, [Content]);
 
   const components = {
-    h1: (props) => (
-      <h1
-        className={joinClassNames(styles.h1, props.className)}
-        data-mdx
-        {...props}
-      />
-    ),
-    h2: (props) => (
-      <h2
-        className={joinClassNames(styles.h2, styles.headingTarget, props.className)}
-        data-mdx
-        {...props}
-      />
-    ),
-    h3: (props) => <h3 className={joinClassNames(styles.h3, styles.headingTarget, props.className)} data-mdx {...props} />,
-    p: (props) => <p className={joinClassNames(styles.p, props.className)} data-mdx {...props} />,
-    ul: (props) => <ul className={joinClassNames(styles.ul, props.className)} data-mdx {...props} />,
-    ol: (props) => <ol className={joinClassNames(styles.ol, props.className)} data-mdx {...props} />,
-    li: (props) => <li className={joinClassNames(styles.li, props.className)} data-mdx {...props} />,
-    a: (props) => <a className={joinClassNames(styles.a, props.className)} data-mdx {...props} />,
-    blockquote: (props) => <blockquote className={joinClassNames(styles.blockquote, props.className)} data-mdx {...props} />,
-    hr: (props) => <hr className={joinClassNames(styles.hr, props.className)} data-mdx {...props} />,
-    code: (props) => <code className={joinClassNames(styles.code, props.className)} data-mdx {...props} />,
-    pre: (props) => <pre className={joinClassNames(styles.pre, props.className)} data-mdx {...props} />,
-    strong: (props) => <strong className={joinClassNames(styles.strong, props.className)} data-mdx {...props} />,
-    table: (props) => (
-      <div className={styles.tableWrapper}>
-        <table className={joinClassNames(styles.table, props.className)} data-mdx {...props} />
+    h1: ({ className, ...props}) => <h1 className={joinClassNames(styles.mdxh1, styles.mdxheadingTarget, className)} {...props} />,
+    h2: ({ className, ...props}) => <h2 className={joinClassNames(styles.mdxh2, styles.mdxheadingTarget, className)} {...props} />,
+    h3: ({ className, ...props}) => <h3 className={joinClassNames(styles.mdxh3, styles.mdxheadingTarget, className)} {...props} />,
+    p: ({ className, ...props}) => <p className={joinClassNames(styles.mdxp, className)} {...props} />,
+    ul: ({ className, ...props}) => <ul className={joinClassNames(styles.mdxul, className)} {...props} />,
+    ol: ({ className, ...props}) => <ol className={joinClassNames(styles.mdxol, className)} {...props} />,
+    li: ({ className, ...props}) => <li className={joinClassNames(styles.mdxli, className)} {...props} />,
+    a: ({ className, ...props}) => <a className={joinClassNames(styles.mdxa, className)} {...props} />,
+    blockquote: ({ className, ...props}) => <blockquote className={joinClassNames(styles.mdxblockquote, className)} {...props} />,
+    hr: ({ className, ...props}) => <hr className={joinClassNames(styles.mdxhr, className)} {...props} />,
+    code: ({ className, ...props}) => <code className={joinClassNames(styles.mdxcode, className)} {...props} />,
+    pre: ({ className, ...props}) => <pre className={joinClassNames(styles.mdxpre, className)} {...props} />,
+    strong: ({ className, ...props}) => <strong className={joinClassNames(styles.mdxstrong, className)} {...props} />,
+    table: ({ className, ...props}) => (
+      <div className={styles.mdxtableWrapper}>
+        <table className={joinClassNames(styles.mdxtable, className)} {...props} />
       </div>
     ),
-    thead: (props) => <thead className={joinClassNames(styles.thead, props.className)} data-mdx {...props} />,
-    tbody: (props) => <tbody className={joinClassNames(styles.tbody, props.className)} data-mdx {...props} />,
-    tr: (props) => <tr className={joinClassNames(styles.tr, props.className)} data-mdx {...props} />,
-    th: (props) => <th className={joinClassNames(styles.th, props.className)} data-mdx {...props} />,
-    td: (props) => <td className={joinClassNames(styles.td, props.className)} data-mdx {...props} />,
+    thead: ({ className, ...props}) => <thead className={joinClassNames(styles.mdxthead, className)} {...props} />,
+    tbody: ({ className, ...props}) => <tbody className={joinClassNames(styles.mdxtbody, className)} {...props} />,
+    tr: ({ className, ...props}) => <tr className={joinClassNames(styles.mdxtr, className)} {...props} />,
+    th: ({ className, ...props}) => <th className={joinClassNames(styles.mdxth, className)} {...props} />,
+    td: ({ className, ...props}) => <td className={joinClassNames(styles.mdxtd, className)} {...props} />,
   }
 
   return (
-    <div className={styles.mxpage}>
-      <div className={styles.mxcontainer}>
-        <div className={styles.mxheaderRow}>
-          <span className={styles.mxproductLabel}>In2siders docs</span>
-          <Link to="/" className={styles.mxbackLink}>
+    <div className={styles.mdxpage}>
+      <div className={styles.mdxcontainer}>
+        <div className={styles.mdxheaderRow}>
+          <span className={styles.mdxproductLabel}>In2siders docs</span>
+          <Link to="/" className={styles.mdxbackLink}>
             Back home
           </Link>
         </div>
 
-        <div className={styles.mxlayout}>
-          <aside className={styles.mxsidebar}>
-            <div className={styles.mxsidebarIsland}>
-              <p className={styles.mxsidebarTitle}>On this page</p>
+        <div className={styles.mdxlayout}>
+          <aside className={styles.mdxsidebar}>
+            <div className={styles.mdxsidebarIsland}>
+              <p className={styles.mdxsidebarTitle}>On this page</p>
               {tocItems.length === 0 ? (
-                <p className={styles.mxemptyToc}>No sections yet.</p>
+                <p className={styles.mdxemptyToc}>No sections yet.</p>
               ) : (
                 <nav aria-label="Table of contents">
-                  <ul className={styles.mxtocList}>
+                  <ul className={styles.mdxtocList}>
                     {tocItems.map((item) => (
                       <li
                         key={item.id}
                         className={
                           item.level === 3
-                            ? styles.mxtocItemLevel3
-                            : styles.mxtocItemLevel2
+                            ? styles.mdxtocItemLevel3
+                            : styles.mdxtocItemLevel2
                         }
                       >
-                        <a href={`#${item.id}`} className={styles.mxtocLink}>
+                        <a href={`#${item.id}`} className={styles.mdxtocLink}>
                           {item.text}
                         </a>
                       </li>
@@ -308,12 +298,10 @@ export default function MdxPage({
             </div>
           </aside>
 
-          <main className={styles.mxmain}>
+          <main className={styles.mdxmain}>
             {legalNav && <LegalNav current={legalNav} />}
-            <article className={styles.mxarticle} ref={articleRef}>
-              <MDXProvider components={components}>
-                <Content />
-              </MDXProvider>
+            <article className={styles.mdxarticle} ref={articleRef}>
+              <Content components={components} />
             </article>
           </main>
         </div>

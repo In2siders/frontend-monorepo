@@ -48,150 +48,45 @@ We collect the minimum amount of data necessary to provide the Service. Below is
 
 ### 4.1. Account Data
 
-<table>
-  <thead>
-    <tr>
-      <th>Data</th>
-      <th>Purpose</th>
-      <th>Stored Where</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Username</strong></td>
-      <td>Account identification. Chosen by you; no real name required.</td>
-      <td>Server database</td>
-    </tr>
-    <tr>
-      <td><strong>PGP Public Key</strong></td>
-      <td>Cryptographic authentication and encrypting data addressed to you.</td>
-      <td>Server database</td>
-    </tr>
-    <tr>
-      <td><strong>Account Status</strong></td>
-      <td>Whether the account is active or deactivated.</td>
-      <td>Server database</td>
-    </tr>
-  </tbody>
-</table>
+|Data|Purpose|Stored Where|
+|---|---|---|
+|**Username**|Account identification. Chosen by you; no real name required.|Server database|
+|**PGP Public Key**|Cryptographic authentication and encrypting data addressed to you.|Server database|
+|**Account Status**|Whether the account is active or deactivated.|Server database|
 
 **We do NOT collect:** email addresses, real names, phone numbers, passwords, dates of birth, or government identification.
 
 ### 4.2. Session Data
 
-<table>
-  <thead>
-    <tr>
-      <th>Data</th>
-      <th>Purpose</th>
-      <th>Stored Where</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>IP Address</strong></td>
-      <td>Security: sessions are bound to your IP to prevent session hijacking. Also used to identify the origin of requests via Cloudflare headers.</td>
-      <td>Server database (tied to session record)</td>
-    </tr>
-    <tr>
-      <td><strong>Session Identifier</strong></td>
-      <td>Authenticating your requests across the Service.</td>
-      <td>Server database and browser cookie</td>
-    </tr>
-    <tr>
-      <td><strong>Session Timestamps</strong></td>
-      <td>Knowing when sessions were created and last used.</td>
-      <td>Server database</td>
-    </tr>
-  </tbody>
-</table>
+|Data|Purpose|Stored Where|
+|---|---|---|
+|**IP Address**|Security: sessions are bound to your IP to prevent session hijacking. Also used to identify the origin of requests via Cloudflare headers.|Server database (tied to session record)|
+|**Session Identifier**|Authenticating your requests across the Service.|Server database and browser cookie|
+|**Session Timestamps**|Knowing when sessions were created and last used.|Server database|
 
 ### 4.3. Message Data
 
-<table>
-  <thead>
-    <tr>
-      <th>Data</th>
-      <th>Purpose</th>
-      <th>Stored Where</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Message Content</strong></td>
-      <td>Delivering messages to Group members.</td>
-      <td>Server database and in-memory cache</td>
-    </tr>
-    <tr>
-      <td><strong>Message Metadata</strong></td>
-      <td>Timestamps, sender identification, and message integrity hashes.</td>
-      <td>Server database</td>
-    </tr>
-    <tr>
-      <td><strong>Message Transport Records</strong></td>
-      <td>Tracking which Users have received which messages.</td>
-      <td>Server database</td>
-    </tr>
-  </tbody>
-</table>
+|Data|Purpose|Stored Where|
+|---|---|---|
+**Message Content**|Delivering messages to Group members.|Server database and in-memory cache|
+**Message Metadata**|Timestamps, sender identification, and message integrity hashes.|Server database|
+**Message Transport Records**|Tracking which Users have received which messages.|Server database|
 
 ### 4.4. Group Data
 
-<table>
-  <thead>
-    <tr>
-      <th>Data</th>
-      <th>Purpose</th>
-      <th>Stored Where</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Group Name and Description</strong></td>
-      <td>Displaying Group information to members.</td>
-      <td>Server database</td>
-    </tr>
-    <tr>
-      <td><strong>Group Membership</strong></td>
-      <td>Managing who belongs to which Group, roles, and encrypted group keys.</td>
-      <td>Server database</td>
-    </tr>
-    <tr>
-      <td><strong>Group Invitation Codes</strong></td>
-      <td>Allowing Users to invite others to Groups. Codes expire after 3 days.</td>
-      <td>Server database</td>
-    </tr>
-    <tr>
-      <td><strong>Group Icons</strong></td>
-      <td>Optional group profile images.</td>
-      <td>S3-compatible object storage</td>
-    </tr>
-  </tbody>
-</table>
+|Data|Purpose|Stored Where|
+|---|---|---|
+**Group Name and Description**|Displaying Group information to members.|Server database|
+**Group Membership**|Managing who belongs to which Group, roles, and encrypted group keys.|Server database|
+**Group Invitation Codes**|Allowing Users to invite others to Groups. Codes expire after 3 days.|Server database|
+**Group Icons**|Optional group profile images.|S3-compatible object storage|
 
 ### 4.5. File Attachments
 
-<table>
-  <thead>
-    <tr>
-      <th>Data</th>
-      <th>Purpose</th>
-      <th>Stored Where</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Uploaded Files</strong></td>
-      <td>Files shared within Groups (max 1 MB per file).</td>
-      <td>S3-compatible private object storage</td>
-    </tr>
-    <tr>
-      <td><strong>File Metadata</strong></td>
-      <td>File names, MIME types, upload timestamps, and association with messages.</td>
-      <td>Server database</td>
-    </tr>
-  </tbody>
-</table>
+|Data|Purpose|Stored Where|
+|---|---|---|
+|**Uploaded Files**|Files shared within Groups (max 1 MB per file).||S3-compatible private object storage|
+|**File Metadata**|File names, MIME types, upload timestamps, and association with messages.|Server database|
 
 ### 4.6. Analytics Data
 
@@ -227,24 +122,10 @@ For clarity, we explicitly do **not** collect:
 
 If you are located in the European Economic Area (EEA), we process your Personal Data under the following legal bases:
 
-<table>
-  <thead>
-    <tr>
-      <th>Legal Basis</th>
-      <th>Data Processed</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Contractual Necessity</strong> (Art. 6(1)(b) GDPR)</td>
-      <td>Account data, session data, message data, group data, and attachments — all necessary to provide the Service you have agreed to use.</td>
-    </tr>
-    <tr>
-      <td><strong>Legitimate Interest</strong> (Art. 6(1)(f) GDPR)</td>
-      <td>IP address binding for session security; anonymous analytics to improve the Service. Our legitimate interest is balanced against your rights and does not override your fundamental rights and freedoms.</td>
-    </tr>
-  </tbody>
-</table>
+|Legal Basis|Data Processed|
+|---|---|
+|**Contractual Necessity** (Art. 6(1)(b) GDPR)|Account data, session data, message data, group data, and attachments — all necessary to provide the Service you have agreed to use.|
+|**Legitimate Interest** (Art. 6(1)(f) GDPR)|IP address binding for session security; anonymous analytics to improve the Service. Our legitimate interest is balanced against your rights and does not override your fundamental rights and freedoms.|
 
 We do not process Personal Data based on consent for core Service functionality, because no optional data is collected. If we introduce optional data collection in the future, we will seek your explicit consent.
 
@@ -275,27 +156,10 @@ We do **not** use your data for:
 
 We use a limited number of third-party services to operate the Service:
 
-<table>
-  <thead>
-    <tr>
-      <th>Provider</th>
-      <th>Purpose</th>
-      <th>Data Shared</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Cloudflare</strong></td>
-      <td>CDN, DDoS protection, and reverse proxy.</td>
-      <td>IP addresses and request headers (processed in transit; Cloudflare's privacy policy applies).</td>
-    </tr>
-    <tr>
-      <td><strong>S3-Compatible Object Storage</strong></td>
-      <td>Storing file attachments and group icons.</td>
-      <td>Uploaded files (stored with private ACL; not publicly accessible).</td>
-    </tr>
-  </tbody>
-</table>
+|Provider|Purpose|Data Shared|
+|---|---|---|
+|**Cloudflare**|CDN, DDoS protection, and reverse proxy.|IP addresses and request headers (processed in transit; Cloudflare's privacy policy applies).|
+|**S3-Compatible Object Storage**|Storing file attachments and group icons.|Uploaded files (stored with private ACL; not publicly accessible).|
 
 We do **not** use any third-party:
 
@@ -353,40 +217,14 @@ The security of your account fundamentally depends on the security of your **Pri
 
 ## 9. Data Retention
 
-<table>
-  <thead>
-    <tr>
-      <th>Data</th>
-      <th>Retention Period</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Account data</strong></td>
-      <td>Retained until you delete your account or we terminate it.</td>
-    </tr>
-    <tr>
-      <td><strong>Session data</strong></td>
-      <td>Sessions expire after 30 days. Invalidated sessions are deleted.</td>
-    </tr>
-    <tr>
-      <td><strong>Messages</strong></td>
-      <td>Retained as long as the associated Group exists, unless individually deleted.</td>
-    </tr>
-    <tr>
-      <td><strong>File attachments</strong></td>
-      <td>Retained as long as the associated message or Group exists.</td>
-    </tr>
-    <tr>
-      <td><strong>Group invitation codes</strong></td>
-      <td>Automatically expire and are deleted after 3 days.</td>
-    </tr>
-    <tr>
-      <td><strong>Analytics data</strong></td>
-      <td>Retained in aggregate, anonymized form. No personal data is included.</td>
-    </tr>
-  </tbody>
-</table>
+|Data|Retention Period|
+|---|---|
+|**Account data**|Retained until you delete your account or we terminate it.|
+|**Session data**|Sessions expire after 30 days. Invalidated sessions are deleted.|
+|**Messages**|Retained as long as the associated Group exists, unless individually deleted.|
+|**File attachments**|Retained as long as the associated message or Group exists.|
+|**Group invitation codes**|Automatically expire and are deleted after 3 days.|
+|**Analytics data**|Retained in aggregate, anonymized form. No personal data is included.|
 
 When data is deleted, we make commercially reasonable efforts to remove it from our active systems. Residual copies in backups may persist for a limited time before being overwritten.
 
@@ -417,6 +255,8 @@ You have the right to request restriction of processing of your Personal Data un
 ### 10.5. Right to Data Portability (Art. 20 GDPR)
 
 You have the right to receive your Personal Data in a structured, commonly used, and machine-readable format. Given the minimal data we collect, this primarily applies to your account data and messages.
+
+Data will be provided as is on the server, therefore messages will be in their encrypted form.
 
 ### 10.6. Right to Object (Art. 21 GDPR)
 

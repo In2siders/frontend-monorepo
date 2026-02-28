@@ -28,9 +28,17 @@ export default function Home() {
           </Button>
         </div>
 
-        <a href="/help" className="help-link">
-          Need Help?
-        </a>
+        <div className="space-x-4">
+          <a href="/legal/privacy" className="help-link">
+            Privacy Policy
+          </a>
+          <a href="/help" className="help-link">
+            Need Help?
+          </a>
+          <a href="/legal/tos" className="help-link">
+            Terms of Service
+          </a>
+        </div>
       </div>
     </motion.div>
   );

@@ -44,33 +44,10 @@ We use a minimal number of cookies, **all of which are strictly necessary** for 
 
 ### 4.1. First-Party Cookies
 
-<table>
-  <thead>
-    <tr>
-      <th>Cookie Name</th>
-      <th>Purpose</th>
-      <th>Type</th>
-      <th>Duration</th>
-      <th>Attributes</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>i2session</code></td>
-      <td><strong>Authentication</strong>. Contains your session identifier, which is used to authenticate your requests to our servers. This cookie is essential for staying logged in.</td>
-      <td>Persistent (first-party)</td>
-      <td>30 days</td>
-      <td><code>HttpOnly</code>, <code>Secure</code>, <code>SameSite=Lax</code></td>
-    </tr>
-    <tr>
-      <td><code>app_session</code></td>
-      <td><strong>Client-side session state</strong>. Stores session context used by the application to maintain your connection state.</td>
-      <td>Persistent (first-party)</td>
-      <td>7 days</td>
-      <td><code>SameSite=Lax</code>, <code>Path=/</code></td>
-    </tr>
-  </tbody>
-</table>
+| Cookie Name | Purpose | Type | Duration | Attributes |
+| --- | --- | --- | --- | --- |
+| <code>i2session</code> | **Authentication**. Contains your session identifier, which is used to authenticate your requests to our servers. This cookie is essential for staying logged in. | Persistent (first-party) | 30 days | <code>HttpOnly</code>, <code>Secure</code>, <code>SameSite=Lax</code> |
+| <code>app_session</code> | **Client-side session state**. Stores session context used by the application to maintain your connection state. | Persistent (first-party) | 7 days | <code>SameSite=Lax</code>, <code>Path=/</code> |
 
 ### 4.2. Third-Party Cookies
 
@@ -86,27 +63,11 @@ As we use Cloudflare as our CDN and security provider, Cloudflare may set its ow
 
 We use browser Local Storage to store the following data on your device:
 
-<table>
-  <thead>
-    <tr>
-      <th>Key</th>
-      <th>Purpose</th>
-      <th>Data Stored</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>upk</code></td>
-      <td><strong>Private Key Storage</strong>. Stores your PGP Private Key(s) in a compressed and base64-encoded format, mapped to your username(s). This is essential for authentication and decryption.</td>
-      <td>Compressed PGP Private Key data</td>
-    </tr>
-    <tr>
-      <td><code>disable-rybbit</code></td>
-      <td><strong>Analytics Opt-Out</strong>. When set to <code>"true"</code>, disables the self-hosted Rybbit analytics on development/localhost environments.</td>
-      <td>Boolean string</td>
-    </tr>
-  </tbody>
-</table>
+| Key | Purpose | Data Stored |
+| --- | --- | --- |
+| upk | **Private Key Storage**. Stores your PGP Private Key(s) in a compressed and base64-encoded format, mapped to your username(s). This is essential for authentication and decryption. | Compressed PGP Private Key data |
+| disable-rybbit | **Analytics Opt-Out**. When set to "true", disables the self-hosted Rybbit analytics on development/localhost environments. | Boolean string |
+
 
 ### Important Note About Local Storage
 

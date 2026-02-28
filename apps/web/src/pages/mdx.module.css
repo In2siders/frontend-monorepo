@@ -1,17 +1,17 @@
-.mx-page {
+.mdxpage {
   min-height: 100vh;
-  width: 100vw;
+  width: 100%;
   background: var(--background-color);
   color: var(--text-color);
 }
 
-.mx-container {
+.mdxcontainer {
   width: min(1200px, calc(100vw - 2rem));
   margin: 0 auto;
   padding: 1rem 0 2.5rem;
 }
 
-.mx-headerRow {
+.mdxheaderRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -19,7 +19,7 @@
   margin-bottom: 1.25rem;
 }
 
-.mx-productLabel {
+.mdxproductLabel {
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -27,7 +27,7 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
-.mx-backLink {
+.mdxbackLink {
   border: 1px solid var(--input-border);
   border-radius: 0.65rem;
   color: var(--text-color);
@@ -39,23 +39,23 @@
     color 0.2s ease;
 }
 
-.mx-backLink:hover {
+.mdxbackLink:hover {
   border-color: rgba(255, 255, 255, 0.7);
   color: #ffffff;
 }
 
-.layout {
+.mdxlayout {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
   gap: 1.25rem;
   align-items: start;
 }
 
-.sidebar {
+.mdxsidebar {
   position: relative;
 }
 
-.sidebarIsland {
+.mdxsidebarIsland {
   position: fixed;
   top: 5.5rem;
   left: max(1rem, calc((100vw - 1200px) / 2 + 1rem));
@@ -70,7 +70,7 @@
   overflow: auto;
 }
 
-.mx-sidebarTitle {
+.mdxsidebarTitle {
   margin: 0 0 0.75rem;
   font-size: 0.75rem;
   letter-spacing: 0.08em;
@@ -79,13 +79,13 @@
   font-weight: 700;
 }
 
-.mx-emptyToc {
+.mdxemptyToc {
   margin: 0;
   color: rgba(255, 255, 255, 0.35);
   font-size: 0.9rem;
 }
 
-.mx-tocList {
+.mdxtocList {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -94,16 +94,16 @@
   gap: 0.45rem;
 }
 
-.mx-tocItemLevel2,
-.mx-tocItemLevel3 {
+.mdxtocItemLevel2,
+.mdxtocItemLevel3 {
   margin: 0;
 }
 
-.mx-tocItemLevel3 {
+.mdxtocItemLevel3 {
   padding-left: 0.85rem;
 }
 
-.mx-tocLink {
+.mdxtocLink {
   color: rgba(255, 255, 255, 0.65);
   text-decoration: none;
   font-size: 0.92rem;
@@ -111,17 +111,17 @@
   transition: color 0.15s ease;
 }
 
-.mx-tocLink:hover {
+.mdxtocLink:hover {
   color: var(--text-color);
   text-decoration: underline;
   text-underline-offset: 0.22rem;
 }
 
-.mx-main {
+.mdxmain {
   min-width: 0;
 }
 
-.mx-article {
+.mdxarticle {
   background: var(--primary-color);
   border: 1px solid var(--secondary-color);
   border-radius: 1rem;
@@ -130,11 +130,11 @@
   max-width: 100%;
 }
 
-.mx-headingTarget {
+.mdxheadingTarget {
   scroll-margin-top: 1.2rem;
 }
 
-.h1, h1[data-mdx] {
+.mdxh1 {
   margin: 0.25rem 0 0.5rem;
   padding-bottom: 0.75rem;
   border-bottom: 3px solid rgba(255, 255, 255, 0.15);
@@ -146,7 +146,7 @@
   text-wrap: balance;
 }
 
-.h2, h2[data-mdx] {
+.mdxh2 {
   margin: 2.5rem 0 0.75rem;
   padding: 0 0 0.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
@@ -157,7 +157,7 @@
   color: #ffffff;
 }
 
-.h3, h3[data-mdx] {
+.mdxh3 {
   margin: 1.8rem 0 0.45rem;
   font-size: clamp(1rem, 1.4vw, 1.2rem);
   line-height: 1.22;
@@ -165,15 +165,14 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
-.p, p[data-mdx] {
+.mdxp {
   margin: 0.55rem 0;
   color: rgba(255, 255, 255, 0.62);
   font-size: 0.95rem;
   line-height: 1.75;
 }
 
-.ul, ul[data-mdx],
-.ol, ol[data-mdx] {
+.mdxul, .mdxol {
   margin: 0.7rem 0 0.9rem;
   padding-left: 1.35rem;
   color: rgba(255, 255, 255, 0.62);
@@ -181,23 +180,23 @@
   line-height: 1.7;
 }
 
-.li, li[data-mdx] {
+.mdxli {
   margin: 0.35rem 0;
   line-height: 1.65;
 }
 
-.a, a[data-mdx] {
+.mdxa {
   color: rgba(255, 255, 255, 0.85);
   text-decoration: underline;
   text-underline-offset: 0.22rem;
   transition: color 0.15s ease;
 }
 
-.a:hover, a[data-mdx]:hover {
+.mdxa:hover {
   color: #ffffff;
 }
 
-.blockquote, blockquote[data-mdx] {
+.mdxblockquote {
   margin: 1rem 0;
   border-left: 3px solid rgba(255, 255, 255, 0.25);
   background: var(--secondary-color);
@@ -206,13 +205,13 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
-.hr, hr[data-mdx] {
+.mdxhr {
   border: none;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   margin: 1.25rem 0;
 }
 
-.code, code[data-mdx] {
+.mdxcode {
   background: var(--secondary-color);
   color: rgba(255, 255, 255, 0.85);
   border-radius: 0.35rem;
@@ -220,7 +219,7 @@
   font-size: 0.88em;
 }
 
-.pre, pre[data-mdx] {
+.mdxpre {
   margin: 1rem 0;
   border: 1px solid var(--secondary-color);
   border-radius: 0.65rem;
@@ -230,37 +229,37 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
-.pre .code, pre[data-mdx] code[data-mdx] {
+.mdxpre .mdxcode {
   padding: 0;
   background: transparent;
 }
 
-.strong, strong[data-mdx] {
+.mdxstrong {
   color: var(--text-color);
   font-weight: 700;
 }
 
 /* ---- Tables ---- */
 
-.mx-tableWrapper {
+.mdxtableWrapper {
   overflow-x: auto;
   margin: 1rem 0;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.65rem;
 }
 
-.table, table[data-mdx] {
+.mdxtable {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
   line-height: 1.55;
 }
 
-.thead, thead[data-mdx] {
+.mdxthead {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.th, th[data-mdx] {
+.mdxth, .mdxthead {
   padding: 0.65rem 1rem;
   text-align: left;
   font-weight: 600;
@@ -269,30 +268,28 @@
   white-space: nowrap;
 }
 
-.td, td[data-mdx] {
+.mdxtd {
   padding: 0.6rem 1rem;
   color: rgba(255, 255, 255, 0.6);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   vertical-align: top;
 }
 
-.tbody .tr:last-child .td,
-tbody[data-mdx] tr[data-mdx]:last-child td[data-mdx] {
+.mdxtbody .tr:last-child .mdxtd {
   border-bottom: none;
 }
 
-.tr, tr[data-mdx] {
+.mdxtr {
   transition: background 0.12s ease;
 }
 
-.tbody .tr:hover,
-tbody[data-mdx] tr[data-mdx]:hover {
+.mdxtbody .mdxtr:hover {
   background: rgba(255, 255, 255, 0.03);
 }
 
 /* ---- Legal navigation ---- */
 
-.mx-legalNav {
+.mdxlegalNav {
   display: flex;
   gap: 0.35rem;
   margin-bottom: 1rem;
@@ -302,7 +299,7 @@ tbody[data-mdx] tr[data-mdx]:hover {
   border-radius: 0.75rem;
 }
 
-.mx-legalNavLink {
+.mdxlegalNavLink {
   flex: 1;
   text-align: center;
   padding: 0.55rem 0.8rem;
@@ -316,31 +313,31 @@ tbody[data-mdx] tr[data-mdx]:hover {
     color 0.15s ease;
 }
 
-.mx-legalNavLink:hover {
+.mdxlegalNavLink:hover {
   background: var(--secondary-color);
   color: rgba(255, 255, 255, 0.85);
 }
 
-.mx-legalNavLinkActive {
+.mdxlegalNavLinkActive {
   background: var(--secondary-color);
   color: var(--text-color);
 }
 
 @media (max-width: 980px) {
-  .mx-layout {
+  .mdxlayout {
     grid-template-columns: 1fr;
   }
 
-  .mx-sidebar {
+  .mdxsidebar {
     position: static;
     order: 2;
   }
 
-  .mx-main {
+  .mdxmain {
     order: 1;
   }
 
-  .mx-sidebarIsland {
+  .mdxsidebarIsland {
     position: static;
     width: auto;
     left: auto;
