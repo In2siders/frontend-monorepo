@@ -45,7 +45,7 @@ First of all, there may be a rollback to a few days before presenting to remove 
 - Add a guide to know how everything works (Via analytics we detected that a lot of users don't know how the app works.)
 - Add settings (for users and for groups)
 - Fix group icons (we need to patch for the new S3 system on the backend)
-- Mentions with @<user> (maybe using like discord with @<user-id>)
+- Mentions with @user (maybe using like discord with @user-id)
 
 And at this moment, there is no more plans that I can think. Team can add more if they have.
 
